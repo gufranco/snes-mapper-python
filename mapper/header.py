@@ -126,11 +126,21 @@ class Header:
         return f"<Header {self.title!r} {self.layout} at {self.at:#08x}>"
 
 
+def stub_by_length(size):
+    """Whether a file of that length carries a copier stub.
+
+    The test is only ever a length test, so it is written as one. Anything
+    deciding how a file is packaged can then answer without reading it, which on
+    a library that runs to gigabytes is the whole cost of the question.
+    """
+    if size <= COPIER_BYTES:
+        return False
+    return (size - COPIER_BYTES) % HALF_BANK == 0 or size % HALF_BANK == COPIER_BYTES
+
+
 def has_copier_stub(rom):
     """Whether a dump carries the 512 bytes a copier wrote in front of it."""
-    if len(rom) <= COPIER_BYTES:
-        return False
-    return (len(rom) - COPIER_BYTES) % HALF_BANK == 0 or len(rom) % HALF_BANK == COPIER_BYTES
+    return stub_by_length(len(rom))
 
 
 def _sits_where_it_says(found, at):

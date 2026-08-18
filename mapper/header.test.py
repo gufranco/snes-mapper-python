@@ -141,6 +141,10 @@ class CopierStubTest(unittest.TestCase):
     def test_a_length_of_no_recognised_shape_is_left_alone(self):
         self.assertFalse(header.has_copier_stub(bytes(1234)))
 
+    def test_the_length_form_answers_the_same_question(self):
+        for size in (0, 0x200, 0x8000, 0x8200, 0x20000, 0x20200, 1234):
+            self.assertEqual(header.stub_by_length(size), header.has_copier_stub(bytes(size)), size)
+
 
 if __name__ == "__main__":
     unittest.main()

@@ -28,6 +28,7 @@ from .header import (
     has_copier_stub,
     read,
     score,
+    stub_by_length,
 )
 from .image import (
     BANK,
@@ -91,5 +92,6 @@ __all__ = [
     "resolve",
     "score",
     "snes_to_file",
+    "stub_by_length",
     "window_to_file",
 ]
