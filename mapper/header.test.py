@@ -128,5 +128,19 @@ class ScoreTest(unittest.TestCase):
         self.assertLessEqual(header.score(b"\xff" * 0x10000, header.LOROM_HEADER), 0)
 
 
+class CopierStubTest(unittest.TestCase):
+    def test_a_whole_number_of_half_banks_carries_no_stub(self):
+        self.assertFalse(header.has_copier_stub(bytes(0x20000)))
+
+    def test_the_same_length_plus_the_stub_does(self):
+        self.assertTrue(header.has_copier_stub(bytes(0x20000 + header.COPIER_BYTES)))
+
+    def test_a_file_no_longer_than_the_stub_cannot_be_one(self):
+        self.assertFalse(header.has_copier_stub(bytes(header.COPIER_BYTES)))
+
+    def test_a_length_of_no_recognised_shape_is_left_alone(self):
+        self.assertFalse(header.has_copier_stub(bytes(1234)))
+
+
 if __name__ == "__main__":
     unittest.main()

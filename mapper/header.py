@@ -15,17 +15,19 @@ unusual cartridge.
 
 Some dumps also carry a copier stub in front of the image, which shifts every
 offset by a fixed amount. Detecting it is a length test rather than a content
-test, because the stub itself is not standardised, and the test lives in `dump`
-rather than here so that stripping a stub and looking past one cannot disagree.
+test, because the stub itself is not standardised: a file whose length is a whole
+number of half-banks plus 512 has one, and a file whose length is a whole number
+of half-banks does not.
 """
-
-from .dump import COPIER_BYTES, has_copier_stub
 
 LOROM_HEADER = 0x7FC0
 HIROM_HEADER = 0xFFC0
 EXHIROM_HEADER = 0x40FFC0
 
 CANDIDATES = (LOROM_HEADER, HIROM_HEADER, EXHIROM_HEADER)
+
+COPIER_BYTES = 0x200
+HALF_BANK = 0x8000
 
 HEADER_BYTES = 32
 TITLE_BYTES = 21
@@ -122,6 +124,13 @@ class Header:
 
     def __repr__(self):
         return f"<Header {self.title!r} {self.layout} at {self.at:#08x}>"
+
+
+def has_copier_stub(rom):
+    """Whether a dump carries the 512 bytes a copier wrote in front of it."""
+    if len(rom) <= COPIER_BYTES:
+        return False
+    return (len(rom) - COPIER_BYTES) % HALF_BANK == 0 or len(rom) % HALF_BANK == COPIER_BYTES
 
 
 def _sits_where_it_says(found, at):
