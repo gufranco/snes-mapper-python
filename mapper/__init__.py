@@ -23,6 +23,19 @@ from .header import (
     read,
     score,
 )
+from .image import (
+    BANK,
+    HALF,
+    WINDOW_FIRST_BANK,
+    NotWholeBanks,
+    address_to_file,
+    bank_count,
+    deinterleave,
+    file_to_snes,
+    interleave,
+    snes_to_file,
+    window_to_file,
+)
 from .layout import FAST, OPEN_BUS, REGISTERS, ROM, SAVE_RAM, SLOW, WORK_RAM, XSLOW, resolve
 from .models import MODELS, UnknownModelError, describe
 from .transfer import CHANNEL_BASE, CHANNEL_COUNT, ENABLE, Channel, Engine, Plan, channel_of
@@ -31,11 +44,13 @@ from .version import VERSION
 __version__ = VERSION
 
 __all__ = [
+    "BANK",
     "CHANNEL_BASE",
     "CHANNEL_COUNT",
     "ENABLE",
     "EXHIROM",
     "FAST",
+    "HALF",
     "HIROM",
     "HIROM_HEADER",
     "LOROM",
@@ -46,18 +61,27 @@ __all__ = [
     "ROM",
     "SAVE_RAM",
     "SLOW",
+    "WINDOW_FIRST_BANK",
     "WORK_RAM",
     "XSLOW",
     "Channel",
     "Engine",
     "Header",
     "NoHeader",
+    "NotWholeBanks",
     "Plan",
     "UnknownModelError",
     "__version__",
+    "address_to_file",
+    "bank_count",
     "channel_of",
+    "deinterleave",
     "describe",
+    "file_to_snes",
+    "interleave",
     "read",
     "resolve",
     "score",
+    "snes_to_file",
+    "window_to_file",
 ]

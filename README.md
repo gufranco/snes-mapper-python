@@ -17,7 +17,7 @@
 
 <p align="center">
   <a href="#quick-start">Quick start</a> &nbsp;|&nbsp;
-  <a href="#the-four-mistakes-this-exists-to-stop">The four mistakes</a> &nbsp;|&nbsp;
+  <a href="#the-mistakes-this-exists-to-stop">The mistakes</a> &nbsp;|&nbsp;
   <a href="#the-corpus-and-why-it-can-ship">Why the corpus is legal</a> &nbsp;|&nbsp;
   <a href="#what-a-real-library-actually-contains">What a library contains</a> &nbsp;|&nbsp;
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
@@ -111,7 +111,18 @@ python3 conformance/corpus.py
 #   386 agreed, 0 did not
 ```
 
-## The four mistakes this exists to stop
+## The mistakes this exists to stop
+
+### An interleaved dump is not stored in the order the console reads it
+
+```python
+from mapper import interleave, deinterleave
+
+deinterleave(interleave(image)) == image
+# True, and a patch applied without deinterleaving first lands in another bank
+```
+
+Some dumps store every bank's upper half first and every lower half afterwards. The console never sees it; it is an artefact of how the dump was taken. A patch written at a known address into an interleaved image lands half a bank away, in another bank's data, and nothing complains.
 
 ### Banks `$7E` and `$7F` are not cartridge
 
@@ -234,6 +245,7 @@ mapper/
   header.py       the thirty two bytes, and finding which candidate place holds them
   layout.py       where an address lands and what reaching it costs
   transfer.py     the eight channels, and planning what one would move
+  image.py        where a byte sits in a file, which is not where the console sees it
   models.py       what each layout is
   version.py      rewritten by the release job and by nothing else
 conformance/
@@ -254,6 +266,7 @@ for f in mapper/*.test.py conformance/*.test.py; do python3 "$f"; done
 | Layout | [`mapper/layout.test.py`](mapper/layout.test.py) | Regions, mirrors, speeds, offsets, whole-space coverage |
 | Transfer | [`mapper/transfer.test.py`](mapper/transfer.test.py) | Registers, the nibble index, arming, planning, wrapping |
 | Models | [`mapper/models.test.py`](mapper/models.test.py) | The catalogue, aliases, resolution |
+| Image | [`mapper/image.test.py`](mapper/image.test.py) | Interleaved dumps, windowed banks, and that every conversion is its own inverse |
 | Corpus | [`conformance/corpus.test.py`](conformance/corpus.test.py) | The whole shipped set, coverage, reporting |
 | Census | [`conformance/census.test.py`](conformance/census.test.py) | Walking a library, the tally, and that no title is recorded |
 
