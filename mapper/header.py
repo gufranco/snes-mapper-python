@@ -15,16 +15,17 @@ unusual cartridge.
 
 Some dumps also carry a copier stub in front of the image, which shifts every
 offset by a fixed amount. Detecting it is a length test rather than a content
-test, because the stub itself is not standardised.
+test, because the stub itself is not standardised, and the test lives in `dump`
+rather than here so that stripping a stub and looking past one cannot disagree.
 """
+
+from .dump import COPIER_BYTES, has_copier_stub
 
 LOROM_HEADER = 0x7FC0
 HIROM_HEADER = 0xFFC0
 EXHIROM_HEADER = 0x40FFC0
 
 CANDIDATES = (LOROM_HEADER, HIROM_HEADER, EXHIROM_HEADER)
-
-COPIER_BYTES = 0x200
 
 HEADER_BYTES = 32
 TITLE_BYTES = 21
@@ -163,7 +164,7 @@ def score(rom, at):
 
 def offsets(rom):
     """Every place a header could be, including past a copier stub."""
-    shift = COPIER_BYTES if len(rom) % 0x8000 == COPIER_BYTES else 0
+    shift = COPIER_BYTES if has_copier_stub(rom) else 0
     return [candidate + shift for candidate in CANDIDATES]
 
 

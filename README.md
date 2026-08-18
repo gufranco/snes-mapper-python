@@ -113,6 +113,17 @@ python3 conformance/corpus.py
 
 ## The mistakes this exists to stop
 
+### A file on disk is not yet a cartridge
+
+```python
+from mapper import dump, read
+
+read(dump.read("game.smc")).layout
+# 'lorom', because the copier's 512-byte stub came off first
+```
+
+A copier writes 512 bytes in front of the image describing what it just read. That shifts every offset in the file by an amount that appears nowhere in the file, so a tool that forgets it reads the right bytes from the wrong place and reports something plausible. A Game Doctor splits the image across numbered files, of which only the first carries that stub.
+
 ### An interleaved dump is not stored in the order the console reads it
 
 ```python
@@ -242,6 +253,7 @@ The header itself recognises `sa1` and `spc7110` as declared layouts, because re
 ```
 mapper/
   __init__.py     the package
+  dump.py         what a file on disk is before any of it is a cartridge
   header.py       the thirty two bytes, and finding which candidate place holds them
   layout.py       where an address lands and what reaching it costs
   transfer.py     the eight channels, and planning what one would move
@@ -262,6 +274,7 @@ for f in mapper/*.test.py conformance/*.test.py; do python3 "$f"; done
 
 | Suite | File | Covers |
 |:------|:-----|:-------|
+| Dump | [`mapper/dump.test.py`](mapper/dump.test.py) | Copier stubs, split sets, compression ratios, reuse between images |
 | Header | [`mapper/header.test.py`](mapper/header.test.py) | Candidate places, copier stubs, every field, scoring |
 | Layout | [`mapper/layout.test.py`](mapper/layout.test.py) | Regions, mirrors, speeds, offsets, whole-space coverage |
 | Transfer | [`mapper/transfer.test.py`](mapper/transfer.test.py) | Registers, the nibble index, arming, planning, wrapping |
