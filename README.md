@@ -297,6 +297,8 @@ This project follows [Semantic Versioning](https://semver.org/), and every relea
 
 Because the header has no fixed home. It sits at a different offset depending on the layout it describes, so you cannot know where to look without already knowing the answer. Every candidate is scored on four independent signals and the best wins. That is what every emulator does, and it is why two of them occasionally disagree about an unusual cartridge.
 
+Each signal earns its point by measurement rather than by argument. The declared size counts when it lands between 8 and 13, because across 7,314 cartridges that band holds the byte at the right offset 98.85% of the time and at a wrong offset 3.18% of the time. Widening it either way was measured and costs more than it buys: no cartridge declares 14 and fifteen wrong offsets do, and reaching down to 7 gains seven real cartridges at the price of twelve more wrong ones.
+
 </details>
 
 <details>

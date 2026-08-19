@@ -127,6 +127,32 @@ class ScoreTest(unittest.TestCase):
     def test_a_header_of_noise_scores_nothing(self):
         self.assertLessEqual(header.score(b"\xff" * 0x10000, header.LOROM_HEADER), 0)
 
+    def test_every_size_a_real_cartridge_declares_counts_towards_a_header(self):
+        for declared in range(header.SMALLEST_PLAUSIBLE_SIZE, header.LARGEST_PLAUSIBLE_SIZE + 1):
+            scored = header.score(a_cartridge(rom_size=declared), header.LOROM_HEADER)
+
+            self.assertGreaterEqual(scored, 3, declared)
+
+    def test_a_size_larger_than_any_cartridge_ever_made_does_not(self):
+        larger = header.LARGEST_PLAUSIBLE_SIZE + 1
+        inside = header.score(
+            a_cartridge(rom_size=header.LARGEST_PLAUSIBLE_SIZE), header.LOROM_HEADER
+        )
+
+        self.assertEqual(
+            header.score(a_cartridge(rom_size=larger), header.LOROM_HEADER), inside - 1
+        )
+
+    def test_and_neither_does_one_smaller_than_the_band(self):
+        smaller = header.SMALLEST_PLAUSIBLE_SIZE - 1
+        inside = header.score(
+            a_cartridge(rom_size=header.SMALLEST_PLAUSIBLE_SIZE), header.LOROM_HEADER
+        )
+
+        self.assertEqual(
+            header.score(a_cartridge(rom_size=smaller), header.LOROM_HEADER), inside - 1
+        )
+
 
 class CopierStubTest(unittest.TestCase):
     def test_a_whole_number_of_half_banks_carries_no_stub(self):

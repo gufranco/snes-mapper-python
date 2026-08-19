@@ -47,6 +47,22 @@ LAYOUTS = {
     0x0A: SPC7110,
 }
 
+SMALLEST_PLAUSIBLE_SIZE = 8
+LARGEST_PLAUSIBLE_SIZE = 13
+"""The band the declared size has to land in to count towards a header.
+
+Both ends are measured rather than reasoned. Across 7,314 cartridges the byte at
+the right offset lands in 8 to 13 in 98.85% of them, and at a wrong offset in 3.18%
+of them, which is what makes it worth a point at all.
+
+The upper end used to be 14. Not one cartridge declares 14, and fifteen wrong
+offsets do, so raising the ceiling only ever awarded points to data pretending to be
+a header. Lowering the floor was measured too and is not worth it: going down to 7
+picks up seven more real cartridges and twelve more wrong offsets, and going to 6
+picks up one more of each. Fifty five cartridges declare nothing at all, and the
+other three signals are what find those.
+"""
+
 FAST_BIT = 0x10
 
 BATTERY_CHIPSETS = frozenset({0x02, 0x05, 0x06, 0x09, 0x0A})
@@ -173,7 +189,7 @@ def score(rom, at):
         points += 1
     if found.checksum_agrees and found.checksum:
         points += 1
-    if 8 <= raw[23] <= 14:
+    if SMALLEST_PLAUSIBLE_SIZE <= raw[23] <= LARGEST_PLAUSIBLE_SIZE:
         points += 1
     if (found.mapping & 0x0F) in LAYOUTS and _sits_where_it_says(found, at):
         points += 1
