@@ -36,8 +36,30 @@ DEFAULT_CORPUS = Path(__file__).resolve().parent / "corpus.json"
 TITLE = b"CORPUS CARTRIDGE     "
 CHECKSUM = 0x5A5A
 
-LOROM_SIZE = 0x100000
-HIROM_SIZE = 0x200000
+SIZE_FOR_OFFSET = {
+    header.LOROM_HEADER: 0x100000,
+    header.HIROM_HEADER: 0x200000,
+    header.EXHIROM_HEADER: 0x600000,
+}
+"""How large a stand-in has to be for each offset to exist inside it."""
+
+PROBES = (
+    0x000100,
+    0x002100,
+    0x004200,
+    0x00420B,
+    0x004300,
+    0x008000,
+    0x018000,
+    0x400000,
+    0x700000,
+    0x7E0000,
+    0x7F0000,
+    0x808000,
+    0xC00000,
+    0xFFFFFF,
+)
+"""The addresses each case is asked about: one per region a layout can reach."""
 
 
 def load(path=None):
@@ -53,12 +75,12 @@ def cartridge_for(case):
     because a header is all this package reads and a cartridge's contents are not
     ours to carry.
     """
-    at = (
-        header.LOROM_HEADER
-        if case["expect"]["at"] & 0xFFFF == header.LOROM_HEADER
-        else header.HIROM_HEADER
-    )
-    rom = bytearray(LOROM_SIZE if at == header.LOROM_HEADER else HIROM_SIZE)
+    at = case["expect"]["at"]
+    if at not in SIZE_FOR_OFFSET:
+        at = at - header.COPIER_BYTES if at - header.COPIER_BYTES in SIZE_FOR_OFFSET else at
+    if at not in SIZE_FOR_OFFSET:
+        at = header.LOROM_HEADER if at & 0xFFFF == header.LOROM_HEADER else header.HIROM_HEADER
+    rom = bytearray(SIZE_FOR_OFFSET[at])
     rom[at : at + 21] = TITLE
     rom[at + 21] = case["mapping"]
     rom[at + 22] = case["chipset"]

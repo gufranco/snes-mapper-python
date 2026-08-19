@@ -1,0 +1,193 @@
+"""Cartridges their owner supplies, identified before any of them is read.
+
+The corpus beside this is a recording. This is what the recording was taken from:
+a retail library, walked whole, every header read and checked against what the
+model says it is. A corpus proves the model has not drifted since it was recorded.
+Only the library proves the recording was right in the first place.
+
+Every file is checked against all four of its digests rather than only the one that
+decides. A file can be the right length under the right name and still be a bad
+dump, and a manifest that publishes a crc32 beside a sha256 and then never looks at
+the crc32 is publishing decoration.
+
+Only retail releases are listed. A modified release, a translation and a prototype
+can each carry an edited header, and a header read out of one describes somebody's
+edit rather than a cartridge that was manufactured.
+
+Nothing here carries any part of a cartridge. A name, a length and four digests are
+measurements, and a digest reconstructs nothing.
+"""
+
+import hashlib
+import json
+import os
+import zlib
+from pathlib import Path
+
+ROOT = Path(__file__).resolve().parent.parent
+
+MANIFEST = ROOT / "cartridges.manifest.json"
+
+DIRECTORY_VARIABLE = "SNES_CARTRIDGE_DIR"
+
+DEFAULT_DIRECTORY = ROOT / "cartridges"
+
+ALONGSIDE = ROOT.parent / "cartridges"
+"""Where a project carrying this one as a submodule keeps its own library.
+
+Standalone, the directory in this repository is the one that matters. As a
+submodule the parent owns the library, and asking its owner for a second copy of
+four gigabytes because the path moved is not a reasonable thing to do.
+"""
+
+READABLE_SUFFIXES = (".sfc", ".smc")
+
+DIGESTS = ("crc32", "md5", "sha1", "sha256")
+
+DECIDES = "sha256"
+
+DIGEST_WIDTHS = {"crc32": 8, "md5": 32, "sha1": 40, "sha256": 64}
+
+WHY_NOT = (
+    "no cartridge was found: these tests read the header of a real cartridge, and a"
+    " cartridge belongs to whoever made it, so copies you already own go in the"
+    f" cartridges directory of this repository or wherever {DIRECTORY_VARIABLE} points"
+)
+
+
+class Unrecognised(Exception):
+    pass
+
+
+class Corrupt(Exception):
+    pass
+
+
+class Identity:
+    """What a cartridge turned out to be."""
+
+    def __init__(self, name, title, size, layout, sha256):
+        self.name = name
+        self.title = title
+        self.size = size
+        self.layout = layout
+        self.sha256 = sha256
+
+    def __repr__(self):
+        return f"<Identity {self.name}, {self.title}, {self.size} bytes>"
+
+
+def digests_of(image):
+    """Every digest this manifest publishes, for one file."""
+    return {
+        "crc32": f"{zlib.crc32(image) & 0xFFFFFFFF:08x}",
+        "md5": hashlib.md5(image).hexdigest(),
+        "sha1": hashlib.sha1(image).hexdigest(),
+        "sha256": hashlib.sha256(image).hexdigest(),
+    }
+
+
+def manifest(path=None):
+    with Path(path or MANIFEST).open() as handle:
+        return json.load(handle)
+
+
+def directories(environment=None):
+    """Everywhere a cartridge is looked for, nearest intent first."""
+    named = (environment if environment is not None else os.environ).get(DIRECTORY_VARIABLE)
+    places = [Path(named)] if named else []
+    return (*places, DEFAULT_DIRECTORY, ALONGSIDE)
+
+
+def directory(environment=None, places=None):
+    """Where to look: what was named, or the first place that is actually there.
+
+    A named directory wins even when it is empty or missing. Quietly falling back
+    from a path somebody typed turns their typo into a run that skips its tests and
+    reports success, which is the failure this whole file exists to avoid.
+    """
+    named = (environment if environment is not None else os.environ).get(DIRECTORY_VARIABLE)
+    if named:
+        return Path(named)
+    for place in places if places is not None else directories(environment):
+        if place.is_dir():
+            return place
+    return DEFAULT_DIRECTORY
+
+
+def identify(image, catalogue=None):
+    """Which cartridge this is, or why it is not one the manifest knows."""
+    found = digests_of(image)
+    entries = (catalogue or manifest())["cartridges"]
+
+    for entry in entries:
+        if entry[DECIDES] != found[DECIDES]:
+            continue
+        _confirm(entry, found)
+        return Identity(
+            name=entry["name"],
+            title=entry["title"],
+            size=entry["bytes"],
+            layout=entry["layout"],
+            sha256=entry[DECIDES],
+        )
+
+    raise Unrecognised(_diagnosis(image, found, entries))
+
+
+def _confirm(entry, found):
+    """Every other digest the manifest publishes has to agree as well.
+
+    Reaching here means the deciding digest already matched, so a disagreement is
+    not a different file: it is a manifest contradicting itself, which is worth
+    saying out loud rather than passing over.
+    """
+    for name in DIGESTS:
+        if name == DECIDES or name not in entry:
+            continue
+        if entry[name].lower() != found[name]:
+            raise Corrupt(
+                f"{entry['name']} matches on {DECIDES} but not on {name}:"
+                f" the manifest says {entry[name]} and the file gives {found[name]}."
+                " A manifest that disagrees with itself was edited by hand or built"
+                " from two different copies"
+            )
+
+
+def _diagnosis(image, found, entries):
+    same_length = [entry for entry in entries if entry["bytes"] == len(image)]
+
+    if same_length:
+        names = ", ".join(entry["name"] for entry in same_length[:3])
+        return (
+            f"this is {len(image)} bytes, the length of {names}, but its content is"
+            f" altered: its sha256 is {found['sha256']} and no cartridge listed has"
+            " that. A file of the right length with the wrong content is usually a"
+            " modified release, a translation, or a bad dump"
+        )
+
+    return (
+        f"this is {len(image)} bytes and no cartridge listed has that length."
+        f" Its sha256 is {found['sha256']}, its crc32 is {found['crc32']}."
+        " A file a few hundred bytes longer than a round number carries a copier stub"
+    )
+
+
+def found(where=None, catalogue=None):
+    """Every cartridge on disk the manifest recognises, with the file it came from."""
+    where = Path(where) if where is not None else directory()
+    if not where.is_dir():
+        return
+
+    catalogue = catalogue or manifest()
+    for path in sorted(where.rglob("*")):
+        if path.suffix.lower() not in READABLE_SUFFIXES or not path.is_file():
+            continue
+        try:
+            yield identify(path.read_bytes(), catalogue), path
+        except Unrecognised:
+            continue
+
+
+def present(where=None, catalogue=None):
+    return tuple(found(where, catalogue))

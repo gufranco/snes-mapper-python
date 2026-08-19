@@ -98,5 +98,73 @@ class ReachTest(unittest.TestCase):
                 self.assertIn(found.region, layout.REGIONS)
 
 
+class ExtendedHighTest(unittest.TestCase):
+    """The extended layout reaches past four megabytes; the plain high one cannot.
+
+    Its two halves are swapped relative to where a reader expects them. The banks
+    the console boots from carry the second half of the image, which is the whole
+    reason an extended cartridge keeps its header at 0x40FFC0.
+    """
+
+    def test_a_low_bank_reaches_the_far_half_of_the_image(self):
+        found = layout.resolve(layout.EXHIROM, 0x00FFC0)
+
+        self.assertEqual(found.offset, 0x40FFC0)
+
+    def test_a_high_bank_reaches_the_near_half(self):
+        found = layout.resolve(layout.EXHIROM, 0xC0FFC0)
+
+        self.assertEqual(found.offset, 0x00FFC0)
+
+    def test_the_far_half_runs_to_the_top_of_the_low_banks(self):
+        found = layout.resolve(layout.EXHIROM, 0x7DFFFF)
+
+        self.assertEqual(found.offset, 0x7DFFFF)
+
+    def test_the_near_half_runs_to_the_top_of_the_space(self):
+        found = layout.resolve(layout.EXHIROM, 0xFFFFFF)
+
+        self.assertEqual(found.offset, 0x3FFFFF)
+
+    def test_the_plain_high_layout_never_reaches_past_four_megabytes(self):
+        for address in (0x00FFC0, 0x7DFFFF, 0xC0FFC0, 0xFFFFFF):
+            self.assertLess(layout.resolve(layout.HIROM, address).offset, 0x400000)
+
+    def test_the_two_layouts_disagree_wherever_the_extended_one_is_the_point(self):
+        plain = layout.resolve(layout.HIROM, 0x00FFC0).offset
+        extended = layout.resolve(layout.EXHIROM, 0x00FFC0).offset
+
+        self.assertNotEqual(plain, extended)
+
+    def test_a_mirrored_low_bank_reaches_the_far_half_as_well(self):
+        found = layout.resolve(layout.EXHIROM, 0x30FFC0)
+
+        self.assertEqual(found.offset, 0x70FFC0)
+
+    def test_the_extended_layout_keeps_the_save_window_the_high_one_has(self):
+        found = layout.resolve(layout.EXHIROM, 0x206000)
+
+        self.assertEqual(found.region, layout.SAVE_RAM)
+
+    def test_work_ram_is_still_decided_before_any_cartridge_half(self):
+        found = layout.resolve(layout.EXHIROM, 0x7E0000)
+
+        self.assertEqual(found.region, layout.WORK_RAM)
+
+    def test_every_address_in_the_space_resolves_under_the_extended_layout(self):
+        for bank in range(0, 0x100, 7):
+            for page in range(0, 0x10000, 0x1000):
+                found = layout.resolve(layout.EXHIROM, (bank << 16) | page)
+
+                self.assertIn(found.region, layout.REGIONS)
+
+    def test_no_cartridge_offset_it_produces_falls_outside_the_largest_image(self):
+        for bank in range(0, 0x100):
+            found = layout.resolve(layout.EXHIROM, (bank << 16) | 0xFFFF)
+
+            if found.is_rom:
+                self.assertLess(found.offset, layout.EXHIROM_BYTES)
+
+
 if __name__ == "__main__":
     unittest.main()

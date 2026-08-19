@@ -63,6 +63,31 @@ picks up one more of each. Fifty five cartridges declare nothing at all, and the
 other three signals are what find those.
 """
 
+DECLARED_HIGH_NIBBLES = (0x2, 0x3)
+"""The two high nibbles every real mapping byte carries.
+
+Ten mapping bytes exist and all of them are 0x2x or 0x3x. A byte outside that
+range is not a mapping byte at all, and the usual reason is a title of twenty two
+characters overflowing its twenty one byte field and writing its last letter here.
+Contra III leaves an S, Krusty's Super Fun House and Space Football leave an E,
+and the low nibble of a letter names a layout the cartridge does not have.
+
+Across 7,314 cartridges 98.47% carry a byte in this range. Of the 112 that do not,
+51 were being given the wrong layout, the wrong bus speed, or both.
+"""
+
+FAMILY_OF_OFFSET = {
+    LOROM_HEADER: LOROM,
+    HIROM_HEADER: HIROM,
+    EXHIROM_HEADER: EXHIROM,
+}
+"""What the place a header sits says, for when the byte that should say is junk.
+
+Only consulted for an undeclared mapping byte. A declared one is believed even
+where it disagrees with the offset, because ExHiROM puts its header where HiROM
+does whenever the image is small enough that the far copy would sit past the end.
+"""
+
 FAST_BIT = 0x10
 
 BATTERY_CHIPSETS = frozenset({0x02, 0x05, 0x06, 0x09, 0x0A})
@@ -122,13 +147,25 @@ class Header:
         return self.checksum ^ self.complement == 0xFFFF
 
     @property
+    def declared(self):
+        """Whether the byte at the mapping position is a mapping byte at all."""
+        return (self.mapping >> 4) in DECLARED_HIGH_NIBBLES
+
+    @property
     def layout(self):
-        return LAYOUTS.get(self.mapping & 0x0F, LOROM)
+        if self.declared:
+            return LAYOUTS.get(self.mapping & 0x0F, LOROM)
+        return FAMILY_OF_OFFSET.get(self.at - self.shift, LOROM)
+
+    @property
+    def shift(self):
+        """How far a copier stub pushed this header past the offset it belongs at."""
+        return COPIER_BYTES if self.at - COPIER_BYTES in FAMILY_OF_OFFSET else 0
 
     @property
     def fast(self):
         """Whether the cartridge asks for the faster of the two bus speeds."""
-        return bool(self.mapping & FAST_BIT)
+        return self.declared and bool(self.mapping & FAST_BIT)
 
     @property
     def coprocessor(self):

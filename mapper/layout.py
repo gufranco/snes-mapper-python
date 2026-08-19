@@ -48,6 +48,32 @@ HIROM_SAVE_WINDOW = (0x6000, 0x8000)
 
 FAST_HALF = 0x80
 
+EXHIROM_HALF = 0x400000
+"""How far into the image the banks the console boots from actually point.
+
+The extended layout is the plain high one with its two halves swapped. Banks
+`$80-$FF` carry the first four megabytes, and banks `$00-$7D`, which include the
+ones holding the reset vector, carry everything past them. That swap is why an
+extended cartridge keeps its header at `0x40FFC0`: `$00:FFC0` is what the console
+reads, and under this layout that address lands four megabytes into the file.
+
+Treating the two layouts as one caps every image at four megabytes and sends every
+address in the lower banks to the wrong half of anything larger.
+"""
+
+EXHIROM_BYTES = 0x800000
+"""The most an extended cartridge can reach: eight megabytes, sixty four megabit.
+
+Four through `$80-$FF` and four through `$00-$7D`, and the very top of the far half
+is reachable only through banks `$3E` and `$3F`, because `$7E` and `$7F` are work
+RAM and never leave the console.
+
+An image larger than this is not addressable by this layout however it is declared.
+The ninety six megabit files that exist are decompressed rebuilds of an S-DD1
+cartridge, which is a low layout with a decompressor rather than a wider map, so
+their size says nothing about how far a bank can reach.
+"""
+
 
 class Resolution:
     """What one address turned out to be."""
@@ -84,6 +110,11 @@ def _hirom_offset(bank, page):
     return ((bank & 0x3F) * BANK_BYTES) + page
 
 
+def _exhirom_offset(bank, page):
+    """The high offset, moved into the far half for every bank below `$80`."""
+    return _hirom_offset(bank, page) + (0 if bank & FAST_HALF else EXHIROM_HALF)
+
+
 def resolve(kind, address, fast=False):
     """What sits at that address under that layout, and what reaching it costs.
 
@@ -111,6 +142,8 @@ def resolve(kind, address, fast=False):
             region, offset = OPEN_BUS, None
         else:
             region, offset = ROM, _lorom_offset(bank, page)
+    elif kind == EXHIROM:
+        region, offset = ROM, _exhirom_offset(bank, page)
     else:
         region, offset = ROM, _hirom_offset(bank, page)
 

@@ -8,8 +8,8 @@
 <br>
 
 [![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
-[![Corpus](https://img.shields.io/badge/corpus-386%20%2F%20386-brightgreen)](#the-corpus-and-why-it-can-ship)
-[![Cartridges](https://img.shields.io/badge/measured%20across-5%2C145%20cartridges-blue)](#the-corpus-and-why-it-can-ship)
+[![Corpus](https://img.shields.io/badge/corpus-289%20%2F%20289-brightgreen)](#the-corpus-and-why-it-can-ship)
+[![Cartridges](https://img.shields.io/badge/measured%20across-2%2C781%20retail%20cartridges-blue)](#the-corpus-and-why-it-can-ship)
 [![Coverage](https://img.shields.io/badge/coverage-100%25%20statement%20%2B%20branch-brightgreen)](#tests)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
 </p>
 
-**386** header combinations, **0** failures · measured across **5,145** cartridges · **5** layouts · **8** transfer channels · **124** tests · **100%** statement and branch coverage
+**289** header combinations, **0** failures · measured across **2,781** retail cartridges · **5** layouts · **8** transfer channels · **272** tests · **100%** statement and branch coverage
 
 ```python
 from mapper import read, resolve
@@ -50,7 +50,7 @@ Make that question something you assert rather than something you remember.
 
 The map is a table, not a rule. The transfer registers are named constants, not literals copied from a datasheet at 2am. The channel index comes from the nibble the hardware uses. And `plan()` returns only channels the enable register actually selected, so an unarmed channel cannot pretend to be a transfer.
 
-Correctness comes from a real library: **5,145 cartridges**, parsed for every distinct combination of header fields they declare, with each combination checked against the layout and addresses it produces.
+Correctness comes from a real library: **2,781 retail cartridges**, parsed for every distinct combination of header fields they declare, with each combination checked against the layout and addresses it produces, and then every cartridge read again and held to the case that recorded it.
 
 <table>
 <tr>
@@ -81,7 +81,7 @@ The same byte costs 6 or 8 master clocks depending on the half of the space and 
 
 ### Measured against real cartridges
 
-386 header combinations covering every cartridge in a 5,145-strong library.
+289 header combinations covering all 2,781 retail cartridges, each re-read by digest on every run.
 
 </td>
 </tr>
@@ -106,9 +106,18 @@ cd snes-mapper-python
 
 ```bash
 python3 conformance/corpus.py
-#   386 header combinations from conformance/corpus.json
-#   measured across 5145 cartridges
-#   386 agreed, 0 did not
+#   289 header combinations from conformance/corpus.json
+#   measured across 2781 cartridges
+#   289 agreed, 0 did not
+```
+
+The corpus replays without a cartridge anywhere. With a library present, the sweep reads
+every file in it instead:
+
+```bash
+python3 conformance/against_cartridges.py
+#   2781 cartridges read from cartridges
+#   2781 agreed, 0 did not
 ```
 
 ## The mistakes this exists to stop
@@ -175,20 +184,51 @@ Registers hold whatever they last held, so walking all eight channels reports tr
 
 ## What a real library actually contains
 
-Measured across 5,145 cartridges:
+Measured across 2,781 retail cartridges from every region, and nothing else. A modified
+release, a translation and a prototype can each carry an edited header, and a header read
+out of one describes somebody's edit rather than a cartridge that was manufactured.
 
 | Layout | Cartridges |
 |:-------|-----------:|
-| `lorom` | 3,584 |
-| `hirom` | 995 |
-| `sa1` | 525 |
-| `exhirom` | 35 |
-| `spc7110` | 6 |
+| `lorom` | 2,157 |
+| `hirom` | 572 |
+| `sa1` | 42 |
+| `exhirom` | 6 |
+| `spc7110` | 4 |
 
-**2,671** ask for the faster bus and **1,895** carry battery-backed save memory. Headers were found at five distinct offsets, including 148 cartridges whose dumps carry a copier stub that shifts every offset by `$200`.
+**1,701** ask for the faster bus and **957** carry battery-backed save memory. **2,780** of
+2,781 carry a checksum consistent with its own complement. Headers were found at three
+distinct offsets, two of them past a copier stub that shifts everything by `$200`.
 
 > [!NOTE]
-> A further 447 files in the library carry no readable header. They are prototypes with a blank one and files that are not cartridges. They are counted as refused rather than guessed at, because inventing a layout for them would put fiction into a corpus of facts.
+> A further 8 files carry no readable header. They are counted as refused rather than guessed at, because inventing a layout for them would put fiction into a corpus of facts.
+
+### The mapping byte is not always a mapping byte
+
+Ten mapping bytes exist and all of them are `0x2x` or `0x3x`. A title of twenty two
+characters overflows its twenty one byte field and writes its last letter over the field
+that follows, which is this one. Contra III leaves an `S`, Krusty's Super Fun House and
+Space Football leave an `E`, and the low nibble of a letter names a layout no cartridge has.
+
+```python
+from mapper import header
+
+found = header.read(open("Contra III - The Alien Wars (USA).sfc", "rb").read())
+found.mapping
+# 0x53, which is 'S', the last letter of CONTRA3 THE ALIEN WARS
+
+found.declared
+# False, so the byte is not consulted
+
+found.layout
+# 'lorom', from the place the header sits, which is the signal that survives
+```
+
+13 of the 2,781 carry an overflowed byte. Reading the low nibble of one gave 51 retail
+cartridges in a wider library the wrong layout, the wrong bus speed, or both. A byte that
+**is** in range is believed even where it disagrees with the offset, because `exhirom` puts
+its header where `hirom` does whenever the image is small enough that the far copy would
+sit past the end of the file.
 
 ## The corpus, and why it can ship
 
@@ -212,10 +252,27 @@ Facts and functional elements sit outside what copyright reaches, per [17 U.S.C.
 
 ```bash
 python3 conformance/census.py "/path/to/roms" census.json
-#   5145 cartridges read, 447 refused, from /path/to/roms
-#   386 distinct header combinations
+#   2781 cartridges read, 8 refused, from /path/to/roms
+#   289 distinct header combinations
 #   written to census.json
 ```
+
+### Rebuilding the corpus that ships
+
+A recording nothing can reproduce is a recording nobody can check, so the recorder ships
+alongside the recording. Anyone holding the same cartridges can rebuild the file and
+confirm it byte for byte.
+
+```bash
+python3 conformance/record.py "/path/to/roms" conformance/corpus.json
+#   2781 cartridges read, 8 refused, from /path/to/roms
+#   289 distinct header combinations
+#   written to conformance/corpus.json
+```
+
+Two cartridges with identical header fields at different offsets are two cases rather than
+one, because where a header sits is what names the layout whenever the byte that should
+name it is a letter left behind by an overflowing title.
 
 ## Layouts
 
@@ -233,9 +290,31 @@ describe("hirom").resolve(0xC00000).region
 |:-------|:---------:|:------|
 | `lorom` | `$7FC0` | A 32 KB page per bank in the upper half. Aliases: `lo`, `mode20`, `20` |
 | `hirom` | `$FFC0` | A whole bank per bank, save memory windowed into the lower banks. Aliases: `hi`, `mode21`, `21` |
-| `exhirom` | `$FFC0` | The high layout with a second set of banks above it. Aliases: `exhi`, `mode25`, `25` |
+| `exhirom` | `$FFC0` or `$40FFC0` | The high layout with its two halves swapped. Aliases: `exhi`, `mode25`, `25` |
 
 The header itself recognises `sa1` and `spc7110` as declared layouts, because real cartridges declare them and a census must count them. They are not resolvable here yet, since neither has a corpus behind it, and a layout with nothing backing it would be a guess rather than a measurement.
+
+### The extended layout swaps its halves
+
+`exhirom` is `hirom` with its two halves exchanged. Banks `$80-$FF` carry the first four
+megabytes and banks `$00-$7D`, which include the ones holding the reset vector, carry
+everything past them.
+
+```python
+from mapper import layout
+
+layout.resolve("exhirom", 0x00FFC0).offset
+# 0x40FFC0, four megabytes in, which is why an extended cartridge keeps a header there
+
+layout.resolve("hirom", 0x00FFC0).offset
+# 0x00FFC0, and a plain high cartridge never reaches past four megabytes at all
+```
+
+The ceiling is `layout.EXHIROM_BYTES`, eight megabytes: four through `$80-$FF` and four
+through `$00-$7D`, with the very top reachable only through banks `$3E` and `$3F` because
+`$7E` and `$7F` are work RAM and never leave the console. An image larger than that is not
+addressable by this layout however it is declared, so a ninety six megabit file is built
+around a different map rather than a wider one.
 
 ## Project structure
 
@@ -249,9 +328,14 @@ mapper/
   models.py       what each layout is
   version.py      rewritten by the release job and by nothing else
 conformance/
-  corpus.py       replays every real header combination
-  corpus.json     386 combinations covering 5,145 cartridges
-  census.py       takes a census of a library you own
+  corpus.py               replays every real header combination
+  corpus.json             289 combinations covering 2,781 retail cartridges
+  record.py               rebuilds that corpus from a library, so it can be checked
+  census.py               takes a census of a library you own
+  cartridges.py           identifies a supplied cartridge by all four of its digests
+  against_cartridges.py   reads every cartridge present and holds each to its case
+cartridges/               a library you supply, ignored by git, never shared
+cartridges.manifest.json  2,778 retail cartridges, four digests each, no content
 ```
 
 ## Tests
@@ -268,6 +352,24 @@ for f in mapper/*.test.py conformance/*.test.py; do python3 "$f"; done
 | Models | [`mapper/models.test.py`](mapper/models.test.py) | The catalogue, aliases, resolution |
 | Image | [`mapper/image.test.py`](mapper/image.test.py) | Interleaved dumps, windowed banks, and that every conversion is its own inverse |
 | Corpus | [`conformance/corpus.test.py`](conformance/corpus.test.py) | The whole shipped set, coverage, reporting |
+| Recorder | [`conformance/record.test.py`](conformance/record.test.py) | Rebuilding the corpus, and that rebuilding twice writes the same file |
+| Cartridges | [`conformance/cartridges.test.py`](conformance/cartridges.test.py) | The manifest, all four digests, where a library is looked for |
+| Sweep | [`conformance/against_cartridges.test.py`](conformance/against_cartridges.test.py) | Every cartridge present, against the case that recorded it |
+
+The last two are skipped rather than passed when no cartridge is present, so a run that
+proved nothing never reads as a run that proved something. CI attempts both on every push
+and annotates the skip.
+
+### Bringing your own cartridges
+
+Put copies you already own in [`cartridges/`](cartridges/), or point `SNES_CARTRIDGE_DIR`
+at a library. Subdirectories are walked, so an existing collection can be pointed at whole.
+Every file is checked against all four of its digests before it is read: `sha256` decides,
+and the other three are confirmed too, because a manifest that publishes a crc32 beside a
+sha256 and never looks at the crc32 is publishing decoration.
+
+Nothing in that directory is shared. [`cartridges/README.md`](cartridges/README.md) lists
+every filename and its four digests, and a digest reconstructs nothing.
 | Census | [`conformance/census.test.py`](conformance/census.test.py) | Walking a library, the tally, and that no title is recorded |
 
 Coverage is enforced at 100% of statements and branches by [`pyproject.toml`](pyproject.toml).

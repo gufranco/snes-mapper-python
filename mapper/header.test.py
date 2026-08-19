@@ -114,6 +114,48 @@ class KindTest(unittest.TestCase):
         self.assertIn("lorom", printed)
 
 
+class OverflowedTitleTest(unittest.TestCase):
+    """A title of twenty two characters writes its last one over the mapping byte.
+
+    Real retail cartridges do this, and the byte that lands there is a letter
+    rather than a mapping. Every value below is one a cartridge in the measured
+    library actually carries.
+    """
+
+    def test_a_mapping_byte_in_the_declared_range_is_a_mapping_byte(self):
+        self.assertTrue(header.read(a_cartridge(mapping=0x20)).declared)
+        self.assertTrue(header.read(a_cartridge(mapping=0x3A)).declared)
+
+    def test_a_byte_outside_that_range_is_not_one(self):
+        self.assertFalse(header.read(a_cartridge(mapping=0x53)).declared)
+
+    def test_a_letter_left_by_an_overflowed_title_does_not_name_a_layout(self):
+        overflowed = header.read(a_cartridge(mapping=0x53))
+
+        self.assertEqual(overflowed.layout, header.LOROM)
+
+    def test_the_place_the_header_was_found_names_it_instead(self):
+        rom = a_cartridge(at=header.HIROM_HEADER, mapping=0x45, size=0x100000)
+
+        self.assertEqual(header.read(rom).layout, header.HIROM)
+
+    def test_and_that_holds_past_a_copier_stub(self):
+        rom = b"\x00" * header.COPIER_BYTES + a_cartridge(mapping=0x53)
+
+        self.assertEqual(header.read(rom).layout, header.LOROM)
+
+    def test_a_letter_is_never_read_as_the_fast_bit(self):
+        self.assertFalse(header.read(a_cartridge(mapping=0x50)).fast)
+
+    def test_a_declared_mapping_is_still_believed_over_where_it_was_found(self):
+        rom = a_cartridge(at=header.HIROM_HEADER, mapping=0x35, size=0x100000)
+
+        self.assertEqual(header.read(rom).layout, header.EXHIROM)
+
+    def test_a_header_at_no_known_offset_falls_back_to_the_low_layout(self):
+        self.assertEqual(header.Header(0x1234, bytes(32)).layout, header.LOROM)
+
+
 class ScoreTest(unittest.TestCase):
     def test_the_better_placed_header_is_the_one_chosen(self):
         rom = bytearray(a_cartridge(size=0x100000))

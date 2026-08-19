@@ -13,6 +13,45 @@ sys.path.insert(0, str(ROOT))
 sys.path.insert(0, str(ROOT / "conformance"))
 
 corpus = importlib.import_module("corpus")
+header = importlib.import_module("mapper.header")
+
+
+def a_case(at, mapping):
+    return {
+        "expect": {"at": at},
+        "mapping": mapping,
+        "chipset": 0x00,
+        "rom_size": 0x0A,
+        "ram_size": 0x00,
+        "country": 0x01,
+    }
+
+
+class StandInTest(unittest.TestCase):
+    def test_a_case_at_a_known_offset_is_built_there(self):
+        built = corpus.cartridge_for(a_case(header.HIROM_HEADER, 0x21))
+
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+
+    def test_a_stubbed_high_offset_is_built_at_the_high_one(self):
+        built = corpus.cartridge_for(a_case(header.HIROM_HEADER + header.COPIER_BYTES, 0x21))
+
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+
+    def test_and_a_stubbed_low_offset_at_the_low_one(self):
+        built = corpus.cartridge_for(a_case(header.LOROM_HEADER + header.COPIER_BYTES, 0x20))
+
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.LOROM_HEADER])
+
+    def test_an_offset_that_is_neither_falls_back_by_where_it_sits_in_its_bank(self):
+        built = corpus.cartridge_for(a_case(0x123456, 0x21))
+
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+
+    def test_the_extended_offset_gets_an_image_large_enough_to_hold_it(self):
+        built = corpus.cartridge_for(a_case(header.EXHIROM_HEADER, 0x35))
+
+        self.assertGreater(len(built), header.EXHIROM_HEADER)
 
 
 class DefinitionTest(unittest.TestCase):

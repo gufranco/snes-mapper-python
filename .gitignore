@@ -7,3 +7,8 @@ dist/
 build/
 *.egg-info/
 .DS_Store
+
+cartridges/*
+!cartridges/README.md
+*.sfc
+*.smc
