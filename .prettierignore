@@ -2,3 +2,6 @@ pnpm-lock.yaml
 package-lock.json
 node_modules/
 .coverage
+
+conformance/corpus.json
+cartridges.manifest.json
