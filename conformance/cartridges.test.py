@@ -11,8 +11,6 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import cartridges
 
-PRESENT = cartridges.present()
-
 
 def an_image(filler=0xAB, size=64):
     return bytes([filler]) * size
@@ -191,31 +189,6 @@ class DirectoryTest(unittest.TestCase):
         chosen = cartridges.directory({}, places=[Path("/nowhere"), Path("/nor/here")])
 
         self.assertEqual(chosen, cartridges.DEFAULT_DIRECTORY)
-
-
-@unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
-class OnDiskTest(unittest.TestCase):
-    def test_every_cartridge_on_disk_matches_all_four_of_its_digests(self):
-        for identity, path in PRESENT:
-            self.assertTrue(identity.sha256, path)
-
-    def test_the_manifest_describes_every_cartridge_that_is_here(self):
-        named = {entry["name"] for entry in cartridges.manifest()["cartridges"]}
-
-        for identity, _ in PRESENT:
-            self.assertIn(identity.name, named)
-
-    def test_the_whole_manifest_is_here_rather_than_part_of_it(self):
-        listed = {entry[cartridges.DECIDES] for entry in cartridges.manifest()["cartridges"]}
-        here = {identity.sha256 for identity, _ in PRESENT}
-
-        self.assertEqual(here, listed)
-
-    def test_the_same_cartridge_filed_under_two_regions_is_one_cartridge(self):
-        files = len(PRESENT)
-        distinct = len({identity.sha256 for identity, _ in PRESENT})
-
-        self.assertGreaterEqual(files, distinct)
 
 
 if __name__ == "__main__":

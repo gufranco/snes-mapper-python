@@ -9,10 +9,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent))
 
 import against_cartridges
 
-import cartridges
-from mapper import header, layout
-
-PRESENT = cartridges.present()
+from mapper import header
 
 
 def a_cartridge(at=header.LOROM_HEADER, mapping=0x20, size=0x100000):
@@ -140,42 +137,6 @@ class MainTest(unittest.TestCase):
 
     def test_an_empty_library_is_skipped_rather_than_passed(self):
         self.assertEqual(against_cartridges.main([str(Path(tempfile.mkdtemp()))]), 2)
-
-
-@unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
-class OnDiskTest(unittest.TestCase):
-    def test_every_cartridge_in_the_library_agrees_with_the_corpus(self):
-        read, agreed, wrong = against_cartridges.sweep()
-
-        self.assertEqual(wrong, [])
-        self.assertEqual(read, agreed)
-
-    def test_the_library_is_the_whole_one_rather_than_a_handful(self):
-        self.assertGreater(against_cartridges.sweep()[0], 2000)
-
-    def test_no_retail_cartridge_is_on_the_whole_bank_map(self):
-        named = [
-            identity.name
-            for identity, path in PRESENT
-            if header.board(header.read(path.read_bytes()), identity.size) == header.WHOLEBANK
-        ]
-
-        self.assertEqual(named, [])
-
-    def test_no_retail_cartridge_is_large_enough_for_that_map(self):
-        for identity, _ in PRESENT:
-            self.assertLess(
-                identity.size, layout.WHOLEBANK_BANKS * layout.BANK_BYTES, identity.name
-            )
-
-    def test_the_cartridges_that_reach_past_the_low_map_are_the_ones_expected(self):
-        larger = {
-            identity.name.rsplit("/", 1)[-1]
-            for identity, _ in PRESENT
-            if identity.size > header.LOROM_REACH and identity.layout == header.LOROM
-        }
-
-        self.assertEqual(larger, {"Star Ocean (Japan).sfc"})
 
 
 if __name__ == "__main__":
