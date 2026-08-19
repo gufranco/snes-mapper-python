@@ -18,9 +18,12 @@ through the lower half, and only when the cartridge asked for it in its header.
 Anything that counts cycles has to resolve the address first.
 """
 
+from mapper import image
+
 LOROM = "lorom"
 HIROM = "hirom"
 EXHIROM = "exhirom"
+WHOLEBANK = "wholebank"
 
 ROM = "rom"
 WORK_RAM = "work-ram"
@@ -61,6 +64,49 @@ Treating the two layouts as one caps every image at four megabytes and sends eve
 address in the lower banks to the wrong half of anything larger.
 """
 
+WHOLEBANK_WINDOW_FIRST_BANK = 0xC0
+"""Where the map stops taking banks straight through and opens its window."""
+
+WHOLEBANK_BANKS = 0xC0
+"""How many banks this map needs, which is the same 192 the window starts at.
+
+Not a convention. The window's lower halves are read from the run belonging to
+bank `$80` onwards, so the topmost byte it names sits at `(191 + banks)` half-banks
+into the file while the file itself is `2 * banks` half-banks long. Those meet at
+exactly 192, and below it the window addresses bytes past the end of the image.
+
+So this is a twelve megabyte shape rather than a family of sizes. A smaller
+cartridge that reaches past the ordinary low map does it with a coprocessor
+switching banks, which is a different mechanism and is not this.
+"""
+
+WHOLEBANK_BYTES = 0xC00000
+"""Twelve megabytes, ninety six megabit, which is what this map reaches.
+
+Neither extended layout gets past eight, because both spend a bank's lower half on
+the system area or on a mirror. This one spends nothing below the window: every
+bank there carries a whole sixty four kilobytes, so 192 banks of cartridge fit in
+the address space and the file holds all of them.
+
+It is named for its shape rather than for a chip, because the shape is all there
+is to it. The S-DD1 boards were the first to need it and are where it was first
+measured, but nothing in the arithmetic mentions a coprocessor and nothing about
+it is reserved to one. Any cartridge that needs more room than the extended
+layouts reach can be built this way.
+
+That matters most in the direction the traffic actually runs. Taking a coprocessor
+out of a cartridge, by baking what it answered into a table, makes the image larger
+and leaves the map alone: the expansion ends up here, and it declares no chipset at
+all because there is no longer a chip to declare. So a cartridge on this map may
+carry a coprocessor, may have carried one until somebody removed it, or may never
+have had one. The map does not say, and it does not need to.
+"""
+
+
+class NeedsBankCount(Exception):
+    pass
+
+
 EXHIROM_BYTES = 0x800000
 """The most an extended cartridge can reach: eight megabytes, sixty four megabit.
 
@@ -69,9 +115,8 @@ is reachable only through banks `$3E` and `$3F`, because `$7E` and `$7F` are wor
 RAM and never leave the console.
 
 An image larger than this is not addressable by this layout however it is declared.
-The ninety six megabit files that exist are decompressed rebuilds of an S-DD1
-cartridge, which is a low layout with a decompressor rather than a wider map, so
-their size says nothing about how far a bank can reach.
+Anything past eight megabytes is built on the whole-bank map instead, which reaches
+twelve by spending no part of a bank on anything but cartridge.
 """
 
 
@@ -115,14 +160,44 @@ def _exhirom_offset(bank, page):
     return _hirom_offset(bank, page) + (0 if bank & FAST_HALF else EXHIROM_HALF)
 
 
-def resolve(kind, address, fast=False):
+def _wholebank_offset(bank, page, banks):
+    """Where a whole-bank byte sits, which depends on how large the image is.
+
+    The arithmetic is the file placement in `image`, because it is the same
+    question asked from the other end: that module answers where a byte goes when
+    an image is written, and this answers what the console finds when it reads.
+    Two copies of one rule drift, so there is one.
+    """
+    return image.address_to_file(bank, page, banks)
+
+
+def resolve(kind, address, fast=False, banks=None, save=False):
     """What sits at that address under that layout, and what reaching it costs.
 
     The order of the tests is the point. Work RAM is decided before anything
     else, because its banks look like cartridge banks and are not. The register
     window is decided next, because it overlaps the part of a low bank that would
     otherwise be a mirror. Only what survives both is cartridge.
+
+    `banks` is how many whole banks the image holds, and the whole-bank map needs it
+    because its two runs sit one image apart. `save` says the cartridge carries
+    battery-backed memory, which takes a window that map would otherwise fill with
+    cartridge; an expansion built to drop a coprocessor usually carries none.
     """
+    if kind == WHOLEBANK:
+        if banks is None:
+            raise NeedsBankCount(
+                f"{WHOLEBANK} maps an address by how large the image is, so resolving one"
+                " needs the bank count: image.bank_count(len(rom))"
+            )
+        if banks < WHOLEBANK_BANKS:
+            raise NeedsBankCount(
+                f"{WHOLEBANK} needs {WHOLEBANK_BANKS} banks and this image has {banks}."
+                " Below that the window reads past the end of the file, so a smaller"
+                " cartridge reaching past the low map is switching banks with a"
+                " coprocessor rather than using this map"
+            )
+
     address &= 0xFFFFFF
     bank = address >> 16
     page = address & 0xFFFF
@@ -131,12 +206,18 @@ def resolve(kind, address, fast=False):
         region, offset = WORK_RAM, None
     elif (bank & 0x7F) < 0x40 and REGISTER_WINDOW[0] <= page < REGISTER_WINDOW[1]:
         region, offset = REGISTERS, None
-    elif (kind == LOROM and (bank & 0x7F) in SAVE_RAM_BANKS) or (
+    elif (
+        kind in (LOROM, WHOLEBANK)
+        and (bank & 0x7F) in SAVE_RAM_BANKS
+        and (kind != WHOLEBANK or save)
+    ) or (
         kind in (HIROM, EXHIROM)
         and (bank & 0x7F) in HIROM_SAVE_BANKS
         and (HIROM_SAVE_WINDOW[0] <= page < HIROM_SAVE_WINDOW[1])
     ):
         region, offset = SAVE_RAM, None
+    elif kind == WHOLEBANK:
+        region, offset = ROM, _wholebank_offset(bank, page, banks)
     elif kind == LOROM:
         if page < LOROM_PAGE:
             region, offset = OPEN_BUS, None

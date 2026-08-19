@@ -26,8 +26,8 @@ class Model:
         self.header_at = header_at
         self.aliases = tuple(aliases)
 
-    def resolve(self, address, fast=False):
-        return spaces.resolve(self.name, address, fast=fast)
+    def resolve(self, address, fast=False, banks=None, save=False):
+        return spaces.resolve(self.name, address, fast=fast, banks=banks, save=save)
 
     def __repr__(self):
         return f"<Model {self.name}, header at {self.header_at:#06x}>"
@@ -61,6 +61,18 @@ _CATALOGUE = (
         ),
         header_at=0xFFC0,
         aliases=("exhi", "mode25", "25"),
+    ),
+    Model(
+        name=spaces.WHOLEBANK,
+        summary=(
+            "Every bank below the window carries a whole sixty four kilobytes, from an "
+            "image that stores all the upper halves and then all the lower ones. It is "
+            "the only map that reaches twelve megabytes, and it is named for its shape "
+            "rather than for any chip, because a cartridge lands here whether it has a "
+            "coprocessor, had one removed, or never had one."
+        ),
+        header_at=0x7FC0,
+        aliases=("whole", "wholebanks", "interleaved"),
     ),
 )
 

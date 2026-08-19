@@ -37,6 +37,7 @@ HIROM = "hirom"
 EXHIROM = "exhirom"
 SA1 = "sa1"
 SPC7110 = "spc7110"
+WHOLEBANK = "wholebank"
 
 LAYOUTS = {
     0x00: LOROM,
@@ -92,6 +93,30 @@ FAST_BIT = 0x10
 
 BATTERY_CHIPSETS = frozenset({0x02, 0x05, 0x06, 0x09, 0x0A})
 COPROCESSOR_FROM = 0x03
+
+LOROM_REACH = 0x400000
+"""How far the ordinary low map gets: 128 banks of a thirty two kilobyte page."""
+
+WHOLEBANK_BYTES = 0xC00000
+"""The one size the whole-bank map has: 192 banks, twelve megabytes.
+
+Size is the whole test, and it is an equality rather than a threshold. The window
+those 192 banks open is only inside the file at 192 banks or more, and 192 is also
+all the address space leaves below it, so the map has exactly one shape.
+
+The chipset byte was tried here first and is wrong twice over. A cartridge that had
+its coprocessor removed declares no chipset at all, so the byte misses every
+expansion, which is the case this exists for. And every cartridge that does declare
+S-DD1 is smaller than this: those reach past the low map by having the chip switch
+banks, which is a different mechanism that this package does not model. Reading the
+byte as the signal would have put Star Ocean's retail six megabyte cartridge on a
+map whose window addresses a megabyte past the end of it.
+
+The byte being stale is then somebody else's problem rather than one to guard
+against here. An expansion built from a cartridge that had one often still claims
+it, because clearing the field is a separate act from removing the part, and this
+never reads the field.
+"""
 
 MINIMUM_SCORE = 2
 
@@ -238,6 +263,24 @@ def offsets(rom):
     """Every place a header could be, including past a copier stub."""
     shift = COPIER_BYTES if has_copier_stub(rom) else 0
     return [candidate + shift for candidate in CANDIDATES]
+
+
+def board(found, size):
+    """Which map a cartridge actually uses, given its header and how large it is.
+
+    The header alone cannot say. The whole-bank map and the ordinary low map declare
+    the same byte, because the second is what the first grew out of and nobody
+    changed the field. What separates them is length: the wider map has exactly one
+    shape, twelve megabytes, so an image of that length on a low declaration is on
+    it and any other length is not.
+
+    A cartridge declaring anything other than a low layout is left alone. This
+    answers one question, and a high or extended or coprocessor declaration already
+    answered it.
+    """
+    if found.layout != LOROM:
+        return found.layout
+    return WHOLEBANK if size == WHOLEBANK_BYTES else LOROM
 
 
 def read(rom):

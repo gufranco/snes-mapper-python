@@ -114,6 +114,64 @@ class KindTest(unittest.TestCase):
         self.assertIn("lorom", printed)
 
 
+class WholeBankTest(unittest.TestCase):
+    """A header alone cannot say which of two low maps a cartridge uses.
+
+    Both declare the same byte, because the wider map is what the narrower one grew
+    into and nobody changed the field. Length is what separates them, and the wider
+    map has exactly one length.
+    """
+
+    def test_an_ordinary_low_cartridge_stays_on_the_low_map(self):
+        found = header.read(a_cartridge(mapping=0x20))
+
+        self.assertEqual(header.board(found, 0x100000), header.LOROM)
+
+    def test_a_cartridge_of_the_one_length_that_map_has_is_on_it(self):
+        found = header.read(a_cartridge(mapping=0x30))
+
+        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.WHOLEBANK)
+
+    def test_a_cartridge_past_the_low_map_but_short_of_that_length_is_not(self):
+        found = header.read(a_cartridge(mapping=0x32, chipset=0x45))
+
+        self.assertEqual(header.board(found, 0x600000), header.LOROM)
+
+    def test_a_cartridge_exactly_at_the_low_map_reach_stays_on_it(self):
+        found = header.read(a_cartridge(mapping=0x30))
+
+        self.assertEqual(header.board(found, header.LOROM_REACH), header.LOROM)
+
+    def test_the_chipset_byte_is_never_consulted(self):
+        for chipset in (0x00, 0x02, 0x43, 0x45):
+            found = header.read(a_cartridge(mapping=0x32, chipset=chipset))
+
+            self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.WHOLEBANK)
+            self.assertEqual(header.board(found, 0x400000), header.LOROM)
+
+    def test_an_expansion_still_claiming_a_part_it_no_longer_has_reads_the_same(self):
+        stale = header.read(a_cartridge(mapping=0x32, chipset=0x45))
+        corrected = header.read(a_cartridge(mapping=0x32, chipset=0x00))
+
+        self.assertEqual(header.board(stale, header.WHOLEBANK_BYTES), header.WHOLEBANK)
+        self.assertEqual(header.board(corrected, header.WHOLEBANK_BYTES), header.WHOLEBANK)
+
+    def test_a_high_cartridge_is_left_where_its_header_put_it(self):
+        found = header.read(a_cartridge(at=header.HIROM_HEADER, mapping=0x21, size=0x200000))
+
+        self.assertEqual(header.board(found, 0x200000), header.HIROM)
+
+    def test_and_so_is_an_extended_one_at_that_very_length(self):
+        found = header.read(a_cartridge(at=header.HIROM_HEADER, mapping=0x35, size=0x200000))
+
+        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.EXHIROM)
+
+    def test_a_declared_coprocessor_layout_is_left_alone_too(self):
+        found = header.read(a_cartridge(mapping=0x23))
+
+        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.SA1)
+
+
 class OverflowedTitleTest(unittest.TestCase):
     """A title of twenty two characters writes its last one over the mapping byte.
 

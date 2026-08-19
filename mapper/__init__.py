@@ -23,8 +23,10 @@ from .header import (
     HIROM_HEADER,
     LOROM,
     LOROM_HEADER,
+    WHOLEBANK,
     Header,
     NoHeader,
+    board,
     has_copier_stub,
     read,
     score,
@@ -43,7 +45,20 @@ from .image import (
     snes_to_file,
     window_to_file,
 )
-from .layout import FAST, OPEN_BUS, REGISTERS, ROM, SAVE_RAM, SLOW, WORK_RAM, XSLOW, resolve
+from .layout import (
+    FAST,
+    OPEN_BUS,
+    REGISTERS,
+    ROM,
+    SAVE_RAM,
+    SLOW,
+    WHOLEBANK_BANKS,
+    WHOLEBANK_BYTES,
+    WORK_RAM,
+    XSLOW,
+    NeedsBankCount,
+    resolve,
+)
 from .models import MODELS, UnknownModelError, describe
 from .transfer import CHANNEL_BASE, CHANNEL_COUNT, ENABLE, Channel, Engine, Plan, channel_of
 from .version import VERSION
@@ -69,12 +84,16 @@ __all__ = [
     "ROM",
     "SAVE_RAM",
     "SLOW",
+    "WHOLEBANK",
+    "WHOLEBANK_BANKS",
+    "WHOLEBANK_BYTES",
     "WINDOW_FIRST_BANK",
     "WORK_RAM",
     "XSLOW",
     "Channel",
     "Engine",
     "Header",
+    "NeedsBankCount",
     "NoHeader",
     "NotWholeBanks",
     "Plan",
@@ -82,6 +101,7 @@ __all__ = [
     "__version__",
     "address_to_file",
     "bank_count",
+    "board",
     "channel_of",
     "deinterleave",
     "describe",

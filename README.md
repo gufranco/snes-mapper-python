@@ -23,7 +23,7 @@
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
 </p>
 
-**289** header combinations, **0** failures · measured across **2,781** retail cartridges · **5** layouts · **8** transfer channels · **272** tests · **100%** statement and branch coverage
+**289** header combinations, **0** failures · measured across **2,781** retail cartridges · **6** layouts · **8** transfer channels · **303** tests · **100%** statement and branch coverage
 
 ```python
 from mapper import read, resolve
@@ -291,6 +291,7 @@ describe("hirom").resolve(0xC00000).region
 | `lorom` | `$7FC0` | A 32 KB page per bank in the upper half. Aliases: `lo`, `mode20`, `20` |
 | `hirom` | `$FFC0` | A whole bank per bank, save memory windowed into the lower banks. Aliases: `hi`, `mode21`, `21` |
 | `exhirom` | `$FFC0` or `$40FFC0` | The high layout with its two halves swapped. Aliases: `exhi`, `mode25`, `25` |
+| `wholebank` | `$7FC0` | A whole 64 KB per bank below the window, from an interleaved image. Reaches 12 MB. Aliases: `whole`, `wholebanks`, `interleaved` |
 
 The header itself recognises `sa1` and `spc7110` as declared layouts, because real cartridges declare them and a census must count them. They are not resolvable here yet, since neither has a corpus behind it, and a layout with nothing backing it would be a guess rather than a measurement.
 
@@ -315,6 +316,58 @@ through `$00-$7D`, with the very top reachable only through banks `$3E` and `$3F
 `$7E` and `$7F` are work RAM and never leave the console. An image larger than that is not
 addressable by this layout however it is declared, so a ninety six megabit file is built
 around a different map rather than a wider one.
+
+### Ninety six megabit, and the map that reaches it
+
+Every layout above spends part of a bank on something other than cartridge, which is why
+none of them gets past eight megabytes. The whole-bank map spends nothing below its
+window: banks `$00-$BF` each carry a full 64 KB, so 192 banks of cartridge fit and the
+image holds all of them. The file stores every bank's upper half first and every lower
+half afterwards, which is the interleaving [`mapper/image.py`](mapper/image.py) already
+converts between.
+
+```python
+from mapper import bank_count, resolve, WHOLEBANK
+
+banks = bank_count(len(rom))  # 192 for a twelve megabyte image
+
+resolve(WHOLEBANK, 0x008000, banks=banks).offset
+# 0x000000, the upper half of bank $00, exactly where plain LoROM puts it
+
+resolve(WHOLEBANK, 0x400000, banks=banks).offset
+# 0x800000, the lower half of bank $40, one whole image further in
+
+resolve(WHOLEBANK, 0xC04D6A, banks=banks).offset
+# 0xA04D6A, through the window the high banks open
+```
+
+It is named for its shape rather than for a chip. The S-DD1 boards were the first to need
+it and are where it was first measured, but nothing in the arithmetic mentions a
+coprocessor, and the traffic mostly runs the other way now: taking a chip out of a
+cartridge by baking its answers into a lookup table makes the image larger and leaves the
+map alone, so an expansion lands here **declaring no chipset at all**. A cartridge on this
+map may carry a coprocessor, may have had one removed, or may never have had one.
+
+> [!IMPORTANT]
+> The size is an equality, not a floor. `layout.WHOLEBANK_BANKS` is 192 because the window reads its lower halves from the run belonging to bank `$80`, so its topmost byte sits `191 + banks` half-banks into a file that is `2 * banks` half-banks long. Those meet at exactly 192, and anything smaller has the window addressing bytes past the end. `resolve` refuses a smaller bank count rather than returning an offset outside the image.
+
+That is also why `header.board()` reads size and never the chipset byte. Star Ocean's
+retail six megabyte cartridge declares S-DD1 and is **not** on this map: it reaches past
+the low layout by having the chip switch banks, which is a different mechanism. Reading the
+chipset as the signal would have pointed its window a megabyte past the end of the file.
+
+```python
+from mapper import header
+
+found = header.read(rom)
+
+header.board(found, len(rom))
+# 'wholebank' at exactly 12 MB, 'lorom' at any other size
+```
+
+A stale chipset byte therefore costs nothing here. An expansion built from a cartridge that
+had a coprocessor often still claims it, because clearing the field is a separate act from
+removing the part, and this never reads the field.
 
 ## Project structure
 
