@@ -12,3 +12,4 @@ cartridges/*
 !cartridges/README.md
 *.sfc
 *.smc
+.mypy_cache/

@@ -8,31 +8,31 @@ from mapper import layout, models
 
 
 class CatalogueTest(unittest.TestCase):
-    def test_the_package_names_every_layout_it_covers(self):
+    def test_the_package_names_every_layout_it_covers(self) -> None:
         for name in (layout.LOROM, layout.HIROM, layout.EXHIROM):
             self.assertIn(name, models.MODELS)
 
-    def test_a_layout_says_what_it_is_and_where_its_header_sits(self):
+    def test_a_layout_says_what_it_is_and_where_its_header_sits(self) -> None:
         found = models.describe(layout.LOROM)
 
         self.assertTrue(found.summary)
         self.assertEqual(found.header_at, 0x7FC0)
 
-    def test_a_layout_name_is_matched_however_it_is_written(self):
+    def test_a_layout_name_is_matched_however_it_is_written(self) -> None:
         for written in ("LOROM", "lo", "mode20", "LO_ROM"):
             self.assertEqual(models.describe(written).name, layout.LOROM)
 
-    def test_a_layout_the_package_does_not_have_is_refused_by_name(self):
+    def test_a_layout_the_package_does_not_have_is_refused_by_name(self) -> None:
         with self.assertRaises(models.UnknownModelError):
             models.describe("sa1")
 
-    def test_the_refusal_lists_what_is_available(self):
+    def test_the_refusal_lists_what_is_available(self) -> None:
         with self.assertRaises(models.UnknownModelError) as raised:
             models.describe("nonsense")
 
         self.assertIn("lorom", str(raised.exception))
 
-    def test_a_layout_prints_as_its_name_and_header(self):
+    def test_a_layout_prints_as_its_name_and_header(self) -> None:
         printed = repr(models.describe(layout.HIROM))
 
         self.assertIn("hirom", printed)
@@ -40,17 +40,17 @@ class CatalogueTest(unittest.TestCase):
 
 
 class ResolveTest(unittest.TestCase):
-    def test_a_layout_resolves_an_address_the_way_the_space_does(self):
+    def test_a_layout_resolves_an_address_the_way_the_space_does(self) -> None:
         found = models.describe(layout.LOROM).resolve(0x008000)
 
         self.assertEqual(found.region, layout.ROM)
 
-    def test_a_layout_carries_the_speed_it_was_asked_about(self):
+    def test_a_layout_carries_the_speed_it_was_asked_about(self) -> None:
         found = models.describe(layout.LOROM).resolve(0x808000, fast=True)
 
         self.assertEqual(found.cycles, layout.FAST)
 
-    def test_the_high_layout_reaches_cartridge_where_the_low_one_does_not(self):
+    def test_the_high_layout_reaches_cartridge_where_the_low_one_does_not(self) -> None:
         self.assertEqual(models.describe(layout.HIROM).resolve(0xC00000).region, layout.ROM)
 
 

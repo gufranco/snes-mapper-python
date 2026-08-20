@@ -18,6 +18,10 @@ through the lower half, and only when the cartridge asked for it in its header.
 Anything that counts cycles has to resolve the address first.
 """
 
+from __future__ import annotations
+
+from typing import override
+
 from mapper import image
 
 LOROM = "lorom"
@@ -123,21 +127,22 @@ twelve by spending no part of a bank on anything but cartridge.
 class Resolution:
     """What one address turned out to be."""
 
-    def __init__(self, address, region, offset, cycles):
+    def __init__(self, address: int, region: str, offset: int | None, cycles: int) -> None:
         self.address = address
         self.region = region
         self.offset = offset
         self.cycles = cycles
 
     @property
-    def is_rom(self):
+    def is_rom(self) -> bool:
         return self.region == ROM
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return f"<{self.region} at {self.address:06X}, {self.cycles} clocks>"
 
 
-def _speed(bank, page, region, fast):
+def _speed(bank: int, page: int, region: str, fast: bool) -> int:
     if region == REGISTERS and REGISTER_WINDOW[0] <= page < 0x4000:
         return FAST if fast and bank >= FAST_HALF else SLOW
     if region == REGISTERS:
@@ -147,21 +152,26 @@ def _speed(bank, page, region, fast):
     return FAST if fast and bank >= FAST_HALF else SLOW
 
 
-def _lorom_offset(bank, page):
+def _lorom_offset(bank: int, page: int) -> int:
     return ((bank & 0x7F) * LOROM_PAGE) + (page - LOROM_PAGE)
 
 
-def _hirom_offset(bank, page):
+def _hirom_offset(bank: int, page: int) -> int:
     return ((bank & 0x3F) * BANK_BYTES) + page
 
 
-def _exhirom_offset(bank, page):
+def _exhirom_offset(bank: int, page: int) -> int:
     """The high offset, moved into the far half for every bank below `$80`."""
     return _hirom_offset(bank, page) + (0 if bank & FAST_HALF else EXHIROM_HALF)
 
 
-def _wholebank_offset(bank, page, banks):
+def _wholebank_offset(bank: int, page: int, banks: int) -> int:
     """Where a whole-bank byte sits, which depends on how large the image is.
+
+    The bank count is not optional here even though it is optional in resolve():
+    resolve refuses this layout without one, so by the time this is reached the
+    count exists. Saying so in the signature puts the invariant where a reader
+    trips over it rather than in a comment three functions away.
 
     The arithmetic is the file placement in `image`, because it is the same
     question asked from the other end: that module answers where a byte goes when
@@ -171,7 +181,13 @@ def _wholebank_offset(bank, page, banks):
     return image.address_to_file(bank, page, banks)
 
 
-def resolve(kind, address, fast=False, banks=None, save=False):
+def resolve(
+    kind: str,
+    address: int,
+    fast: bool = False,
+    banks: int | None = None,
+    save: bool = False,
+) -> Resolution:
     """What sits at that address under that layout, and what reaching it costs.
 
     The order of the tests is the point. Work RAM is decided before anything
@@ -217,6 +233,7 @@ def resolve(kind, address, fast=False, banks=None, save=False):
     ):
         region, offset = SAVE_RAM, None
     elif kind == WHOLEBANK:
+        assert banks is not None, "the guard above refuses this layout without a bank count"
         region, offset = ROM, _wholebank_offset(bank, page, banks)
     elif kind == LOROM:
         if page < LOROM_PAGE:

@@ -11,6 +11,7 @@
 [![Corpus](https://img.shields.io/badge/corpus-289%20%2F%20289-brightgreen)](#the-corpus-and-why-it-can-ship)
 [![Cartridges](https://img.shields.io/badge/measured%20across-2%2C781%20retail%20cartridges-blue)](#the-corpus-and-why-it-can-ship)
 [![Coverage](https://img.shields.io/badge/coverage-100%25%20statement%20%2B%20branch-brightgreen)](#tests)
+[![Types](https://img.shields.io/badge/mypy-strict-blue)](pyproject.toml)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
 </div>
@@ -475,3 +476,27 @@ Because recognising them is a measurement and resolving them would be a claim. R
 ## License
 
 [MIT](LICENSE)
+
+## What each piece of evidence is worth
+
+| Evidence | What it settles | What it cannot |
+|:--|:--|:--|
+| Nintendo's manual, and arithmetic shown from it in [`conformance/hardware.json`](conformance/hardware.json) | The two bus speeds, and therefore the fast and slow access counts | The extra-slow count, which the manual does not print and which is marked unverified |
+| Header combinations read out of 2781 real cartridges | What a combination means on shipped hardware | Combinations no cartridge carries |
+| Digests of every cartridge read | That the file read was the file named | Nothing about whether that release is the one you meant |
+
+What this does not model, stated so nobody inherits a stronger belief: the CPU,
+and therefore how many accesses an instruction makes; refresh and DMA stalls; and
+anything about what happens once an address is reached, which belongs to whatever
+answers there.
+
+## Project conventions
+
+| Convention | Source |
+|:--|:--|
+| Commit format | [Conventional Commits](https://www.conventionalcommits.org/) |
+| Formatting and lint | [ruff](https://docs.astral.sh/ruff/), configured in [`pyproject.toml`](pyproject.toml) |
+| Types | [mypy](https://mypy.readthedocs.io/) at strict, configured in [`pyproject.toml`](pyproject.toml) |
+| Tests | Beside the module, named `<module>.test.py` |
+| Agent instructions | [`AGENTS.md`](AGENTS.md) |
+| Current behaviour | [`specs/current/`](specs/current/), requirements with checkable scenarios |

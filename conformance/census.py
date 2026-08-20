@@ -21,6 +21,14 @@ guessed at. Prototypes and unfinished dumps often carry a blank one, and
 inventing a layout for them would put fiction into a corpus of facts.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable, Sequence
+    from pathlib import Path
+
 import collections
 import json
 import sys
@@ -33,7 +41,7 @@ from mapper import header
 SUFFIXES = (".sfc", ".smc")
 
 
-def cartridges(root, limit=None):
+def cartridges(root: Path, limit: int | None = None) -> list[Path]:
     """Every cartridge image under a directory, in a fixed order."""
     found = sorted(
         path for path in Path(root).rglob("*") if path.is_file() and path.suffix.lower() in SUFFIXES
@@ -41,16 +49,16 @@ def cartridges(root, limit=None):
     return found[:limit] if limit else found
 
 
-def tally(images):
+def tally(images: Iterable[bytes]) -> dict[str, Any]:
     """What the library is made of, with none of what the cartridges hold."""
-    mapping = collections.Counter()
-    chipset = collections.Counter()
-    layouts = collections.Counter()
-    rom_size = collections.Counter()
-    ram_size = collections.Counter()
-    country = collections.Counter()
-    offsets = collections.Counter()
-    combinations = collections.Counter()
+    mapping: collections.Counter[Any] = collections.Counter()
+    chipset: collections.Counter[Any] = collections.Counter()
+    layouts: collections.Counter[Any] = collections.Counter()
+    rom_size: collections.Counter[Any] = collections.Counter()
+    ram_size: collections.Counter[Any] = collections.Counter()
+    country: collections.Counter[Any] = collections.Counter()
+    offsets: collections.Counter[Any] = collections.Counter()
+    combinations: collections.Counter[Any] = collections.Counter()
     fast = battery = agrees = 0
     read = refused = 0
 
@@ -108,7 +116,7 @@ def tally(images):
     }
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
     if len(argv) < 2:
         print("usage: census.py <library directory> <census out> [limit]")
         return 2

@@ -15,17 +15,22 @@ rather than one, because where a header sits is what names the layout whenever t
 byte that should name it is a letter left behind by an overflowing title.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable, Sequence
+    from pathlib import Path
+
 import collections
 import json
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import census
-import corpus
-
+from conformance import census, corpus
 from mapper import header, layout
 
 COMMENT = (
@@ -38,7 +43,7 @@ COMMENT = (
 NUMBERS = ("mapping", "chipset", "rom_size", "ram_size", "country")
 
 
-def fields_of(found):
+def fields_of(found: Any) -> dict[str, Any]:
     """The numbers that make one case, with the title left behind."""
     return {
         "mapping": found.mapping,
@@ -50,7 +55,7 @@ def fields_of(found):
     }
 
 
-def expectation(found):
+def expectation(found: Any) -> dict[str, Any]:
     """What the model makes of this header.
 
     The offset is the one the header occupies in the address space rather than the
@@ -68,7 +73,7 @@ def expectation(found):
     }
 
 
-def resolutions(found, probes):
+def resolutions(found: Any, probes: Iterable[Any]) -> list[list[Any]]:
     """What each probe address reaches under the layout this header declares."""
     return [
         [address, reached.region, reached.offset, reached.cycles]
@@ -78,10 +83,10 @@ def resolutions(found, probes):
     ]
 
 
-def gather(images, probes):
+def gather(images: Iterable[bytes], probes: Iterable[Any]) -> tuple[list[dict[str, Any]], int, int]:
     """One case per distinct header combination, counted, in a fixed order."""
-    seen = {}
-    counts = collections.Counter()
+    seen: dict[Any, dict[str, Any]] = {}
+    counts: collections.Counter[Any] = collections.Counter()
     read = refused = 0
 
     for blob in images:
@@ -116,7 +121,7 @@ def gather(images, probes):
     return cases, read, refused
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
     if not argv:
         print("usage: record.py <library directory> [corpus out] [limit]")
         return 2

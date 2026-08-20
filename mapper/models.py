@@ -10,6 +10,13 @@ A layout with no cartridges behind it does not belong in this table, because the
 its presence would be a guess rather than a measurement.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, override
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable
+
 from . import layout as spaces
 
 
@@ -20,16 +27,25 @@ class UnknownModelError(Exception):
 class Model:
     """One layout: what it is, where its header sits, and how to resolve it."""
 
-    def __init__(self, name, summary, header_at, aliases=()):
+    def __init__(
+        self, name: str, summary: str, header_at: int, aliases: Iterable[str] = ()
+    ) -> None:
         self.name = name
         self.summary = summary
         self.header_at = header_at
         self.aliases = tuple(aliases)
 
-    def resolve(self, address, fast=False, banks=None, save=False):
+    def resolve(
+        self,
+        address: int,
+        fast: bool = False,
+        banks: int | None = None,
+        save: bool = False,
+    ) -> spaces.Resolution:
         return spaces.resolve(self.name, address, fast=fast, banks=banks, save=save)
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return f"<Model {self.name}, header at {self.header_at:#06x}>"
 
 
@@ -85,11 +101,11 @@ for _model in _CATALOGUE:
         _BY_ALIAS[_alias] = _model
 
 
-def _normalise(name):
+def _normalise(name: str) -> str:
     return str(name).strip().lower().replace("-", "").replace("_", "")
 
 
-def describe(name):
+def describe(name: str) -> Model:
     """The layout of that name, however it happens to be written."""
     found = _BY_ALIAS.get(_normalise(name))
     if found is None:

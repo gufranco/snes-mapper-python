@@ -21,6 +21,14 @@ register window, save memory, cartridge, and what reaching each one costs.
 tuple of numbers and the answers they should produce.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable, Mapping, Sequence
+    from pathlib import Path
+
 import json
 import sys
 from pathlib import Path
@@ -62,13 +70,15 @@ PROBES = (
 """The addresses each case is asked about: one per region a layout can reach."""
 
 
-def load(path=None):
+def load(path: Path | str | None = None) -> dict[str, Any]:
     """The corpus, from where it was asked for or from the one that ships."""
     with Path(path or DEFAULT_CORPUS).open() as handle:
-        return json.load(handle)
+        held = json.load(handle)
+    assert isinstance(held, dict), f"{path or DEFAULT_CORPUS} does not hold an object"
+    return held
 
 
-def cartridge_for(case):
+def cartridge_for(case: Mapping[str, Any]) -> bytes:
     """A cartridge carrying this case's real header fields and nothing else.
 
     The fields are measured from real hardware. Everything around them is filler,
@@ -94,7 +104,7 @@ def cartridge_for(case):
     return bytes(rom)
 
 
-def check(case):
+def check(case: Mapping[str, Any]) -> str | None:
     """What went wrong with one case, or nothing when it agreed."""
     try:
         found = header.read(cartridge_for(case))
@@ -126,10 +136,10 @@ def check(case):
     return None
 
 
-def run(cases):
+def run(cases: Iterable[Mapping[str, Any]]) -> tuple[int, int, list[str]]:
     """How many cases agreed, how many did not, and a few that did not."""
     passed = failed = 0
-    examples = []
+    examples: list[str] = []
     for case in cases:
         wrong = check(case)
         if wrong is None:
@@ -141,7 +151,7 @@ def run(cases):
     return passed, failed, examples
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
     path = Path(argv[0]) if argv else DEFAULT_CORPUS
     if not path.is_file():
         print(f"  no corpus at {path}")

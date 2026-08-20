@@ -25,6 +25,13 @@ already shrank. Chunk indexing answers how much of one image was reused in
 another, which is what tells you whether a rebuild changed what it meant to.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING
+
+if TYPE_CHECKING:  # pragma: no cover
+    from pathlib import Path
+
 import re
 import zlib
 from pathlib import Path
@@ -41,19 +48,19 @@ CHUNK_BYTES = 1024
 CHUNK_STRIDE = 512
 
 
-def has_copier_stub(data):
+def has_copier_stub(data: bytes) -> bool:
     """Whether a dump carries the 512 bytes a copier wrote in front of it."""
     if len(data) <= COPIER_BYTES:
         return False
     return (len(data) - COPIER_BYTES) % HALF_BANK == 0 or len(data) % HALF_BANK == COPIER_BYTES
 
 
-def strip_copier_stub(data):
+def strip_copier_stub(data: bytes) -> bytes:
     """The dump without the stub, or unchanged when it never had one."""
     return data[COPIER_BYTES:] if has_copier_stub(data) else data
 
 
-def join_game_doctor(folder):
+def join_game_doctor(folder: Path) -> bytes:
     """One image from a split set, with the stub taken off only the first part.
 
     The parts sort by name, and the sort is case-insensitive because the device
@@ -70,36 +77,40 @@ def join_game_doctor(folder):
     return b"".join(chunks)
 
 
-def read(path):
+def read(path: Path | str) -> bytes:
     """A dump from disk, as the console would have seen it."""
     return strip_copier_stub(Path(path).read_bytes())
 
 
-def deflate_ratio(block):
+def deflate_ratio(block: bytes) -> float:
     """How much a general-purpose compressor can still take off a block."""
     if not block:
         return 0.0
     return len(zlib.compress(block, DEFLATE_LEVEL)) / len(block)
 
 
-def block_ratios(data, block=BLOCK_BYTES):
+def block_ratios(data: bytes, block: int = BLOCK_BYTES) -> list[float]:
     """That ratio across the whole image, which is where its structure shows."""
     return [deflate_ratio(data[i : i + block]) for i in range(0, len(data) - block + 1, block)]
 
 
-def chunk_index(data, chunk=CHUNK_BYTES, stride=CHUNK_STRIDE):
+def chunk_index(
+    data: bytes, chunk: int = CHUNK_BYTES, stride: int = CHUNK_STRIDE
+) -> dict[bytes, int]:
     """Where each distinct chunk first appears, at a stride finer than the chunk.
 
     The stride is deliberately shorter than the chunk, so a run that moved by an
     amount that is not a whole chunk is still found.
     """
-    index = {}
+    index: dict[bytes, int] = {}
     for i in range(0, len(data) - chunk + 1, stride):
         index.setdefault(data[i : i + chunk], i)
     return index
 
 
-def measure_reuse(source, target, chunk=CHUNK_BYTES, stride=CHUNK_STRIDE):
+def measure_reuse(
+    source: bytes, target: bytes, chunk: int = CHUNK_BYTES, stride: int = CHUNK_STRIDE
+) -> tuple[int, int]:
     """How many of one image's chunks appear anywhere in another."""
     index = chunk_index(target, chunk=chunk, stride=stride)
     found = total = 0

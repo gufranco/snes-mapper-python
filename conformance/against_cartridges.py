@@ -14,15 +14,20 @@ The library is the authority and the corpus is a cache of it, so this is the tes
 that decides and the corpus is what runs when the library is absent.
 """
 
+from __future__ import annotations
+
+from typing import TYPE_CHECKING, Any
+
+if TYPE_CHECKING:  # pragma: no cover
+    from collections.abc import Iterable, Mapping, Sequence
+    from pathlib import Path
+
 import sys
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import corpus
-
-import cartridges
+from conformance import cartridges, corpus
 from mapper import header
 
 EXAMPLE_LIMIT = 10
@@ -32,7 +37,7 @@ CASES = corpus.load()["cases"]
 CHECKED = ("layout", "fast", "coprocessor", "battery", "rom_bytes", "ram_bytes")
 
 
-def key_of(found):
+def key_of(found: Any) -> tuple[Any, ...]:
     """What identifies the combination a header carries.
 
     The offset is the one in the address space rather than the one in the file, so
@@ -48,7 +53,7 @@ def key_of(found):
     )
 
 
-def key_of_case(case):
+def key_of_case(case: Mapping[str, Any]) -> tuple[Any, ...]:
     return (
         case["mapping"],
         case["chipset"],
@@ -59,11 +64,13 @@ def key_of_case(case):
     )
 
 
-def cases_by_key(cases=None):
+def cases_by_key(
+    cases: Iterable[Mapping[str, Any]] | None = None,
+) -> dict[tuple[Any, ...], Mapping[str, Any]]:
     return {key_of_case(case): case for case in (CASES if cases is None else cases)}
 
 
-def _disagreement(found, case, path):
+def _disagreement(found: Any, case: Mapping[str, Any], path: Path) -> str | None:
     for name in CHECKED:
         got = getattr(found, name)
         if case["expect"][name] != got:
@@ -71,7 +78,10 @@ def _disagreement(found, case, path):
     return None
 
 
-def sweep(where=None, cases=None):
+def sweep(
+    where: Path | str | None = None,
+    cases: Iterable[Mapping[str, Any]] | None = None,
+) -> tuple[int, int, list[str]]:
     """How many cartridges were read, how many agreed, and which did not."""
     where = Path(where) if where is not None else cartridges.directory()
     if not where.is_dir():
@@ -79,7 +89,7 @@ def sweep(where=None, cases=None):
 
     known = cases_by_key(cases)
     read = agreed = 0
-    wrong = []
+    wrong: list[str] = []
 
     for path in sorted(where.rglob("*")):
         if path.suffix.lower() not in cartridges.READABLE_SUFFIXES or not path.is_file():
@@ -107,7 +117,7 @@ def sweep(where=None, cases=None):
     return read, agreed, wrong
 
 
-def main(argv):
+def main(argv: Sequence[str]) -> int:
     where = Path(argv[0]) if argv else cartridges.directory()
     read, agreed, wrong = sweep(where)
 

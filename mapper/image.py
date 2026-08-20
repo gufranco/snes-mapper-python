@@ -34,21 +34,21 @@ class NotWholeBanks(Exception):
     pass
 
 
-def bank_count(size):
+def bank_count(size: int) -> int:
     """How many banks an image holds, or a refusal if it holds part of one."""
     if size % BANK:
         raise NotWholeBanks(f"{size} is not a whole number of {BANK} byte banks")
     return size // BANK
 
 
-def snes_to_file(bank, addr, banks):
+def snes_to_file(bank: int, addr: int, banks: int) -> int:
     """Where an address sits in an interleaved image of that many banks."""
     if addr < HALF:
         return (bank + banks) * HALF + addr
     return bank * HALF + (addr - HALF)
 
 
-def file_to_snes(offset, banks):
+def file_to_snes(offset: int, banks: int) -> tuple[int, int]:
     """Which bank and address an offset in an interleaved image belongs to."""
     block, rest = divmod(offset, HALF)
     if block < banks:
@@ -56,21 +56,21 @@ def file_to_snes(offset, banks):
     return block - banks, rest
 
 
-def window_to_file(bank, addr, banks):
+def window_to_file(bank: int, addr: int, banks: int) -> int:
     """Where a windowed bank's byte sits, whose halves come from two runs."""
     offset = bank - WINDOW_FIRST_BANK
     base = WINDOW_LOW_BASE if addr < HALF else WINDOW_HIGH_BASE
     return (base + offset + banks) * HALF + (addr & (HALF - 1))
 
 
-def address_to_file(bank, addr, banks):
+def address_to_file(bank: int, addr: int, banks: int) -> int:
     """Where a byte sits, whichever of the two routes its bank takes."""
     if bank >= WINDOW_FIRST_BANK:
         return window_to_file(bank, addr, banks)
     return snes_to_file(bank, addr, banks)
 
 
-def interleave(logical):
+def interleave(logical: bytes) -> bytes:
     """Rearrange an image into the order an interleaved dump stores it in."""
     banks = bank_count(len(logical))
     built = bytearray(len(logical))
@@ -81,7 +81,7 @@ def interleave(logical):
     return bytes(built)
 
 
-def deinterleave(built):
+def deinterleave(built: bytes) -> bytes:
     """Put an interleaved image back into the order the console reads it."""
     banks = bank_count(len(built))
     logical = bytearray(len(built))

@@ -1,0 +1,57 @@
+{
+  "note": "What the manufacturer's own documentation says about the console's memory timing, and what this project derives from it. Every figure here is either quoted from the document named below or shown as arithmetic on figures that are. This file is the authority on the numbers the layout module counts in. When an implementation disagrees with it, the implementation is wrong.",
+  "authority": {
+    "order": [
+      "hardware.json, for anything Nintendo printed and anything that follows from it by arithmetic shown here",
+      "the corpus, for header combinations read out of real cartridges",
+      "neither overrides the other, because they answer different questions"
+    ],
+    "why": "The access-cycle counts every emulator uses are correct, but an emulator is not why they are correct. Two of the three follow exactly from the two bus speeds the official manual prints, and the third does not, so the third is marked unverified rather than inherited."
+  },
+  "document": {
+    "publisher": "Nintendo",
+    "title": "Super Nintendo Entertainment System Development Manual, Book I",
+    "readOn": "2026-08-20",
+    "readVia": "The full text archived at archive.org/stream/SNESDevManual/book1_djvu.txt",
+    "note": "Searched for a table of access cycles per region and for cycle counts in master clocks. It has neither. What it does print is the two CPU bus speeds, in the Map Mode table, and that turns out to be enough for two of the three figures this project uses."
+  },
+  "facts": {
+    "busSpeeds": {
+      "quote": "2.68 MHz (normal speed) and 3.58 MHz (high speed), from the Map Mode table at page 1-2-17",
+      "note": "These are the two speeds the cartridge selects between. They are the only timing figures the manual gives, and both of this project's main access counts follow from them."
+    },
+    "masterClockHz": {
+      "value": 21477273,
+      "derivation": "Six times the NTSC colour carrier, 3579545.4545 Hz, rounded to the nearest hertz. The console counts in this.",
+      "note": "Not from Book I. It is the standard NTSC relationship, and it is what makes the arithmetic below come out whole."
+    },
+    "fastAccessMasterCycles": {
+      "value": 6,
+      "verified": true,
+      "derivation": "21477272 / 3.58 MHz = 5.9992, so six master cycles, and six master cycles back the other way is 3.5795 MHz, which is the 3.58 MHz the manual prints.",
+      "note": "Derived from a documented figure rather than taken from an implementation. The rounding is in the manual's own printing of the speed, not in this."
+    },
+    "slowAccessMasterCycles": {
+      "value": 8,
+      "verified": true,
+      "derivation": "21477272 / 2.68 MHz = 8.0139, so eight master cycles, and eight master cycles back the other way is 2.6847 MHz, which the manual prints as 2.68 MHz.",
+      "note": "Same derivation, same document."
+    },
+    "extraSlowAccessMasterCycles": {
+      "value": 12,
+      "verified": false,
+      "correspondsTo": "1.7898 MHz, which is the master clock divided by twelve",
+      "why": "Book I's Map Mode table lists two bus speeds and not a third, so nothing in the document this was read from supports twelve. It is the figure every implementation uses, for the controller-port region, and that is a third-rung source. It is recorded as unverified rather than presented alongside the other two as though it had the same standing.",
+      "howToSettleIt": "A passage in Book I or Book II giving the controller-port access time, or a measurement on real hardware."
+    }
+  },
+  "notCycleAccurate": {
+    "note": "What this project does and does not claim, so a reader does not inherit a stronger belief than the evidence supports.",
+    "does": "Reports how many master cycles an access to a resolved address costs, for the fast and slow cases, from figures the manual prints.",
+    "doesNot": [
+      "Model the CPU. How many accesses an instruction makes, and therefore what it costs, belongs to the processor rather than to the map.",
+      "Model refresh, DMA stalls, or the cycles the console spends on anything other than the access itself.",
+      "Claim the extra-slow figure is documented, because it is not."
+    ]
+  }
+}

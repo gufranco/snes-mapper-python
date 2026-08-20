@@ -20,8 +20,12 @@ length. Anything that walks all eight without checking the enable register
 reports transfers that never happened.
 
 So this module names the registers, extracts the index from the whole nibble, and
-`plan()` returns only the channels the enable register actually selected.
+`plans()` returns only the channels the enable register actually selected.
 """
+
+from __future__ import annotations
+
+from typing import override
 
 ENABLE = 0x420B
 ENABLE_INDIRECT = 0x420C
@@ -49,7 +53,7 @@ WHOLE_RANGE = 0x10000
 DESTINATION_BASE = 0x2100
 
 
-def channel_of(address):
+def channel_of(address: int) -> int | None:
     """Which channel a register belongs to, or nothing when it belongs to none.
 
     The index is the whole nibble. Masking it to three bits would make `$4380`
@@ -63,7 +67,15 @@ def channel_of(address):
 class Plan:
     """What one enabled channel would move, without moving anything."""
 
-    def __init__(self, channel, source, length, step, destination, to_cpu):
+    def __init__(
+        self,
+        channel: int,
+        source: int,
+        length: int,
+        step: int,
+        destination: int,
+        to_cpu: bool,
+    ) -> None:
         self.channel = channel
         self.source = source
         self.length = length
@@ -71,7 +83,7 @@ class Plan:
         self.destination = destination
         self.to_cpu = to_cpu
 
-    def addresses(self):
+    def addresses(self) -> list[int]:
         """Every address this transfer would touch, in the order it touches them."""
         bank = self.source & 0xFF0000
         at = self.source & 0xFFFF
@@ -81,41 +93,42 @@ class Plan:
             at = (at + self.step) & 0xFFFF
         return touched
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return f"<channel {self.channel}: {self.length} bytes from {self.source:06X}>"
 
 
 class Channel:
     """One channel's registers, holding whatever they were last given."""
 
-    def __init__(self, index):
+    def __init__(self, index: int) -> None:
         self.index = index
         self.registers = bytearray(CHANNEL_STRIDE)
 
-    def write(self, offset, value):
+    def write(self, offset: int, value: int) -> None:
         self.registers[offset & 0x0F] = value & 0xFF
 
     @property
-    def parameters(self):
+    def parameters(self) -> int:
         return self.registers[R_PARAMETERS]
 
     @property
-    def to_cpu(self):
+    def to_cpu(self) -> bool:
         return bool(self.parameters & TO_CPU)
 
     @property
-    def step(self):
+    def step(self) -> int:
         """How far the source moves per byte: forward, backward, or not at all."""
         if self.parameters & FIXED:
             return 0
         return -1 if self.parameters & DECREMENT else 1
 
     @property
-    def destination(self):
+    def destination(self) -> int:
         return DESTINATION_BASE | self.registers[R_DESTINATION]
 
     @property
-    def source(self):
+    def source(self) -> int:
         return (
             (self.registers[R_SOURCE_BANK] << 16)
             | (self.registers[R_SOURCE_HIGH] << 8)
@@ -123,27 +136,27 @@ class Channel:
         )
 
     @property
-    def count(self):
+    def count(self) -> int:
         return (self.registers[R_COUNT_HIGH] << 8) | self.registers[R_COUNT_LOW]
 
     @property
-    def length(self):
+    def length(self) -> int:
         """How many bytes move. A count of zero is the whole range, not nothing."""
         return self.count or WHOLE_RANGE
 
-    def plan(self):
+    def plan(self) -> Plan:
         return Plan(self.index, self.source, self.length, self.step, self.destination, self.to_cpu)
 
 
 class Engine:
     """The eight channels and the register that says which of them are armed."""
 
-    def __init__(self):
+    def __init__(self) -> None:
         self.channels = [Channel(index) for index in range(CHANNEL_COUNT)]
         self.enable = 0x00
         self.enable_indirect = 0x00
 
-    def write(self, address, value):
+    def write(self, address: int, value: int) -> None:
         """Take a write, whether it selects channels or configures one."""
         value &= 0xFF
         if address == ENABLE:
@@ -157,10 +170,15 @@ class Engine:
             self.channels[index].write(address & 0x0F, value)
 
     @property
-    def enabled(self):
+    def enabled(self) -> list[int]:
         """Which channels the enable register selected, and only those."""
         return [index for index in range(CHANNEL_COUNT) if self.enable & (1 << index)]
 
-    def plan(self):
-        """What every armed channel would move, without moving anything."""
+    def plans(self) -> list[Plan]:
+        """What every armed channel would move, without moving anything.
+
+        Plural, and the channel's own is singular. They returned different shapes
+        under one name until a type checker was pointed at them, which is the kind
+        of thing a caller discovers by unpacking a list.
+        """
         return [self.channels[index].plan() for index in self.enabled]

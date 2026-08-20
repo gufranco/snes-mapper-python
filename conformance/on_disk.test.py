@@ -17,35 +17,38 @@ import unittest
 from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import against_cartridges
-
-import cartridges
+from conformance import against_cartridges, cartridges
 from mapper import header, layout
 
 PRESENT = cartridges.present()
 
+# Every class in this file is outside the coverage gate, and it is the only file
+# here that is. Its whole subject is the cartridges a machine happens to hold, so
+# it runs on one machine and not another, and counting it would make the number
+# mean something different depending on who ran it. Everything these exercise is
+# covered by cartridges the other tests write themselves.
+
 
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
-class IdentityTest(unittest.TestCase):
-    def test_every_cartridge_on_disk_matches_all_four_of_its_digests(self):
+class IdentityTest(unittest.TestCase):  # pragma: no cover
+    def test_every_cartridge_on_disk_matches_all_four_of_its_digests(self) -> None:
         for identity, path in PRESENT:
             self.assertTrue(identity.sha256, path)
 
-    def test_the_manifest_describes_every_cartridge_that_is_here(self):
+    def test_the_manifest_describes_every_cartridge_that_is_here(self) -> None:
         named = {entry["name"] for entry in cartridges.manifest()["cartridges"]}
 
         for identity, _ in PRESENT:
             self.assertIn(identity.name, named)
 
-    def test_the_whole_manifest_is_here_rather_than_part_of_it(self):
+    def test_the_whole_manifest_is_here_rather_than_part_of_it(self) -> None:
         listed = {entry[cartridges.DECIDES] for entry in cartridges.manifest()["cartridges"]}
         here = {identity.sha256 for identity, _ in PRESENT}
 
         self.assertEqual(here, listed)
 
-    def test_the_same_cartridge_filed_under_two_regions_is_one_cartridge(self):
+    def test_the_same_cartridge_filed_under_two_regions_is_one_cartridge(self) -> None:
         files = len(PRESENT)
         distinct = len({identity.sha256 for identity, _ in PRESENT})
 
@@ -53,20 +56,20 @@ class IdentityTest(unittest.TestCase):
 
 
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
-class SweepTest(unittest.TestCase):
-    def test_every_cartridge_in_the_library_agrees_with_the_corpus(self):
+class SweepTest(unittest.TestCase):  # pragma: no cover
+    def test_every_cartridge_in_the_library_agrees_with_the_corpus(self) -> None:
         read, agreed, wrong = against_cartridges.sweep()
 
         self.assertEqual(wrong, [])
         self.assertEqual(read, agreed)
 
-    def test_the_library_is_the_whole_one_rather_than_a_handful(self):
+    def test_the_library_is_the_whole_one_rather_than_a_handful(self) -> None:
         self.assertGreater(against_cartridges.sweep()[0], 2000)
 
 
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
-class WholeBankTest(unittest.TestCase):
-    def test_no_retail_cartridge_is_on_the_whole_bank_map(self):
+class WholeBankTest(unittest.TestCase):  # pragma: no cover
+    def test_no_retail_cartridge_is_on_the_whole_bank_map(self) -> None:
         named = [
             identity.name
             for identity, path in PRESENT
@@ -75,13 +78,13 @@ class WholeBankTest(unittest.TestCase):
 
         self.assertEqual(named, [])
 
-    def test_no_retail_cartridge_is_large_enough_for_that_map(self):
+    def test_no_retail_cartridge_is_large_enough_for_that_map(self) -> None:
         for identity, _ in PRESENT:
             self.assertLess(
                 identity.size, layout.WHOLEBANK_BANKS * layout.BANK_BYTES, identity.name
             )
 
-    def test_the_cartridges_that_reach_past_the_low_map_are_the_ones_expected(self):
+    def test_the_cartridges_that_reach_past_the_low_map_are_the_ones_expected(self) -> None:
         larger = {
             identity.name.rsplit("/", 1)[-1]
             for identity, _ in PRESENT

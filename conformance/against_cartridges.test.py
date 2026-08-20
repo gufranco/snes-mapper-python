@@ -3,16 +3,15 @@ import sys
 import tempfile
 import unittest
 from pathlib import Path
+from typing import override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
-sys.path.insert(0, str(Path(__file__).resolve().parent))
 
-import against_cartridges
-
+from conformance import against_cartridges
 from mapper import header
 
 
-def a_cartridge(at=header.LOROM_HEADER, mapping=0x20, size=0x100000):
+def a_cartridge(at: int = header.LOROM_HEADER, mapping: int = 0x20, size: int = 0x100000) -> bytes:
     rom = bytearray(size)
     rom[at : at + 21] = b"SWEPT CARTRIDGE      "
     rom[at + 21] = mapping
@@ -26,28 +25,29 @@ def a_cartridge(at=header.LOROM_HEADER, mapping=0x20, size=0x100000):
 
 
 class SweepTest(unittest.TestCase):
-    def setUp(self):
+    @override
+    def setUp(self) -> None:
         self.where = Path(tempfile.mkdtemp())
         (self.where / "region").mkdir()
         (self.where / "region" / "one.sfc").write_bytes(a_cartridge())
 
-    def test_a_cartridge_the_corpus_covers_agrees(self):
+    def test_a_cartridge_the_corpus_covers_agrees(self) -> None:
         read, agreed, wrong = against_cartridges.sweep(self.where)
 
         self.assertEqual((read, agreed, wrong), (1, 1, []))
 
-    def test_a_cartridge_with_no_header_is_counted_as_refused(self):
+    def test_a_cartridge_with_no_header_is_counted_as_refused(self) -> None:
         (self.where / "region" / "blank.sfc").write_bytes(bytes(0x100000))
 
         self.assertEqual(against_cartridges.sweep(self.where)[0], 1)
 
-    def test_a_combination_the_corpus_never_saw_is_reported(self):
+    def test_a_combination_the_corpus_never_saw_is_reported(self) -> None:
         read, agreed, wrong = against_cartridges.sweep(self.where, cases=[])
 
         self.assertEqual((read, agreed), (1, 0))
         self.assertIn("no case", wrong[0])
 
-    def test_a_case_the_model_now_disagrees_with_is_reported(self):
+    def test_a_case_the_model_now_disagrees_with_is_reported(self) -> None:
         cases = copy.deepcopy(against_cartridges.cases_by_key())
         keyed = cases[against_cartridges.key_of(header.read(a_cartridge()))]
         keyed["expect"]["layout"] = "nonsense"
@@ -57,25 +57,25 @@ class SweepTest(unittest.TestCase):
         self.assertEqual(agreed, 0)
         self.assertIn("layout", wrong[0])
 
-    def test_a_directory_that_is_not_there_reads_nothing(self):
+    def test_a_directory_that_is_not_there_reads_nothing(self) -> None:
         self.assertEqual(against_cartridges.sweep(Path("/nowhere/at/all"))[0], 0)
 
-    def test_the_file_that_disagreed_is_named_so_it_can_be_found(self):
+    def test_the_file_that_disagreed_is_named_so_it_can_be_found(self) -> None:
         _, _, wrong = against_cartridges.sweep(self.where, cases=[])
 
         self.assertIn("one.sfc", wrong[0])
 
-    def test_a_file_that_is_not_a_cartridge_is_passed_over(self):
+    def test_a_file_that_is_not_a_cartridge_is_passed_over(self) -> None:
         (self.where / "region" / "notes.txt").write_bytes(b"nothing here")
 
         self.assertEqual(against_cartridges.sweep(self.where)[0], 1)
 
-    def test_a_directory_named_like_a_cartridge_is_passed_over(self):
+    def test_a_directory_named_like_a_cartridge_is_passed_over(self) -> None:
         (self.where / "region" / "folder.sfc").mkdir()
 
         self.assertEqual(against_cartridges.sweep(self.where)[0], 1)
 
-    def test_only_the_first_few_disagreements_are_reported(self):
+    def test_only_the_first_few_disagreements_are_reported(self) -> None:
         for index in range(against_cartridges.EXAMPLE_LIMIT + 3):
             (self.where / "region" / f"copy{index}.sfc").write_bytes(
                 a_cartridge(size=0x100000 + index * 0x8000)
@@ -85,7 +85,7 @@ class SweepTest(unittest.TestCase):
 
         self.assertEqual(len(wrong), against_cartridges.EXAMPLE_LIMIT)
 
-    def test_only_the_first_few_that_disagree_with_their_case_are_reported(self):
+    def test_only_the_first_few_that_disagree_with_their_case_are_reported(self) -> None:
         cases = copy.deepcopy(against_cartridges.cases_by_key())
         keyed = cases[against_cartridges.key_of(header.read(a_cartridge()))]
         keyed["expect"]["layout"] = "nonsense"
@@ -98,7 +98,7 @@ class SweepTest(unittest.TestCase):
         self.assertEqual(len(wrong), against_cartridges.EXAMPLE_LIMIT)
         self.assertGreater(read, against_cartridges.EXAMPLE_LIMIT)
 
-    def test_a_headerless_file_does_not_stop_the_ones_after_it(self):
+    def test_a_headerless_file_does_not_stop_the_ones_after_it(self) -> None:
         (self.where / "region" / "aaa-blank.sfc").write_bytes(bytes(0x100000))
 
         read, agreed, _ = against_cartridges.sweep(self.where)
@@ -107,15 +107,15 @@ class SweepTest(unittest.TestCase):
 
 
 class KeyTest(unittest.TestCase):
-    def test_every_case_in_the_corpus_has_a_key(self):
+    def test_every_case_in_the_corpus_has_a_key(self) -> None:
         self.assertEqual(len(against_cartridges.cases_by_key()), len(against_cartridges.CASES))
 
-    def test_a_header_keys_to_the_case_that_recorded_it(self):
+    def test_a_header_keys_to_the_case_that_recorded_it(self) -> None:
         found = header.read(a_cartridge())
 
         self.assertIn(against_cartridges.key_of(found), against_cartridges.cases_by_key())
 
-    def test_a_stubbed_dump_keys_to_the_same_case_as_a_bare_one(self):
+    def test_a_stubbed_dump_keys_to_the_same_case_as_a_bare_one(self) -> None:
         bare = header.read(a_cartridge())
         stubbed = header.read(b"\x00" * header.COPIER_BYTES + a_cartridge())
 
@@ -123,19 +123,19 @@ class KeyTest(unittest.TestCase):
 
 
 class MainTest(unittest.TestCase):
-    def test_a_library_that_agrees_reports_success(self):
+    def test_a_library_that_agrees_reports_success(self) -> None:
         where = Path(tempfile.mkdtemp())
         (where / "one.sfc").write_bytes(a_cartridge())
 
         self.assertEqual(against_cartridges.main([str(where)]), 0)
 
-    def test_a_library_that_disagrees_reports_failure(self):
+    def test_a_library_that_disagrees_reports_failure(self) -> None:
         where = Path(tempfile.mkdtemp())
         (where / "one.sfc").write_bytes(a_cartridge(mapping=0x21))
 
         self.assertEqual(against_cartridges.main([str(where)]), 1)
 
-    def test_an_empty_library_is_skipped_rather_than_passed(self):
+    def test_an_empty_library_is_skipped_rather_than_passed(self) -> None:
         self.assertEqual(against_cartridges.main([str(Path(tempfile.mkdtemp()))]), 2)
 
 

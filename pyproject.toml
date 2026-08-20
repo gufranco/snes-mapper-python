@@ -66,17 +66,32 @@ ignore = [
 # a timestamp in front of a report meant to be read by a person.
 "conformance/*.py" = ["T201"]
 
+[tool.mypy]
+# Every flag mypy has, plus the ones strict does not turn on. This is address
+# arithmetic from end to end, so the errors that matter are the ones where a bank,
+# an offset or a None crosses a boundary it should not.
+strict = true
+python_version = "3.12"
+warn_unreachable = true
+warn_no_return = true
+strict_equality = true
+extra_checks = true
+enable_error_code = [
+  "explicit-override",
+  "ignore-without-code",
+  "possibly-undefined",
+  "redundant-expr",
+  "truthy-bool",
+  "truthy-iterable",
+  "unused-awaitable",
+]
+files = ["mapper", "conformance"]
+exclude = "^cartridges/"
+
 [tool.coverage.run]
 source = ["mapper", "conformance"]
 branch = true
-omit = [
-  # Every check in here is skipped unless a cartridge library is on disk, and a
-  # skipped test contributes no coverage. On a runner with an empty directory the
-  # whole file would read as uncovered and fail the gate for a reason that has
-  # nothing to do with the code. The modules it exercises are measured by the
-  # tests beside them, so what is set aside is the bookkeeping of the checks.
-  "conformance/on_disk.test.py",
-]
+omit = []
 
 [tool.coverage.report]
 fail_under = 100

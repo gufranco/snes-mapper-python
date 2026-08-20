@@ -20,6 +20,10 @@ number of half-banks plus 512 has one, and a file whose length is a whole number
 of half-banks does not.
 """
 
+from __future__ import annotations
+
+from typing import override
+
 LOROM_HEADER = 0x7FC0
 HIROM_HEADER = 0xFFC0
 EXHIROM_HEADER = 0x40FFC0
@@ -128,83 +132,90 @@ class NoHeader(Exception):
 class Header:
     """What a cartridge says about itself, and where it said it."""
 
-    def __init__(self, at, raw):
+    def __init__(self, at: int, raw: bytes) -> None:
         self.at = at
         self.raw = bytes(raw)
 
     @property
-    def title(self):
+    def title(self) -> str:
         held = self.raw[:TITLE_BYTES]
         return held.decode("ascii", "replace").rstrip(" \x00")
 
     @property
-    def mapping(self):
+    def mapping(self) -> int:
         return self.raw[21]
 
     @property
-    def chipset(self):
+    def chipset(self) -> int:
         return self.raw[22]
 
     @property
-    def rom_bytes(self):
+    def rom_bytes(self) -> int:
         """The declared size. The byte is a power of two in kilobytes, not bytes."""
         return (1 << self.raw[23]) * 1024 if self.raw[23] else 0
 
     @property
-    def ram_bytes(self):
+    def ram_bytes(self) -> int:
         return (1 << self.raw[24]) * 1024 if self.raw[24] else 0
 
     @property
-    def country(self):
+    def country(self) -> int:
         return self.raw[25]
 
     @property
-    def complement(self):
+    def complement(self) -> int:
         return self.raw[28] | (self.raw[29] << 8)
 
     @property
-    def checksum(self):
+    def checksum(self) -> int:
         return self.raw[30] | (self.raw[31] << 8)
 
     @property
-    def checksum_agrees(self):
+    def checksum_agrees(self) -> bool:
         """Whether the checksum and its complement are consistent with each other."""
         return self.checksum ^ self.complement == 0xFFFF
 
     @property
-    def declared(self):
+    def declared(self) -> bool:
         """Whether the byte at the mapping position is a mapping byte at all."""
         return (self.mapping >> 4) in DECLARED_HIGH_NIBBLES
 
     @property
-    def layout(self):
+    def layout(self) -> str:
         if self.declared:
             return LAYOUTS.get(self.mapping & 0x0F, LOROM)
         return FAMILY_OF_OFFSET.get(self.at - self.shift, LOROM)
 
     @property
-    def shift(self):
+    def shift(self) -> int:
         """How far a copier stub pushed this header past the offset it belongs at."""
         return COPIER_BYTES if self.at - COPIER_BYTES in FAMILY_OF_OFFSET else 0
 
     @property
-    def fast(self):
+    def fast(self) -> bool:
         """Whether the cartridge asks for the faster of the two bus speeds."""
         return self.declared and bool(self.mapping & FAST_BIT)
 
     @property
-    def coprocessor(self):
+    def coprocessor(self) -> bool:
+        """Whether the chipset byte says a coprocessor is present.
+
+        A predicate rather than a name: the byte says that something is there and
+        the family it belongs to, and deciding which part it is takes the board
+        and the size as well. board() does that.
+        """
         return self.chipset >= COPROCESSOR_FROM
 
     @property
-    def battery(self):
+    def battery(self) -> bool:
         return self.chipset in BATTERY_CHIPSETS
 
-    def __repr__(self):
+    @override
+    def __repr__(self) -> str:
         return f"<Header {self.title!r} {self.layout} at {self.at:#08x}>"
 
 
-def stub_by_length(size):
+def stub_by_length(size: int) -> bool:
     """Whether a file of that length carries a copier stub.
 
     The test is only ever a length test, so it is written as one. Anything
@@ -216,23 +227,23 @@ def stub_by_length(size):
     return (size - COPIER_BYTES) % HALF_BANK == 0 or size % HALF_BANK == COPIER_BYTES
 
 
-def has_copier_stub(rom):
+def has_copier_stub(rom: bytes) -> bool:
     """Whether a dump carries the 512 bytes a copier wrote in front of it."""
     return stub_by_length(len(rom))
 
 
-def _sits_where_it_says(found, at):
+def _sits_where_it_says(found: Header, at: int) -> bool:
     """Whether the layout this header claims would put it at this offset."""
     if found.layout in (LOROM, SA1):
         return (at & 0xFFFF) == LOROM_HEADER
     return (at & 0xFFFF) == (HIROM_HEADER & 0xFFFF)
 
 
-def _printable(held):
+def _printable(held: bytes) -> int:
     return sum(1 for byte in held if 0x20 <= byte < 0x7F)
 
 
-def score(rom, at):
+def score(rom: bytes, at: int) -> int:
     """How much the bytes at that offset look like a header rather than data.
 
     Four signals, each worth a point. A title that reads as text, a checksum
@@ -259,13 +270,13 @@ def score(rom, at):
     return points
 
 
-def offsets(rom):
+def offsets(rom: bytes) -> list[int]:
     """Every place a header could be, including past a copier stub."""
     shift = COPIER_BYTES if has_copier_stub(rom) else 0
     return [candidate + shift for candidate in CANDIDATES]
 
 
-def board(found, size):
+def board(found: Header, size: int) -> str:
     """Which map a cartridge actually uses, given its header and how large it is.
 
     The header alone cannot say. The whole-bank map and the ordinary low map declare
@@ -283,7 +294,7 @@ def board(found, size):
     return WHOLEBANK if size == WHOLEBANK_BYTES else LOROM
 
 
-def read(rom):
+def read(rom: bytes) -> Header:
     """The header this cartridge carries, chosen from the candidate places."""
     best = None
     best_score = MINIMUM_SCORE - 1
