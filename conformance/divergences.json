@@ -1,0 +1,54 @@
+{
+  "comment": "Every place a source is weaker than it looks, and every place this package deliberately claims nothing. Each entry says what the document says, what the alternative says, which one this package follows, and what would settle it. The facts themselves live in hardware.json; this file is about their standing.",
+  "sources": {
+    "document": "Nintendo, Super Nintendo Entertainment System Development Manual, Book I. Pinned in hardware.json.",
+    "corpus": "conformance/corpus.json, header combinations read out of a library of real cartridges. It answers what cartridges do, never what the console does.",
+    "implementations": "The access counts every emulator uses. Third rung, and named here only where nothing better exists."
+  },
+  "divergences": [
+    {
+      "id": "extra-slow-access-is-unverified",
+      "parts": ["snes-mapper"],
+      "severity": "medium",
+      "status": "open",
+      "documentSays": "The Map Mode table at page 1-2-17 lists two bus speeds, 2.68 MHz and 3.58 MHz, and no third.",
+      "referenceDoes": "Every implementation uses twelve master cycles for the controller-port region, which is 1.79 MHz.",
+      "packageFollows": "reference",
+      "reasoning": "Twelve is almost certainly right, and that is not the same as documented. The other two figures in this package are derived from speeds Nintendo printed, so presenting the third beside them without a mark would make a reader inherit a stronger belief than the evidence supports. It carries verified false in hardware.json and it is named here.",
+      "wouldSettleIt": "A passage in Book I or Book II giving the controller-port access time, or a measurement on real hardware: drive an access to 4016 and count master cycles."
+    },
+    {
+      "id": "the-master-clock-is-not-from-the-manual",
+      "parts": ["snes-mapper"],
+      "severity": "low",
+      "status": "open",
+      "documentSays": "Nothing. Book I prints the two bus speeds in megahertz and never gives the master clock they divide.",
+      "referenceDoes": "n/a. 21477273 Hz is six times the NTSC colour carrier, which is a property of the television standard rather than of this console.",
+      "packageFollows": "neither",
+      "reasoning": "The arithmetic that turns the manual's two printed speeds into six and eight master cycles needs a master clock, and the one used comes from the NTSC relationship rather than from the document. It is worth naming because the derivation reads as though everything in it came from Nintendo, and one step did not.",
+      "wouldSettleIt": "A passage in either book giving the master clock frequency, or the crystal value from a schematic or a board photograph."
+    },
+    {
+      "id": "nothing-here-is-a-cpu-timing-claim",
+      "parts": ["snes-mapper"],
+      "severity": "medium",
+      "status": "notModelled",
+      "documentSays": "Two bus speeds, and nothing about how many accesses an instruction makes.",
+      "referenceDoes": "n/a",
+      "packageFollows": "document",
+      "reasoning": "This package reports what one access to a resolved address costs. What an instruction costs is a different question, belonging to the processor rather than to the map, and it is answered in mos65xx-python. Refresh, DMA stalls and every other cycle the console spends on something other than the access are outside this too. Saying so matters because a per-access figure looks like a timing model and is not one.",
+      "wouldSettleIt": "n/a. This is a scope boundary rather than an unknown."
+    },
+    {
+      "id": "the-corpus-answers-a-different-question",
+      "parts": ["snes-mapper"],
+      "severity": "low",
+      "status": "notADisagreement",
+      "documentSays": "What a header field means and which values Nintendo defined.",
+      "referenceDoes": "What real cartridges actually carry, including combinations the manual does not define.",
+      "packageFollows": "neither",
+      "reasoning": "The manual is an instruction issued to licensees, so a genuine cartridge can disagree with it and still be genuine. Neither source overrides the other because they are not answering the same question: one says what was specified, the other says what was built.",
+      "wouldSettleIt": "n/a. Both are kept, and a reader is told which is which."
+    }
+  ]
+}

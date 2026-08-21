@@ -2,7 +2,7 @@ import json
 import sys
 import unittest
 from pathlib import Path
-from typing import Any
+from typing import Any, override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -109,6 +109,55 @@ class HonestyTest(unittest.TestCase):
 
     def test_the_file_says_what_it_does_not_model(self) -> None:
         self.assertGreaterEqual(len(declared()["notCycleAccurate"]["doesNot"]), 2)
+
+
+class DivergenceTest(unittest.TestCase):
+    """The standing of each fact, kept in the file the family reads for that.
+
+    `hardware.json` already marks the unverified figure. This checks that the
+    same thing is said in the place a reader of any sibling repository will look
+    for it, so the two cannot part company.
+    """
+
+    @override
+    def setUp(self) -> None:
+        here = Path(__file__).resolve().parent
+        self.entries: list[dict[str, Any]] = json.loads((here / "divergences.json").read_text())[
+            "divergences"
+        ]
+
+    def test_each_entry_says_which_source_the_package_follows(self) -> None:
+        allowed = {"document", "reference", "neither"}
+
+        self.assertEqual({entry["packageFollows"] for entry in self.entries} - allowed, set())
+
+    def test_each_entry_says_what_would_settle_it(self) -> None:
+        missing = [entry["id"] for entry in self.entries if not entry.get("wouldSettleIt")]
+
+        self.assertEqual(missing, [])
+
+    def test_the_unverified_access_count_is_named_here_too(self) -> None:
+        named = {entry["id"] for entry in self.entries}
+
+        self.assertIn("extra-slow-access-is-unverified", named)
+
+    def test_and_it_agrees_with_the_mark_on_the_fact_itself(self) -> None:
+        entry = next(
+            item for item in self.entries if item["id"] == "extra-slow-access-is-unverified"
+        )
+
+        self.assertEqual(
+            (
+                entry["packageFollows"],
+                declared()["facts"]["extraSlowAccessMasterCycles"]["verified"],
+            ),
+            ("reference", False),
+        )
+
+    def test_the_master_clock_not_coming_from_the_manual_is_named(self) -> None:
+        named = {entry["id"] for entry in self.entries}
+
+        self.assertIn("the-master-clock-is-not-from-the-manual", named)
 
 
 class ResolutionTest(unittest.TestCase):

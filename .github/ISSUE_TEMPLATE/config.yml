@@ -1,0 +1,8 @@
+blank_issues_enabled: false
+contact_links:
+  - name: Which figures are documented and which are not
+    url: https://github.com/gufranco/snes-mapper-python/blob/main/conformance/divergences.json
+    about: One of the three access counts is unverified on purpose, and this says why.
+  - name: Rewriting a header rather than reading one
+    url: https://github.com/gufranco/snes-rom-image-python
+    about: That job belongs to the image package, not to this one.

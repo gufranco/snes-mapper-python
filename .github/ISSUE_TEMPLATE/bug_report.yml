@@ -1,0 +1,68 @@
+name: Something is wrong
+description: A header reads wrong, an address resolves wrong, or nothing works at all
+labels: ["bug"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Almost every report here is about one cartridge, and almost every one of
+        those is settled by what this package says about it. The first field
+        asks for exactly that.
+
+        Never attach a cartridge and never link to one. Its SHA-256 identifies it
+        exactly, and that is all anybody needs.
+
+  - type: textarea
+    id: what_it_says
+    attributes:
+      label: What this package makes of the file
+      description: |
+        Run this from the repository and paste all of it. It reads lengths and
+        header fields, and prints no part of the cartridge.
+      render: text
+      placeholder: |
+        python3 -c "
+        from mapper import header, layout
+        image = open('YOUR FILE','rb').read()
+        found = header.find(image)
+        print(found)
+        print(layout.describe(found))"
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected
+    attributes:
+      label: What you expected
+      placeholder: |
+        this is a HiROM cartridge, and the header should be found at 0xFFC0
+    validations:
+      required: true
+
+  - type: textarea
+    id: happened
+    attributes:
+      label: What happened instead
+      description: The exact output or the whole traceback, pasted rather than described.
+      render: text
+    validations:
+      required: true
+
+  - type: input
+    id: cartridge
+    attributes:
+      label: The cartridge, if one is involved
+      description: |
+        Its name, its region, and its SHA-256. Never attach the file, and never
+        link to somewhere it can be downloaded.
+      placeholder: "Star Ocean (Japan), sha256 ..."
+
+  - type: checkboxes
+    id: confirmations
+    attributes:
+      label: Before submitting
+      options:
+        - label: The output above is complete rather than trimmed
+          required: true
+        - label: I own anything I am naming, and I have attached none of it
+          required: true
