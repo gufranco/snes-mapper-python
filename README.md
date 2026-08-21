@@ -32,6 +32,7 @@ from mapper import read, resolve
 cartridge = read(open("game.sfc", "rb").read())
 
 resolve(cartridge.layout, 0x7E0900).region
+
 # 'work-ram', not cartridge, however much it looks like a bank number
 ```
 
@@ -107,8 +108,11 @@ cd snes-mapper-python
 
 ```bash
 python3 conformance/corpus.py
+
 #   289 header combinations from conformance/corpus.json
+
 #   measured across 2781 cartridges
+
 #   289 agreed, 0 did not
 ```
 
@@ -117,7 +121,9 @@ every file in it instead:
 
 ```bash
 python3 conformance/against_cartridges.py
+
 #   2781 cartridges read from cartridges
+
 #   2781 agreed, 0 did not
 ```
 
@@ -129,6 +135,7 @@ python3 conformance/against_cartridges.py
 from mapper import interleave, deinterleave
 
 deinterleave(interleave(image)) == image
+
 # True, and a patch applied without deinterleaving first lands in another bank
 ```
 
@@ -138,9 +145,11 @@ Some dumps store every bank's upper half first and every lower half afterwards. 
 
 ```python
 resolve(LOROM, 0x7E0900).region
+
 # 'work-ram'
 
 resolve(LOROM, 0x008000).region
+
 # 'rom'
 ```
 
@@ -152,6 +161,7 @@ They sit in the middle of the bank numbering and read like any other address. A 
 from mapper import ENABLE, CHANNEL_BASE
 
 ENABLE, CHANNEL_BASE
+
 # (0x420B, 0x4300)
 ```
 
@@ -161,9 +171,11 @@ Not `$21xx`. A hook placed on the display's window sees every graphics write and
 
 ```python
 channel_of(0x4370)
+
 # 7
 
 channel_of(0x4380)
+
 # None, not channel 0
 ```
 
@@ -174,10 +186,12 @@ There are eight channels, so `& 7` looks right. It folds `$4380` onto channel ze
 ```python
 engine.write(0x4304, 0x7E)
 engine.enabled
+
 # [], because nothing enabled it
 
 engine.write(ENABLE, 0x01)
 engine.enabled
+
 # [0]
 ```
 
@@ -216,12 +230,15 @@ from mapper import header
 
 found = header.read(open("Contra III - The Alien Wars (USA).sfc", "rb").read())
 found.mapping
+
 # 0x53, which is 'S', the last letter of CONTRA3 THE ALIEN WARS
 
 found.declared
+
 # False, so the byte is not consulted
 
 found.layout
+
 # 'lorom', from the place the header sits, which is the signal that survives
 ```
 
@@ -253,8 +270,11 @@ Facts and functional elements sit outside what copyright reaches, per [17 U.S.C.
 
 ```bash
 python3 conformance/census.py "/path/to/roms" census.json
+
 #   2781 cartridges read, 8 refused, from /path/to/roms
+
 #   289 distinct header combinations
+
 #   written to census.json
 ```
 
@@ -266,8 +286,11 @@ confirm it byte for byte.
 
 ```bash
 python3 conformance/record.py "/path/to/roms" conformance/corpus.json
+
 #   2781 cartridges read, 8 refused, from /path/to/roms
+
 #   289 distinct header combinations
+
 #   written to conformance/corpus.json
 ```
 
@@ -281,9 +304,11 @@ name it is a letter left behind by an overflowing title.
 from mapper import describe
 
 describe("mode20").name
+
 # 'lorom'
 
 describe("hirom").resolve(0xC00000).region
+
 # 'rom'
 ```
 
@@ -306,9 +331,11 @@ everything past them.
 from mapper import layout
 
 layout.resolve("exhirom", 0x00FFC0).offset
+
 # 0x40FFC0, four megabytes in, which is why an extended cartridge keeps a header there
 
 layout.resolve("hirom", 0x00FFC0).offset
+
 # 0x00FFC0, and a plain high cartridge never reaches past four megabytes at all
 ```
 
@@ -333,12 +360,15 @@ from mapper import bank_count, resolve, WHOLEBANK
 banks = bank_count(len(rom))  # 192 for a twelve megabyte image
 
 resolve(WHOLEBANK, 0x008000, banks=banks).offset
+
 # 0x000000, the upper half of bank $00, exactly where plain LoROM puts it
 
 resolve(WHOLEBANK, 0x400000, banks=banks).offset
+
 # 0x800000, the lower half of bank $40, one whole image further in
 
 resolve(WHOLEBANK, 0xC04D6A, banks=banks).offset
+
 # 0xA04D6A, through the window the high banks open
 ```
 
@@ -363,6 +393,7 @@ from mapper import header
 found = header.read(rom)
 
 header.board(found, len(rom))
+
 # 'wholebank' at exactly 12 MB, 'lorom' at any other size
 ```
 
@@ -498,5 +529,3 @@ answers there.
 | Formatting and lint | [ruff](https://docs.astral.sh/ruff/), configured in [`pyproject.toml`](pyproject.toml) |
 | Types | [mypy](https://mypy.readthedocs.io/) at strict, configured in [`pyproject.toml`](pyproject.toml) |
 | Tests | Beside the module, named `<module>.test.py` |
-| Agent instructions | [`AGENTS.md`](AGENTS.md) |
-| Current behaviour | [`specs/current/`](specs/current/), requirements with checkable scenarios |

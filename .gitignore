@@ -13,3 +13,4 @@ cartridges/*
 *.sfc
 *.smc
 .mypy_cache/
+docs/
