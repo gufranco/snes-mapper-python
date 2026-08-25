@@ -25,7 +25,7 @@
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
 </p>
 
-**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **557** tests · **100%** statement and branch coverage · no dependencies
+**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **562** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from mapper import LOROM, resolve
