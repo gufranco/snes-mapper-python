@@ -29,14 +29,36 @@ def fact(name: str) -> dict[str, Any]:
 class DocumentTest(unittest.TestCase):
     """That the file names its source well enough for somebody to go and check."""
 
-    def test_it_names_the_document_and_when_it_was_read(self) -> None:
-        held = declared()["document"]
+    def source(self) -> Any:
+        return declared()["documents"]["developmentManual"]
 
-        for named in ("publisher", "title", "readOn", "readVia"):
+    def test_it_names_the_document_and_when_it_was_read(self) -> None:
+        held = self.source()
+
+        for named in ("publisher", "title", "readOn", "readVia", "file"):
             self.assertIn(named, held)
 
     def test_and_says_what_the_document_does_not_contain(self) -> None:
-        self.assertIn("neither", declared()["document"]["note"])
+        self.assertIn("neither", self.source()["note"])
+
+    def test_every_figure_taken_from_it_says_so(self) -> None:
+        """A figure the manual printed, and one derived from those, cite the key.
+
+        The extra-slow count does not, and must not: no document supports it.
+        """
+        facts = declared()["facts"]
+        citing = sorted(name for name, one in facts.items() if one.get("document"))
+
+        self.assertEqual(
+            citing,
+            ["busSpeeds", "fastAccessMasterCycles", "slowAccessMasterCycles"],
+        )
+
+    def test_and_the_one_no_document_supports_does_not(self) -> None:
+        held = declared()["facts"]["extraSlowAccessMasterCycles"]
+
+        self.assertNotIn("document", held)
+        self.assertFalse(held["verified"])
 
     def test_the_authority_order_is_written_down(self) -> None:
         self.assertGreaterEqual(len(declared()["authority"]["order"]), 2)

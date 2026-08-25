@@ -25,7 +25,7 @@
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
 </p>
 
-**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **486** tests · **100%** statement and branch coverage · no dependencies
+**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **555** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -567,6 +567,8 @@ python3 -m coverage report
 Everything under `conformance/` runs as a module rather than as a script. Run as a script,
 its own directory goes on the import path and a file there shadows any standard library
 module of the same name.
+
+`python3 mapper/doctor.py` says what is actually on this machine: every layout, a header read out of an image built on the spot, and whether the cartridge library this repository cannot carry is here and holds anything. It is run as a file rather than with `-m` so that it still runs when the package itself will not import, which is the case it exists for. Its report is what an issue asks for, because a report is only as good as what it says about the machine that produced it.
 
 Tests sit beside the module they cover, named `<module>.test.py`. Coverage is 100% of
 statements and branches, enforced by [`pyproject.toml`](pyproject.toml). Types are `mypy` at

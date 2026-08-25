@@ -8,17 +8,12 @@
     ],
     "why": "The access-cycle counts every emulator uses are correct, but an emulator is not why they are correct. Two of the three follow exactly from the two bus speeds the official manual prints, and the third does not, so the third is marked unverified rather than inherited."
   },
-  "document": {
-    "publisher": "Nintendo",
-    "title": "Super Nintendo Entertainment System Development Manual, Book I",
-    "readOn": "2026-08-20",
-    "readVia": "The full text archived at archive.org/stream/SNESDevManual/book1_djvu.txt",
-    "note": "Searched for a table of access cycles per region and for cycle counts in master clocks. It has neither. What it does print is the two CPU bus speeds, in the Map Mode table, and that turns out to be enough for two of the three figures this project uses."
-  },
   "facts": {
     "busSpeeds": {
       "quote": "2.68 MHz (normal speed) and 3.58 MHz (high speed), from the Map Mode table at page 1-2-17",
-      "note": "These are the two speeds the cartridge selects between. They are the only timing figures the manual gives, and both of this project's main access counts follow from them."
+      "note": "These are the two speeds the cartridge selects between. They are the only timing figures the manual gives, and both of this project's main access counts follow from them.",
+      "document": "developmentManual",
+      "section": "Map Mode table, page 1-2-17"
     },
     "masterClockHz": {
       "value": 21477273,
@@ -29,13 +24,17 @@
       "value": 6,
       "verified": true,
       "derivation": "21477272 / 3.58 MHz = 5.9992, so six master cycles, and six master cycles back the other way is 3.5795 MHz, which is the 3.58 MHz the manual prints.",
-      "note": "Derived from a documented figure rather than taken from an implementation. The rounding is in the manual's own printing of the speed, not in this."
+      "note": "Derived from a documented figure rather than taken from an implementation. The rounding is in the manual's own printing of the speed, not in this.",
+      "document": "developmentManual",
+      "section": "Map Mode table, page 1-2-17"
     },
     "slowAccessMasterCycles": {
       "value": 8,
       "verified": true,
       "derivation": "21477272 / 2.68 MHz = 8.0139, so eight master cycles, and eight master cycles back the other way is 2.6847 MHz, which the manual prints as 2.68 MHz.",
-      "note": "Same derivation, same document."
+      "note": "Same derivation, same document.",
+      "document": "developmentManual",
+      "section": "Map Mode table, page 1-2-17"
     },
     "extraSlowAccessMasterCycles": {
       "value": 12,
@@ -53,5 +52,16 @@
       "Model refresh, DMA stalls, or the cycles the console spends on anything other than the access itself.",
       "Claim the extra-slow figure is documented, because it is not."
     ]
+  },
+  "documents": {
+    "developmentManual": {
+      "publisher": "Nintendo",
+      "title": "Super Nintendo Entertainment System Development Manual, Book I",
+      "readOn": "2026-08-20",
+      "readVia": "The full text archived at archive.org/stream/SNESDevManual/book1_djvu.txt",
+      "note": "Searched for a table of access cycles per region and for cycle counts in master clocks. It has neither. What it does print is the two CPU bus speeds, in the Map Mode table, and that turns out to be enough for two of the three figures this project uses.",
+      "file": "book1_djvu.txt",
+      "section": "Map Mode table, page 1-2-17"
+    }
   }
 }
