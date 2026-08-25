@@ -144,9 +144,9 @@ class ModelsAClockedPartTest(unittest.TestCase):
         self.assertEqual(KIND, self.row())
 
     def test_the_table_only_uses_kinds_the_standard_explains(self) -> None:
-        kinds = set(re.findall(r"\|\s*(Clocked part|Board|Format|Tool)\s*\|", FAMILY))
+        kinds = set(re.findall(r"\|\s*(Clocked part|Part|Board|Format|Tool)\s*\|", FAMILY))
 
-        self.assertTrue(kinds <= {"Clocked part", "Board", "Format", "Tool"})
+        self.assertTrue(kinds <= {"Clocked part", "Part", "Board", "Format", "Tool"})
         self.assertIn(KIND, kinds)
 
     def test_the_standard_says_what_a_kind_that_is_not_clocked_skips(self) -> None:
