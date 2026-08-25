@@ -159,7 +159,6 @@ mapper/
   transfer.py     the eight channels, and planning what one would move
   image.py        where a byte sits in a file, which is not where the console sees it
   models.py       what each layout is, by name and alias
-  dump.py         what a copier or a split dump adds. Not exported and not imported
   version.py      rewritten by the release job and by nothing else
 conformance/
   corpus.json           289 combinations covering 2,781 retail cartridges
@@ -197,15 +196,11 @@ touching either.
   so `$4380` is outside the window rather than channel zero.
 - **The size for the whole-bank map is an equality, not a floor.** `resolve`
   refuses a smaller bank count rather than returning an offset past the end.
-- **`mapper/dump.py` is not part of the interface and nothing imports it.** It
-  is not in `__all__`, it is not imported by `__init__.py`, and no file in this
-  repository or in any member that consumes this one reaches for it. Two of the
-  names in it, `read` and `has_copier_stub`, are also names the package
-  publishes from `header.py`, which means a reader who imports the module by
-  hand gets a different function than the one the readme documents. Whether it
-  should be published, moved to `snes-rom-image` where this package's own
-  docstring says the subject belongs, or removed, is open and is not decided
-  here.
+- **Copier stubs and split dumps belong to `snes-rom-image`, not here.** This
+  package once carried a `dump.py` for them, unimported and unpublished, holding
+  a second `read` and a second `has_copier_stub` beside the ones `header.py`
+  publishes. The subject moved to the member whose job it is; the module stayed
+  behind and was removed. Reach for `romimage.dump` rather than adding it back.
 
 ## Before calling anything finished
 

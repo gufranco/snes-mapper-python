@@ -25,7 +25,7 @@
   <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
 </p>
 
-**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **555** tests · **100%** statement and branch coverage · no dependencies
+**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **556** tests · **100%** statement and branch coverage · no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -591,7 +591,6 @@ mapper/
   transfer.py     the eight channels, and planning what one would move
   image.py        where a byte sits in a file, which is not where the console sees it
   models.py       what each layout is
-  dump.py         what a copier or a split dump adds, not published and not imported
   version.py      rewritten by the release job and by nothing else
 conformance/
   corpus.py               replays every real header combination
