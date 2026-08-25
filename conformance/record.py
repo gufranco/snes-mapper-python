@@ -31,7 +31,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conformance import census, corpus
-from mapper import header, layout
+from mapper import errors, header, layout
 
 COMMENT = (
     "Every distinct combination of cartridge header fields found across a real ROM"
@@ -92,7 +92,7 @@ def gather(images: Iterable[bytes], probes: Iterable[Any]) -> tuple[list[dict[st
     for blob in images:
         try:
             found = header.read(blob)
-        except header.NoHeader:
+        except errors.NoHeader:
             refused += 1
             continue
 

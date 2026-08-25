@@ -89,7 +89,7 @@ jobs:
       - name: Read whatever cartridges are here
         run: |
           set +e
-          python conformance/against_cartridges.py
+          python -m conformance.against_cartridges
           status=$?
           set -e
           if [ "${status}" -eq 2 ]; then

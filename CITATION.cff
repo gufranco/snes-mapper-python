@@ -1,0 +1,26 @@
+cff-version: 1.2.0
+title: snes-mapper-python
+message: >-
+  If you use this work, or the header combinations it was settled against, please cite it.
+type: software
+authors:
+  - given-names: Gustavo
+    family-names: Franco
+    alias: gufranco
+repository-code: https://github.com/gufranco/snes-mapper-python
+url: https://github.com/gufranco/snes-mapper-python
+abstract: >-
+  A model of the cartridge memory map and the transfer engine it is reached through:
+  where an address lands, what reaching it costs, and what an armed channel would move.
+  Every layout is settled against the header combinations declared by a library of
+  retail cartridges rather than against its author's confidence, and no cartridge, no
+  title and no byte outside a header is carried anywhere in the repository.
+keywords:
+  - hardware-model
+  - memory-map
+  - cartridge
+  - conformance
+  - address-decoding
+  - dma
+license: MIT
+version: 1.5.0

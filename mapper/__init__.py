@@ -16,6 +16,12 @@ separate jobs and live in `snes-rom-image` rather than here. This package answer
 where an address lands; that one answers what the file containing it is.
 """
 
+from .errors import (
+    NeedsBankCount,
+    NoHeader,
+    NotWholeBanks,
+    UnknownModelError,
+)
 from .header import (
     COPIER_BYTES,
     EXHIROM,
@@ -25,7 +31,6 @@ from .header import (
     LOROM_HEADER,
     WHOLEBANK,
     Header,
-    NoHeader,
     board,
     has_copier_stub,
     read,
@@ -36,7 +41,6 @@ from .image import (
     BANK,
     HALF,
     WINDOW_FIRST_BANK,
-    NotWholeBanks,
     address_to_file,
     bank_count,
     deinterleave,
@@ -56,10 +60,9 @@ from .layout import (
     WHOLEBANK_BYTES,
     WORK_RAM,
     XSLOW,
-    NeedsBankCount,
     resolve,
 )
-from .models import MODELS, UnknownModelError, describe
+from .models import MODELS, describe
 from .transfer import CHANNEL_BASE, CHANNEL_COUNT, ENABLE, Channel, Engine, Plan, channel_of
 from .version import VERSION
 

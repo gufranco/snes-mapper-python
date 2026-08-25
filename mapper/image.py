@@ -22,16 +22,14 @@ checkable without a corpus: an address converted to an offset and back must be
 the address it started as, for every address in the image.
 """
 
+from .errors import NotWholeBanks
+
 BANK = 0x10000
 HALF = 0x8000
 
 WINDOW_FIRST_BANK = 0xC0
 WINDOW_LOW_BASE = 0x80
 WINDOW_HIGH_BASE = 0x00
-
-
-class NotWholeBanks(Exception):
-    pass
 
 
 def bank_count(size: int) -> int:

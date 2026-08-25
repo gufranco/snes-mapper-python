@@ -101,6 +101,19 @@ jobs:
       - name: Coverage must be total
         run: python -m coverage report
 
+  speed:
+    name: Throughput
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v7
+
+      - uses: actions/setup-python@v7
+        with:
+          python-version: ${{ env.PYTHON_VERSION }}
+
+      - name: The map must still answer faster than the floor
+        run: python -m conformance.speed
+
   conformance:
     name: Corpus
     runs-on: ubuntu-latest
@@ -112,7 +125,7 @@ jobs:
           python-version: ${{ env.PYTHON_VERSION }}
 
       - name: Replay every header combination the corpus recorded
-        run: python conformance/corpus.py
+        run: python -m conformance.corpus
 
   cartridges:
     name: Cartridges
@@ -127,7 +140,7 @@ jobs:
       - name: Read every cartridge present
         run: |
           status=0
-          python conformance/against_cartridges.py || status="$?"
+          python -m conformance.against_cartridges || status="$?"
           if [ "${status}" -eq 2 ]; then
             echo "::notice title=Cartridges::No cartridge is present on a hosted runner, so this sweep was skipped rather than passed. It reads the header of every retail cartridge in the library and holds each one to the recorded corpus. Run it locally with a library you own, or point SNES_CARTRIDGE_DIR at one."
             exit 0

@@ -1,16 +1,25 @@
 __pycache__/
+*.pyc
 .ruff_cache/
+.mypy_cache/
 .coverage
 coverage.json
 node_modules/
 dist/
 build/
 *.egg-info/
+.venv/
+venv/
+uv.lock
 .DS_Store
+
+docs/
+specs/
 
 cartridges/*
 !cartridges/README.md
+
+*.rom
+*.bin
 *.sfc
 *.smc
-.mypy_cache/
-docs/

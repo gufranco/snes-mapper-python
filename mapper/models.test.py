@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import layout, models
+from mapper import errors, layout, models
 
 
 class CatalogueTest(unittest.TestCase):
@@ -23,11 +23,11 @@ class CatalogueTest(unittest.TestCase):
             self.assertEqual(models.describe(written).name, layout.LOROM)
 
     def test_a_layout_the_package_does_not_have_is_refused_by_name(self) -> None:
-        with self.assertRaises(models.UnknownModelError):
+        with self.assertRaises(errors.UnknownModelError):
             models.describe("sa1")
 
     def test_the_refusal_lists_what_is_available(self) -> None:
-        with self.assertRaises(models.UnknownModelError) as raised:
+        with self.assertRaises(errors.UnknownModelError) as raised:
             models.describe("nonsense")
 
         self.assertIn("lorom", str(raised.exception))

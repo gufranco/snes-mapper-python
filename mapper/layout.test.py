@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import layout
+from mapper import errors, layout
 
 
 def offset_of(resolution: "layout.Resolution") -> int:
@@ -277,13 +277,13 @@ class WholeBankTest(unittest.TestCase):
                     self.assertLess(offset_of(found), size, hex((bank << 16) | page))
 
     def test_an_image_too_small_for_the_window_is_refused(self) -> None:
-        with self.assertRaises(layout.NeedsBankCount) as raised:
+        with self.assertRaises(errors.NeedsBankCount) as raised:
             layout.resolve(layout.WHOLEBANK, 0x400000, banks=64)
 
         self.assertIn("64", str(raised.exception))
 
     def test_the_refusal_says_how_many_banks_the_map_wants(self) -> None:
-        with self.assertRaises(layout.NeedsBankCount) as raised:
+        with self.assertRaises(errors.NeedsBankCount) as raised:
             layout.resolve(layout.WHOLEBANK, 0x400000, banks=191)
 
         self.assertIn(str(layout.WHOLEBANK_BANKS), str(raised.exception))
@@ -304,11 +304,11 @@ class WholeBankTest(unittest.TestCase):
                 self.assertLess(offset_of(found), size, hex((bank << 16) | page))
 
     def test_resolving_it_without_a_bank_count_is_refused(self) -> None:
-        with self.assertRaises(layout.NeedsBankCount):
+        with self.assertRaises(errors.NeedsBankCount):
             layout.resolve(layout.WHOLEBANK, 0x008000)
 
     def test_the_refusal_says_what_is_missing(self) -> None:
-        with self.assertRaises(layout.NeedsBankCount) as raised:
+        with self.assertRaises(errors.NeedsBankCount) as raised:
             layout.resolve(layout.WHOLEBANK, 0x008000)
 
         self.assertIn("bank count", str(raised.exception))

@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import image
+from mapper import errors, image
 
 
 def a_logical(banks: int) -> bytes:
@@ -20,11 +20,11 @@ class BankCountTest(unittest.TestCase):
         self.assertEqual(image.bank_count(4 * image.BANK), 4)
 
     def test_a_size_that_is_not_whole_banks_is_refused(self) -> None:
-        with self.assertRaises(image.NotWholeBanks):
+        with self.assertRaises(errors.NotWholeBanks):
             image.bank_count(image.BANK + 1)
 
     def test_the_refusal_names_the_size(self) -> None:
-        with self.assertRaises(image.NotWholeBanks) as raised:
+        with self.assertRaises(errors.NotWholeBanks) as raised:
             image.bank_count(0x1234)
 
         self.assertIn("4660", str(raised.exception))
@@ -66,7 +66,7 @@ class InterleaveTest(unittest.TestCase):
         self.assertEqual(swapped[2 * image.HALF], 0xA0)
 
     def test_an_image_that_is_not_whole_banks_is_refused(self) -> None:
-        with self.assertRaises(image.NotWholeBanks):
+        with self.assertRaises(errors.NotWholeBanks):
             image.interleave(bytes(image.BANK + 3))
 
 

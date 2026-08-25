@@ -24,6 +24,8 @@ from typing import override
 
 from mapper import image
 
+from .errors import NeedsBankCount
+
 LOROM = "lorom"
 HIROM = "hirom"
 EXHIROM = "exhirom"
@@ -107,10 +109,6 @@ have had one. The map does not say, and it does not need to.
 """
 
 
-class NeedsBankCount(Exception):
-    pass
-
-
 EXHIROM_BYTES = 0x800000
 """The most an extended cartridge can reach: eight megabytes, sixty four megabit.
 
@@ -126,6 +124,8 @@ twelve by spending no part of a bank on anything but cartridge.
 
 class Resolution:
     """What one address turned out to be."""
+
+    __slots__ = ("address", "cycles", "offset", "region")
 
     def __init__(self, address: int, region: str, offset: int | None, cycles: int) -> None:
         self.address = address

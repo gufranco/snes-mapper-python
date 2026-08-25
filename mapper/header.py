@@ -24,6 +24,8 @@ from __future__ import annotations
 
 from typing import override
 
+from .errors import NoHeader
+
 LOROM_HEADER = 0x7FC0
 HIROM_HEADER = 0xFFC0
 EXHIROM_HEADER = 0x40FFC0
@@ -125,12 +127,10 @@ never reads the field.
 MINIMUM_SCORE = 2
 
 
-class NoHeader(Exception):
-    pass
-
-
 class Header:
     """What a cartridge says about itself, and where it said it."""
+
+    __slots__ = ("at", "raw")
 
     def __init__(self, at: int, raw: bytes) -> None:
         self.at = at

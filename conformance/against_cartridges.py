@@ -28,7 +28,7 @@ from pathlib import Path
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from conformance import cartridges, corpus
-from mapper import header
+from mapper import errors, header
 
 EXAMPLE_LIMIT = 10
 
@@ -96,7 +96,7 @@ def sweep(
             continue
         try:
             found = header.read(path.read_bytes())
-        except header.NoHeader:
+        except errors.NoHeader:
             continue
 
         read += 1

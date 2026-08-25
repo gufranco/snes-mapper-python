@@ -10,6 +10,11 @@ The alternative was to relax the gate, which would have hidden real gaps in the
 files that can be measured everywhere. This hides nothing: the modules these
 exercise are measured by the tests beside them, and what is set aside is the
 bookkeeping of the checks themselves.
+
+Every class below carries the marker that keeps it out of the count, and this is
+the only file here that does. Its whole subject is the cartridges a machine
+happens to hold, so it runs on one machine and not on another, and counting it
+would make the number mean something different depending on who ran it.
 """
 
 import sys
@@ -22,12 +27,6 @@ from conformance import against_cartridges, cartridges
 from mapper import header, layout
 
 PRESENT = cartridges.present()
-
-# Every class in this file is outside the coverage gate, and it is the only file
-# here that is. Its whole subject is the cartridges a machine happens to hold, so
-# it runs on one machine and not another, and counting it would make the number
-# mean something different depending on who ran it. Everything these exercise is
-# covered by cartridges the other tests write themselves.
 
 
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)

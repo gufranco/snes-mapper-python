@@ -14,18 +14,18 @@ from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
 
+from .errors import UnknownModelError
+
 if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Iterable
 
 from . import layout as spaces
 
 
-class UnknownModelError(Exception):
-    pass
-
-
 class Model:
     """One layout: what it is, where its header sits, and how to resolve it."""
+
+    __slots__ = ("aliases", "header_at", "name", "summary")
 
     def __init__(
         self, name: str, summary: str, header_at: int, aliases: Iterable[str] = ()

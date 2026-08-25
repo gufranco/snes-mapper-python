@@ -12,7 +12,7 @@
     [
       "@semantic-release/git",
       {
-        "assets": ["mapper/version.py"],
+        "assets": ["mapper/version.py", "CITATION.cff"],
         "message": "chore(release): ${nextRelease.version} [skip ci]\n\n${nextRelease.notes}"
       }
     ],

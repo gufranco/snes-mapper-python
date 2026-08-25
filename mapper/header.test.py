@@ -4,7 +4,7 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import header
+from mapper import errors, header
 
 
 def a_cartridge(
@@ -47,11 +47,11 @@ class LocationTest(unittest.TestCase):
         self.assertEqual(header.read(rom).at, header.LOROM_HEADER + header.COPIER_BYTES)
 
     def test_a_rom_too_small_to_hold_a_header_is_refused(self) -> None:
-        with self.assertRaises(header.NoHeader):
+        with self.assertRaises(errors.NoHeader):
             header.read(b"\x00" * 64)
 
     def test_a_rom_with_no_plausible_header_is_refused(self) -> None:
-        with self.assertRaises(header.NoHeader):
+        with self.assertRaises(errors.NoHeader):
             header.read(bytes(0x80000))
 
 

@@ -67,6 +67,8 @@ def channel_of(address: int) -> int | None:
 class Plan:
     """What one enabled channel would move, without moving anything."""
 
+    __slots__ = ("channel", "destination", "length", "source", "step", "to_cpu")
+
     def __init__(
         self,
         channel: int,
@@ -100,6 +102,8 @@ class Plan:
 
 class Channel:
     """One channel's registers, holding whatever they were last given."""
+
+    __slots__ = ("index", "registers")
 
     def __init__(self, index: int) -> None:
         self.index = index
@@ -150,6 +154,8 @@ class Channel:
 
 class Engine:
     """The eight channels and the register that says which of them are armed."""
+
+    __slots__ = ("channels", "enable", "enable_indirect")
 
     def __init__(self) -> None:
         self.channels = [Channel(index) for index in range(CHANNEL_COUNT)]
