@@ -305,12 +305,20 @@ class MainTest(unittest.TestCase):
 
         self.assertTrue(any("nothing to report" in one for one in said))
 
-    def test_it_runs_end_to_end_on_this_machine(self) -> None:
+    def test_it_runs_end_to_end_whatever_this_machine_holds(self) -> None:
+        """A report, not a verdict that the machine is well.
+
+        Asserting a clean exit here would make the suite require exactly the
+        machine the doctor exists to report on. CI has no cartridges, and a
+        doctor that says so is working. What has to hold on every machine is
+        that it examines everything and prints a line for each finding.
+        """
         said: list[str] = []
 
         code = doctor.main((), doctor.examine, said.append)
 
-        self.assertEqual(code, 0, "\n".join(said))
+        self.assertIn(code, (0, 1))
+        self.assertGreaterEqual(len(said), len(doctor.examine()))
 
 
 class PathTest(unittest.TestCase):
