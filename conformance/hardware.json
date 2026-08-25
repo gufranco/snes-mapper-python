@@ -6,7 +6,11 @@
       "the corpus, for header combinations read out of real cartridges",
       "neither overrides the other, because they answer different questions"
     ],
-    "why": "The access-cycle counts every emulator uses are correct, but an emulator is not why they are correct. Two of the three follow exactly from the two bus speeds the official manual prints, and the third does not, so the third is marked unverified rather than inherited."
+    "why": "The access-cycle counts every emulator uses are correct, but an emulator is not why they are correct. Two of the three follow exactly from the two bus speeds the official manual prints, and the third does not, so the third is marked unverified rather than inherited.",
+    "comparedAgainst": {
+      "runner": "conformance/against_cartridges.py",
+      "what": "The headers of every retail cartridge in a real library, which is the artifact rather than a description of it."
+    }
   },
   "facts": {
     "busSpeeds": {
