@@ -105,8 +105,17 @@ def _normalise(name: str) -> str:
     return str(name).strip().lower().replace("-", "").replace("_", "")
 
 
-def describe(name: str) -> Model:
-    """The layout of that name, however it happens to be written."""
+def layout_named(name: str) -> Model:
+    """The model of that name, however it happens to be written.
+
+    MODELS is the catalogue and holds one key per model. This is what
+    resolves the names people actually write, which include aliases MODELS
+    does not carry as keys, and it refuses a name nothing answers to.
+
+    Named for what it hands back rather than for the act of looking, because
+    this package has no constructor to fold it into: a model is what
+    a caller comes here for.
+    """
     found = _BY_ALIAS.get(_normalise(name))
     if found is None:
         raise UnknownModelError(

@@ -13,27 +13,27 @@ class CatalogueTest(unittest.TestCase):
             self.assertIn(name, models.MODELS)
 
     def test_a_layout_says_what_it_is_and_where_its_header_sits(self) -> None:
-        found = models.describe(layout.LOROM)
+        found = models.layout_named(layout.LOROM)
 
         self.assertTrue(found.summary)
         self.assertEqual(found.header_at, 0x7FC0)
 
     def test_a_layout_name_is_matched_however_it_is_written(self) -> None:
         for written in ("LOROM", "lo", "mode20", "LO_ROM"):
-            self.assertEqual(models.describe(written).name, layout.LOROM)
+            self.assertEqual(models.layout_named(written).name, layout.LOROM)
 
     def test_a_layout_the_package_does_not_have_is_refused_by_name(self) -> None:
         with self.assertRaises(errors.UnknownModelError):
-            models.describe("sa1")
+            models.layout_named("sa1")
 
     def test_the_refusal_lists_what_is_available(self) -> None:
         with self.assertRaises(errors.UnknownModelError) as raised:
-            models.describe("nonsense")
+            models.layout_named("nonsense")
 
         self.assertIn("lorom", str(raised.exception))
 
     def test_a_layout_prints_as_its_name_and_header(self) -> None:
-        printed = repr(models.describe(layout.HIROM))
+        printed = repr(models.layout_named(layout.HIROM))
 
         self.assertIn("hirom", printed)
         self.assertIn("ffc0", printed)
@@ -41,17 +41,17 @@ class CatalogueTest(unittest.TestCase):
 
 class ResolveTest(unittest.TestCase):
     def test_a_layout_resolves_an_address_the_way_the_space_does(self) -> None:
-        found = models.describe(layout.LOROM).resolve(0x008000)
+        found = models.layout_named(layout.LOROM).resolve(0x008000)
 
         self.assertEqual(found.region, layout.ROM)
 
     def test_a_layout_carries_the_speed_it_was_asked_about(self) -> None:
-        found = models.describe(layout.LOROM).resolve(0x808000, fast=True)
+        found = models.layout_named(layout.LOROM).resolve(0x808000, fast=True)
 
         self.assertEqual(found.cycles, layout.FAST)
 
     def test_the_high_layout_reaches_cartridge_where_the_low_one_does_not(self) -> None:
-        self.assertEqual(models.describe(layout.HIROM).resolve(0xC00000).region, layout.ROM)
+        self.assertEqual(models.layout_named(layout.HIROM).resolve(0xC00000).region, layout.ROM)
 
 
 if __name__ == "__main__":

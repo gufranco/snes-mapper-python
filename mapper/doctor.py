@@ -141,7 +141,7 @@ def _model(name: str) -> Finding:
     """That a layout resolves an address, which is the package in one line."""
     address, banks = PROBE.get(name, (0x808000, None))
     try:
-        one = models.describe(name)
+        one = models.layout_named(name)
         landed = one.resolve(address, banks=banks)
     except Exception as trouble:
         return Finding(

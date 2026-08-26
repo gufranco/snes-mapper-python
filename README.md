@@ -45,7 +45,8 @@ Everything a caller touches. Nothing else is public.
 | `score(rom, at)` | What one candidate place scores, before choosing between them | `int` |
 | `board(found, size)` | Which map a cartridge of that size is on, from size rather than from the chipset byte | a layout name |
 | `resolve(kind, address, fast=False, banks=None, save=False)` | Where one address lands and what reaching it costs | a `Resolution` |
-| `describe(name)` | The layout behind a name or an alias | a `Model` |
+| `MODELS` | Every layout this package covers, one key each | a mapping |
+| `layout_named(name)` | The layout a name or an alias means | a `Model` |
 | `channel_of(address)` | Which transfer channel an address configures, or nothing when it is outside the window | `int` or `None` |
 | `Engine()` | The eight channels and the register that arms them | an `Engine` |
 | `engine.plans()` | What every armed channel would move, without moving anything | a list of `Plan` |
@@ -210,15 +211,15 @@ Registers hold whatever they last held, so walking all eight channels reports tr
 ## Layouts
 
 ```python
-from mapper import describe
+from mapper import layout_named
 
-print(f"{describe('lorom').header_at:#06x}")
-print(f"{describe('hirom').header_at:#06x}")
-print(f"{describe('exhirom').header_at:#06x}")
-print(f"{describe('wholebank').header_at:#06x}")
+print(f"{layout_named('lorom').header_at:#06x}")
+print(f"{layout_named('hirom').header_at:#06x}")
+print(f"{layout_named('exhirom').header_at:#06x}")
+print(f"{layout_named('wholebank').header_at:#06x}")
 
-print(describe("mode20").name)
-print(describe("hirom").resolve(0xC00000).region)
+print(layout_named("mode20").name)
+print(layout_named("hirom").resolve(0xC00000).region)
 ```
 
 ```

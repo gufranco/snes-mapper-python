@@ -16,6 +16,7 @@ separate jobs and live in `snes-rom-image` rather than here. This package answer
 where an address lands; that one answers what the file containing it is.
 """
 
+from . import models as models
 from .errors import (
     NeedsBankCount,
     NoHeader,
@@ -62,7 +63,7 @@ from .layout import (
     XSLOW,
     resolve,
 )
-from .models import MODELS, describe
+from .models import MODELS, layout_named
 from .transfer import CHANNEL_BASE, CHANNEL_COUNT, ENABLE, Channel, Engine, Plan, channel_of
 from .version import VERSION
 
@@ -107,10 +108,10 @@ __all__ = [
     "board",
     "channel_of",
     "deinterleave",
-    "describe",
     "file_to_snes",
     "has_copier_stub",
     "interleave",
+    "layout_named",
     "read",
     "resolve",
     "score",
