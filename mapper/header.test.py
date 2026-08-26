@@ -1,6 +1,8 @@
+import os
 import sys
 import unittest
 from pathlib import Path
+from typing import override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
@@ -270,6 +272,47 @@ class CopierStubTest(unittest.TestCase):
     def test_the_length_form_answers_the_same_question(self) -> None:
         for size in (0, 0x200, 0x8000, 0x8200, 0x20000, 0x20200, 1234):
             self.assertEqual(header.stub_by_length(size), header.has_copier_stub(bytes(size)), size)
+
+
+class HandedInTest(unittest.TestCase):
+    """That a caller with an image needs no file, no directory and no variable.
+
+    `SNES_CARTRIDGE_DIR` exists for the corpus runner under `conformance/` and
+    for `doctor.py`, which reports what is on a machine. It never reaches the
+    reader, so it is set to a directory that does not exist for the whole of
+    this class: if reading an image had grown a file read, it would fail here
+    rather than quietly reading whatever that machine happened to have.
+    """
+
+    @override
+    def setUp(self) -> None:
+        held = os.environ.get("SNES_CARTRIDGE_DIR")
+        self.addCleanup(os.environ.__setitem__, "SNES_CARTRIDGE_DIR", held or "")
+        os.environ["SNES_CARTRIDGE_DIR"] = "/nowhere-at-all"
+
+    def built(self) -> bytes:
+        made = bytearray(0x80000)
+        made[0x7FC0 : 0x7FC0 + len(b"HANDED IN DIRECTLY")] = b"HANDED IN DIRECTLY"
+        made[0x7FD5], made[0x7FD6], made[0x7FD7] = 0x20, 0x00, 0x09
+        return bytes(made)
+
+    def test_a_header_is_read_out_of_bytes_alone(self) -> None:
+        found = header.read(self.built())
+
+        self.assertEqual(found.title.strip(), "HANDED IN DIRECTLY")
+
+    def test_a_candidate_place_is_scored_on_bytes_alone(self) -> None:
+        found = header.score(self.built(), header.LOROM_HEADER)
+
+        self.assertGreater(found, 0)
+
+    def test_only_the_doctor_names_that_variable_beside_the_reader(self) -> None:
+        package = Path(__file__).resolve().parent
+        naming = sorted(
+            one.name for one in package.glob("*.py") if "SNES_CARTRIDGE_DIR" in one.read_text()
+        )
+
+        self.assertEqual(naming, sorted(["doctor.py", Path(__file__).name]))
 
 
 if __name__ == "__main__":
