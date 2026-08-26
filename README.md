@@ -1,31 +1,10 @@
-<div align="center">
+# SNES Mapper
 
-<h1>SNES Mapper</h1>
-
-<strong>The cartridge memory map and its transfer engine, measured against a real ROM library.</strong>
-
-<br>
-<br>
+The cartridge memory map and its transfer engine, measured against a real ROM library.
 
 [![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
-[![Corpus](https://img.shields.io/badge/corpus-289%20%2F%20289-brightgreen)](#is-it-right)
-[![Cartridges](https://img.shields.io/badge/measured%20across-2%2C781%20retail%20cartridges-blue)](#is-it-right)
-[![Coverage](https://img.shields.io/badge/coverage-100%25%20statement%20%2B%20branch-brightgreen)](#working-on-it)
-[![Types](https://img.shields.io/badge/mypy-strict-blue)](pyproject.toml)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-</div>
-
-<p align="center">
-  <a href="#install">Install</a> &nbsp;|&nbsp;
-  <a href="#the-interface">The interface</a> &nbsp;|&nbsp;
-  <a href="#the-mistakes-this-exists-to-stop">The mistakes</a> &nbsp;|&nbsp;
-  <a href="#the-corpus-and-why-it-can-ship">Why the corpus is legal</a> &nbsp;|&nbsp;
-  <a href="#is-it-right">Is it right</a> &nbsp;|&nbsp;
-  <a href="https://github.com/gufranco/snes-mapper-python/issues">Issues</a>
-</p>
-
-**6** layouts · **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements · **8** transfer channels · **704** tests · **100%** statement and branch coverage · no dependencies
+**6** layouts, **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **8** transfer channels, **704** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
