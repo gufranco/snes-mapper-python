@@ -1,4 +1,5 @@
 {
+  "decides": "sha256 decides. The size rejects a wrong file for one stat call, and crc32, md5 and sha1 are published beside it so a copy can be cross-checked against a catalogue that keys on any of them. None of those three decides anything on its own: crc32 is a 32-bit error code, and md5 and sha1 are both collision-broken.",
   "cartridges": [
     {
       "name": "1 US - A-E/3 Ninjas Kick Back (USA).sfc",
