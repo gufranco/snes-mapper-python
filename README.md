@@ -4,7 +4,7 @@ The cartridge memory map and its transfer engine, measured against a real ROM li
 
 [![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
 
-**6** layouts, **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **8** transfer channels, **745** tests, **100%** statement and branch coverage, no dependencies
+**6** layouts, **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **8** transfer channels, **753** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
