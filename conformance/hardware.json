@@ -65,7 +65,10 @@
       "readVia": "The full text archived at archive.org/stream/SNESDevManual/book1_djvu.txt",
       "note": "Searched for a table of access cycles per region and for cycle counts in master clocks. It has neither. What it does print is the two CPU bus speeds, in the Map Mode table, and that turns out to be enough for two of the three figures this project uses.",
       "file": "book1_djvu.txt",
-      "section": "Map Mode table, page 1-2-17"
+      "section": "Map Mode table, page 1-2-17",
+      "sha256": "100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972",
+      "bytes": 298926,
+      "whatThatDigestIs": "The copy this address served on 2026-08-27, fetched and held on the machine that records it. It identifies what was read rather than confirming it against an older pin, because no pin existed before: the figures had been read from a transcription at an archive with nothing on disk to hash. The two speeds and the Map Mode table were confirmed in the fetched copy, on the run of text that ends at printed page 1-2-17, which is where the record already said they sit."
     }
   }
 }

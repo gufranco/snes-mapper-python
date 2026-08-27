@@ -69,29 +69,6 @@ every step came from Nintendo, and one step did not.
 **What would settle or reopen it.** A passage in either book giving the master
 clock frequency, or the crystal value from a schematic or a board photograph.
 
-## Where the record is thinner than the family standard asks for
-
-### The manual behind the timing figures is not pinned by digest.
-
-**What the standard asks for.** Every document a claim rests on is read and
-pinned by its SHA-256, because two scans of one book paginate differently and a
-page number means nothing without saying which scan.
-
-**What this project has.** The publisher, the title, the date it was read and the
-address it was read through, in
-[`conformance/hardware.json`](conformance/hardware.json). No digest, and no page
-count.
-
-**Why it is open rather than fixed.** The figures were read from a text
-transcription hosted at an archive rather than from a file held on the machine
-that recorded them, so there is nothing here to hash. Filling the field in from a
-copy fetched later would pin a different artefact than the one that was read,
-which is the failure the rule exists to prevent.
-
-**What would settle it.** Fetch the file that was read, record its SHA-256 and
-its page count beside the existing entry, and confirm that the two quoted figures
-still sit where the record says they sit.
-
 ## Where the question is a scope boundary, not an unknown
 
 ### Whether an address that resolves to a register is one the console answers.

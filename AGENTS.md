@@ -70,10 +70,10 @@ plus a sweep over the whole twenty-four-bit space in
 derived by arithmetic from the two speeds the manual prints, with the arithmetic
 shown in the record rather than asserted.
 
-**Not settled: 4 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
-what would close it. Two are timing figures the manual never printed, one is the
-manual itself not being pinned by digest, and one is a scope boundary listed so
-nobody mistakes it for a gap. Do not close one by argument.
+**Not settled: 3 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+what would close it. Two are timing figures the manual never printed, and one is
+a scope boundary listed so nobody mistakes it for a gap. Do not close one by
+argument.
 
 ## The header has no fixed home
 
