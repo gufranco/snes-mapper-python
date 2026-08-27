@@ -4,7 +4,7 @@ The cartridge memory map and its transfer engine, measured against a real ROM li
 
 [![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
 
-**6** layouts, **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **8** transfer channels, **708** tests, **100%** statement and branch coverage, no dependencies
+**6** layouts, **289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **8** transfer channels, **740** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -622,6 +622,15 @@ this repository falls short of the family standard and is recorded as such in
 |:-------|:---------|
 | A retail cartridge library the author owns | The 2,781 headers behind [`conformance/corpus.json`](conformance/corpus.json). Nothing from it is committed, and [`cartridges.manifest.json`](cartridges.manifest.json) carries only digests |
 
+
+Fetching it is a command rather than an exercise. [`conformance/documents.json`](conformance/documents.json) carries the digest, the byte count and a fetchable address, and [`conformance/documents.py`](conformance/documents.py) brings it down into `docs/`, which git ignores, and refuses anything that differs.
+
+```bash
+python3 -m conformance.documents          # fetch and verify the digest
+python3 -m conformance.documents --check  # verify what is already here
+```
+
+That digest identifies the copy this project read rather than confirming it against an older one: nothing here had pinned the archived text before.
 ## Citing this
 
 [CITATION.cff](CITATION.cff) is kept in step with the released version by the same script

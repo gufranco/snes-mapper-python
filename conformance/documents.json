@@ -1,0 +1,27 @@
+{
+  "note": "Every document this package is held to, by identity rather than by name. conformance/documents.py brings each one down again and refuses anything whose digest does not match.",
+  "authority": {
+    "1": "A manufacturer document. What the maker of the hardware printed about it.",
+    "2": "A measurement taken off a real console. Nothing here occupies that rung, and one access figure in the record says so.",
+    "3": "Independent research, for what no manufacturer printed."
+  },
+  "whyNotCarriedHere": "This is Nintendo's document, not this project's, and this repository is public. What is carried is the identity, which is what makes a copy checkable.",
+  "readOn": "2026-08-27",
+  "partsWithNoDocument": {},
+  "documents": [
+    {
+      "file": "manufacturer/book1_djvu.txt",
+      "rung": 1,
+      "publisher": "Nintendo of America Inc.",
+      "title": "SNES Development Manual, Book I, full text as archived",
+      "date": "undated",
+      "retrievedFrom": "https://archive.org/download/SNESDevManual/book1_djvu.txt",
+      "covers": ["lorom", "hirom", "exhirom", "wholebank"],
+      "settles": "The two CPU bus speeds, in the Map Mode table. Searched for a table of access cycles per region and for cycle counts in master clocks; it has neither, and the record says so rather than inferring them.",
+      "sha256": "100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972",
+      "bytes": 298926,
+      "pages": "text",
+      "whereTheDigestCameFrom": "Computed on 2026-08-27 from the copy this address served. The record had never pinned one, so this identifies the copy that was read rather than confirming a copy against something older. An archived text can be re-derived by its host, so a later fetch that differs is a change to check rather than proof of a wrong file."
+    }
+  ]
+}
