@@ -31,9 +31,6 @@ packages = ["mapper"]
 [tool.setuptools.dynamic]
 version = { attr = "mapper.version.VERSION" }
 
-[tool.setuptools.exclude-package-data]
-mapper = ["*.test.py"]
-
 [tool.ruff]
 target-version = "py312"
 line-length = 100
