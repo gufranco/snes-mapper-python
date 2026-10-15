@@ -193,14 +193,7 @@ class DirectoryTest(unittest.TestCase):
 
 
 class SharedDirectoryRuleTest(unittest.TestCase):
-    """The rule every member of this family uses to find a file it does not carry.
-
-    Byte-identical in all of them, so these check the behaviour that identity is
-    supposed to guarantee rather than the text of one copy.
-    """
-
     def test_the_project_above_is_looked_at_before_the_package_itself(self) -> None:
-        """Vendored, the parent owns the library, which is what ALONGSIDE is for."""
         found = cartridges.directories({})
 
         self.assertLess(
@@ -233,14 +226,6 @@ class SharedDirectoryRuleTest(unittest.TestCase):
 
 
 class DecidingDigestTest(unittest.TestCase):
-    """That the manifest tells a reader which of its four digests decides.
-
-    The reader already knows: `DECIDES` names it and nothing else is compared
-    against. A person cross-checking a copy reads the manifest rather than the
-    module, so the manifest has to say it too, and this is what keeps the two
-    from drifting apart.
-    """
-
     def held(self) -> str:
         return str(cartridges.manifest()["decides"])
 

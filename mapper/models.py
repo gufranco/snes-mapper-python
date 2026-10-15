@@ -1,15 +1,3 @@
-"""Which cartridge layouts this package covers, and what each one is.
-
-A layout is not a chip. It is how a cartridge wires its ROM into the console's
-address space, and the console has no idea which one it is talking to: the
-cartridge asserts it through the header and the mapping either works or the game
-does not boot. So the catalogue here lists layouts rather than parts, and each
-entry is backed by a count of how many real cartridges declare it.
-
-A layout with no cartridges behind it does not belong in this table, because then
-its presence would be a guess rather than a measurement.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, override
@@ -23,8 +11,6 @@ from . import layout as spaces
 
 
 class Model:
-    """One layout: what it is, where its header sits, and how to resolve it."""
-
     __slots__ = ("aliases", "header_at", "name", "summary")
 
     def __init__(
@@ -106,16 +92,6 @@ def _normalise(name: str) -> str:
 
 
 def layout_named(name: str) -> Model:
-    """The model of that name, however it happens to be written.
-
-    MODELS is the catalogue and holds one key per model. This is what
-    resolves the names people actually write, which include aliases MODELS
-    does not carry as keys, and it refuses a name nothing answers to.
-
-    Named for what it hands back rather than for the act of looking, because
-    this package has no constructor to fold it into: a model is what
-    a caller comes here for.
-    """
     found = _BY_ALIAS.get(_normalise(name))
     if found is None:
         raise UnknownModelError(

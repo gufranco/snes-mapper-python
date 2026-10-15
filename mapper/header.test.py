@@ -117,13 +117,6 @@ class KindTest(unittest.TestCase):
 
 
 class WholeBankTest(unittest.TestCase):
-    """A header alone cannot say which of two low maps a cartridge uses.
-
-    Both declare the same byte, because the wider map is what the narrower one grew
-    into and nobody changed the field. Length is what separates them, and the wider
-    map has exactly one length.
-    """
-
     def test_an_ordinary_low_cartridge_stays_on_the_low_map(self) -> None:
         found = header.read(a_cartridge(mapping=0x20))
 
@@ -175,13 +168,6 @@ class WholeBankTest(unittest.TestCase):
 
 
 class OverflowedTitleTest(unittest.TestCase):
-    """A title of twenty two characters writes its last one over the mapping byte.
-
-    Real retail cartridges do this, and the byte that lands there is a letter
-    rather than a mapping. Every value below is one a cartridge in the measured
-    library actually carries.
-    """
-
     def test_a_mapping_byte_in_the_declared_range_is_a_mapping_byte(self) -> None:
         self.assertTrue(header.read(a_cartridge(mapping=0x20)).declared)
         self.assertTrue(header.read(a_cartridge(mapping=0x3A)).declared)
@@ -275,15 +261,6 @@ class CopierStubTest(unittest.TestCase):
 
 
 class HandedInTest(unittest.TestCase):
-    """That a caller with an image needs no file, no directory and no variable.
-
-    `SNES_CARTRIDGE_DIR` exists for the corpus runner under `conformance/` and
-    for `doctor.py`, which reports what is on a machine. It never reaches the
-    reader, so it is set to a directory that does not exist for the whole of
-    this class: if reading an image had grown a file read, it would fail here
-    rather than quietly reading whatever that machine happened to have.
-    """
-
     @override
     def setUp(self) -> None:
         held = os.environ.get("SNES_CARTRIDGE_DIR")

@@ -1,19 +1,3 @@
-"""Read every cartridge on disk and hold the model to what the corpus recorded.
-
-The corpus replays 289 header combinations against a stand-in built from numbers.
-That proves the model still answers what it answered when the recording was taken.
-It cannot prove the recording covers the library, because a combination nobody
-measured leaves no gap behind: it simply is not there to fail.
-
-So this walks the real files instead. Every cartridge present is read, keyed by the
-combination it carries, and looked up. A cartridge whose combination has no case is
-a hole in the corpus and is reported as one. A cartridge whose case disagrees with
-what the model now says is a regression. Neither is visible from the corpus alone.
-
-The library is the authority and the corpus is a cache of it, so this is the test
-that decides and the corpus is what runs when the library is absent.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -38,11 +22,6 @@ CHECKED = ("layout", "fast", "coprocessor", "battery", "rom_bytes", "ram_bytes")
 
 
 def key_of(found: Any) -> tuple[Any, ...]:
-    """What identifies the combination a header carries.
-
-    The offset is the one in the address space rather than the one in the file, so
-    a dump carrying a copier stub keys to the same case as a bare one.
-    """
     return (
         found.mapping,
         found.chipset,
@@ -82,7 +61,6 @@ def sweep(
     where: Path | str | None = None,
     cases: Iterable[Mapping[str, Any]] | None = None,
 ) -> tuple[int, int, list[str]]:
-    """How many cartridges were read, how many agreed, and which did not."""
     where = Path(where) if where is not None else cartridges.directory()
     if not where.is_dir():
         return 0, 0, []

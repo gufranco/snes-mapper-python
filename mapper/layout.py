@@ -1,23 +1,3 @@
-"""Where an address lands, and how long the console takes to get there.
-
-This is the layer that decides whether `$7E:0900` is cartridge or work RAM,
-whether `$420B` is a graphics register or a transfer register, and whether a
-patch written at one offset will be read back at the address it was meant for.
-
-Every one of those questions has a wrong answer that looks right. Banks `$7E`
-and `$7F` are work RAM and belong to no cartridge, but they sit in the middle of
-the bank numbering and read like ordinary addresses. The bottom eight kilobytes
-of every low bank mirror the start of that work RAM. The transfer registers live
-in the CPU's own window rather than beside the graphics registers they feed. Each
-of those has cost real debugging time, which is why they are a table here instead
-of a rule someone has to remember.
-
-Speed is part of the answer rather than a separate question. The same cartridge
-byte takes six master clocks through the upper half of the space and eight
-through the lower half, and only when the cartridge asked for it in its header.
-Anything that counts cycles has to resolve the address first.
-"""
-
 from __future__ import annotations
 
 from typing import override
@@ -58,73 +38,18 @@ HIROM_SAVE_WINDOW = (0x6000, 0x8000)
 FAST_HALF = 0x80
 
 EXHIROM_HALF = 0x400000
-"""How far into the image the banks the console boots from actually point.
-
-The extended layout is the plain high one with its two halves swapped. Banks
-`$80-$FF` carry the first four megabytes, and banks `$00-$7D`, which include the
-ones holding the reset vector, carry everything past them. That swap is why an
-extended cartridge keeps its header at `0x40FFC0`: `$00:FFC0` is what the console
-reads, and under this layout that address lands four megabytes into the file.
-
-Treating the two layouts as one caps every image at four megabytes and sends every
-address in the lower banks to the wrong half of anything larger.
-"""
 
 WHOLEBANK_WINDOW_FIRST_BANK = 0xC0
-"""Where the map stops taking banks straight through and opens its window."""
 
 WHOLEBANK_BANKS = 0xC0
-"""How many banks this map needs, which is the same 192 the window starts at.
-
-Not a convention. The window's lower halves are read from the run belonging to
-bank `$80` onwards, so the topmost byte it names sits at `(191 + banks)` half-banks
-into the file while the file itself is `2 * banks` half-banks long. Those meet at
-exactly 192, and below it the window addresses bytes past the end of the image.
-
-So this is a twelve megabyte shape rather than a family of sizes. A smaller
-cartridge that reaches past the ordinary low map does it with a coprocessor
-switching banks, which is a different mechanism and is not this.
-"""
 
 WHOLEBANK_BYTES = 0xC00000
-"""Twelve megabytes, ninety six megabit, which is what this map reaches.
-
-Neither extended layout gets past eight, because both spend a bank's lower half on
-the system area or on a mirror. This one spends nothing below the window: every
-bank there carries a whole sixty four kilobytes, so 192 banks of cartridge fit in
-the address space and the file holds all of them.
-
-It is named for its shape rather than for a chip, because the shape is all there
-is to it. The S-DD1 boards were the first to need it and are where it was first
-measured, but nothing in the arithmetic mentions a coprocessor and nothing about
-it is reserved to one. Any cartridge that needs more room than the extended
-layouts reach can be built this way.
-
-That matters most in the direction the traffic actually runs. Taking a coprocessor
-out of a cartridge, by baking what it answered into a table, makes the image larger
-and leaves the map alone: the expansion ends up here, and it declares no chipset at
-all because there is no longer a chip to declare. So a cartridge on this map may
-carry a coprocessor, may have carried one until somebody removed it, or may never
-have had one. The map does not say, and it does not need to.
-"""
 
 
 EXHIROM_BYTES = 0x800000
-"""The most an extended cartridge can reach: eight megabytes, sixty four megabit.
-
-Four through `$80-$FF` and four through `$00-$7D`, and the very top of the far half
-is reachable only through banks `$3E` and `$3F`, because `$7E` and `$7F` are work
-RAM and never leave the console.
-
-An image larger than this is not addressable by this layout however it is declared.
-Anything past eight megabytes is built on the whole-bank map instead, which reaches
-twelve by spending no part of a bank on anything but cartridge.
-"""
 
 
 class Resolution:
-    """What one address turned out to be."""
-
     __slots__ = ("address", "cycles", "offset", "region")
 
     def __init__(self, address: int, region: str, offset: int | None, cycles: int) -> None:
@@ -161,23 +86,10 @@ def _hirom_offset(bank: int, page: int) -> int:
 
 
 def _exhirom_offset(bank: int, page: int) -> int:
-    """The high offset, moved into the far half for every bank below `$80`."""
     return _hirom_offset(bank, page) + (0 if bank & FAST_HALF else EXHIROM_HALF)
 
 
 def _wholebank_offset(bank: int, page: int, banks: int) -> int:
-    """Where a whole-bank byte sits, which depends on how large the image is.
-
-    The bank count is not optional here even though it is optional in resolve():
-    resolve refuses this layout without one, so by the time this is reached the
-    count exists. Saying so in the signature puts the invariant where a reader
-    trips over it rather than in a comment three functions away.
-
-    The arithmetic is the file placement in `image`, because it is the same
-    question asked from the other end: that module answers where a byte goes when
-    an image is written, and this answers what the console finds when it reads.
-    Two copies of one rule drift, so there is one.
-    """
     return image.address_to_file(bank, page, banks)
 
 
@@ -188,18 +100,6 @@ def resolve(
     banks: int | None = None,
     save: bool = False,
 ) -> Resolution:
-    """What sits at that address under that layout, and what reaching it costs.
-
-    The order of the tests is the point. Work RAM is decided before anything
-    else, because its banks look like cartridge banks and are not. The register
-    window is decided next, because it overlaps the part of a low bank that would
-    otherwise be a mirror. Only what survives both is cartridge.
-
-    `banks` is how many whole banks the image holds, and the whole-bank map needs it
-    because its two runs sit one image apart. `save` says the cartridge carries
-    battery-backed memory, which takes a window that map would otherwise fill with
-    cartridge; an expansion built to drop a coprocessor usually carries none.
-    """
     if kind == WHOLEBANK:
         if banks is None:
             raise NeedsBankCount(

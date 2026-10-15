@@ -1,28 +1,3 @@
-"""The transfer engine, and the three ways it is usually watched wrongly.
-
-Block transfers are how most data actually moves on this console, which makes
-them the thing a survey most needs to see and the thing a survey most often
-misses. Three mistakes, each of which has cost real time:
-
-**Watching the wrong registers.** The enable register is `$420B` and the channel
-registers run from `$4300`. Those belong to the processor, not to the display,
-so a hook placed on the display's own window sees every graphics write and not a
-single transfer. The symptom is a survey that reports a quiet machine.
-
-**Masking the channel index with three bits.** There are eight channels, so
-`& 7` looks right and is not: the index is a whole nibble of the address, and
-masking it narrower silently folds `$4380` onto channel zero instead of reporting
-that it belongs to no channel at all.
-
-**Reading channels that were never armed.** A channel holds whatever it last
-held, so a channel that is not enabled still answers with a plausible source and
-length. Anything that walks all eight without checking the enable register
-reports transfers that never happened.
-
-So this module names the registers, extracts the index from the whole nibble, and
-`plans()` returns only the channels the enable register actually selected.
-"""
-
 from __future__ import annotations
 
 from typing import override
@@ -54,19 +29,12 @@ DESTINATION_BASE = 0x2100
 
 
 def channel_of(address: int) -> int | None:
-    """Which channel a register belongs to, or nothing when it belongs to none.
-
-    The index is the whole nibble. Masking it to three bits would make `$4380`
-    look like channel zero rather than an address outside the window.
-    """
     if not CHANNEL_WINDOW[0] <= address < CHANNEL_WINDOW[1]:
         return None
     return (address - CHANNEL_BASE) >> 4
 
 
 class Plan:
-    """What one enabled channel would move, without moving anything."""
-
     __slots__ = ("channel", "destination", "length", "source", "step", "to_cpu")
 
     def __init__(
@@ -86,7 +54,6 @@ class Plan:
         self.to_cpu = to_cpu
 
     def addresses(self) -> list[int]:
-        """Every address this transfer would touch, in the order it touches them."""
         bank = self.source & 0xFF0000
         at = self.source & 0xFFFF
         touched = []
@@ -101,8 +68,6 @@ class Plan:
 
 
 class Channel:
-    """One channel's registers, holding whatever they were last given."""
-
     __slots__ = ("index", "registers")
 
     def __init__(self, index: int) -> None:
@@ -122,7 +87,6 @@ class Channel:
 
     @property
     def step(self) -> int:
-        """How far the source moves per byte: forward, backward, or not at all."""
         if self.parameters & FIXED:
             return 0
         return -1 if self.parameters & DECREMENT else 1
@@ -145,7 +109,6 @@ class Channel:
 
     @property
     def length(self) -> int:
-        """How many bytes move. A count of zero is the whole range, not nothing."""
         return self.count or WHOLE_RANGE
 
     def plan(self) -> Plan:
@@ -153,8 +116,6 @@ class Channel:
 
 
 class Engine:
-    """The eight channels and the register that says which of them are armed."""
-
     __slots__ = ("channels", "enable", "enable_indirect")
 
     def __init__(self) -> None:
@@ -163,7 +124,6 @@ class Engine:
         self.enable_indirect = 0x00
 
     def write(self, address: int, value: int) -> None:
-        """Take a write, whether it selects channels or configures one."""
         value &= 0xFF
         if address == ENABLE:
             self.enable = value
@@ -177,14 +137,7 @@ class Engine:
 
     @property
     def enabled(self) -> list[int]:
-        """Which channels the enable register selected, and only those."""
         return [index for index in range(CHANNEL_COUNT) if self.enable & (1 << index)]
 
     def plans(self) -> list[Plan]:
-        """What every armed channel would move, without moving anything.
-
-        Plural, and the channel's own is singular. They returned different shapes
-        under one name until a type checker was pointed at them, which is the kind
-        of thing a caller discovers by unpacking a list.
-        """
         return [self.channels[index].plan() for index in self.enabled]

@@ -11,7 +11,6 @@ from mapper import layout
 HARDWARE = Path(__file__).resolve().parent / "hardware.json"
 
 CARRIER = 3579545.4545454545
-"""The NTSC colour carrier the console's master clock is six times."""
 
 
 def declared() -> dict[str, Any]:
@@ -27,8 +26,6 @@ def fact(name: str) -> dict[str, Any]:
 
 
 class DocumentTest(unittest.TestCase):
-    """That the file names its source well enough for somebody to go and check."""
-
     def source(self) -> Any:
         return declared()["documents"]["developmentManual"]
 
@@ -42,10 +39,6 @@ class DocumentTest(unittest.TestCase):
         self.assertIn("neither", self.source()["note"])
 
     def test_every_figure_taken_from_it_says_so(self) -> None:
-        """A figure the manual printed, and one derived from those, cite the key.
-
-        The extra-slow count does not, and must not: no document supports it.
-        """
         facts = declared()["facts"]
         citing = sorted(name for name, one in facts.items() if one.get("document"))
 
@@ -65,12 +58,6 @@ class DocumentTest(unittest.TestCase):
 
 
 class DerivationTest(unittest.TestCase):
-    """That the two verified counts really do follow from the printed speeds.
-
-    This is the point of recording a derivation rather than a number: the
-    arithmetic is checkable, so a figure cannot quietly become folklore.
-    """
-
     def test_the_master_clock_is_six_times_the_colour_carrier(self) -> None:
         self.assertEqual(round(CARRIER * 6), fact("masterClockHz")["value"])
 
@@ -98,8 +85,6 @@ class DerivationTest(unittest.TestCase):
 
 
 class ModelTest(unittest.TestCase):
-    """That the module counts in the numbers this file records."""
-
     def test_the_fast_count_matches_the_documented_derivation(self) -> None:
         self.assertEqual(layout.FAST, fact("fastAccessMasterCycles")["value"])
 
@@ -117,8 +102,6 @@ class ModelTest(unittest.TestCase):
 
 
 class HonestyTest(unittest.TestCase):
-    """That the one figure with no document behind it says so."""
-
     def test_the_two_derived_counts_are_marked_verified(self) -> None:
         for name in ("fastAccessMasterCycles", "slowAccessMasterCycles"):
             self.assertTrue(fact(name)["verified"], name)
@@ -134,13 +117,6 @@ class HonestyTest(unittest.TestCase):
 
 
 class DivergenceTest(unittest.TestCase):
-    """The standing of each fact, kept in the file the family reads for that.
-
-    `hardware.json` already marks the unverified figure. This checks that the
-    same thing is said in the place a reader of any sibling repository will look
-    for it, so the two cannot part company.
-    """
-
     @override
     def setUp(self) -> None:
         here = Path(__file__).resolve().parent
@@ -183,8 +159,6 @@ class DivergenceTest(unittest.TestCase):
 
 
 class ResolutionTest(unittest.TestCase):
-    """That a resolved address is charged the count its region calls for."""
-
     def test_a_high_bank_rom_access_costs_the_fast_count_when_fast_is_asked_for(self) -> None:
         found = layout.resolve(layout.LOROM, 0x808000, fast=True)
 

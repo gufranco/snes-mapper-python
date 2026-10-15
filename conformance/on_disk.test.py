@@ -1,22 +1,3 @@
-"""Everything that needs a cartridge library on disk to say anything at all.
-
-These live apart from the rest because of what they do when nobody has one. A
-skipped test contributes no coverage, so on a runner with an empty directory every
-line here reads as uncovered, and the coverage gate then fails for a reason that
-has nothing to do with the code. Keeping them in one file lets that file sit
-outside the gate while everything else stays inside it.
-
-The alternative was to relax the gate, which would have hidden real gaps in the
-files that can be measured everywhere. This hides nothing: the modules these
-exercise are measured by the tests beside them, and what is set aside is the
-bookkeeping of the checks themselves.
-
-Every class below carries the marker that keeps it out of the count, and this is
-the only file here that does. Its whole subject is the cartridges a machine
-happens to hold, so it runs on one machine and not on another, and counting it
-would make the number mean something different depending on who ran it.
-"""
-
 import sys
 import unittest
 from pathlib import Path

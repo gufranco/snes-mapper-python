@@ -1,20 +1,3 @@
-"""Build the corpus from a cartridge library you own.
-
-The corpus beside this is replayed on every run, and a recording nothing can
-reproduce is a recording nobody can check. This is the other half: point it at a
-library and it writes that file out again, so anyone holding the same cartridges
-can confirm the one that ships is what those cartridges say.
-
-Nothing of any cartridge survives the trip. Each contributes the thirty two bytes
-of its header, of which the twenty one byte title is dropped on the way in, and
-what comes out is a tuple of numbers per distinct combination with a count of how
-many cartridges carried it. That count is the only trace a cartridge leaves.
-
-Two cartridges with identical header fields at different offsets are two cases
-rather than one, because where a header sits is what names the layout whenever the
-byte that should name it is a letter left behind by an overflowing title.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -44,7 +27,6 @@ NUMBERS = ("mapping", "chipset", "rom_size", "ram_size", "country")
 
 
 def fields_of(found: Any) -> dict[str, Any]:
-    """The numbers that make one case, with the title left behind."""
     return {
         "mapping": found.mapping,
         "chipset": found.chipset,
@@ -56,12 +38,6 @@ def fields_of(found: Any) -> dict[str, Any]:
 
 
 def expectation(found: Any) -> dict[str, Any]:
-    """What the model makes of this header.
-
-    The offset is the one the header occupies in the address space rather than the
-    one it occupies in the file. A copier stub moves the second without moving the
-    first, and it is a property of somebody's dump rather than of the cartridge.
-    """
     return {
         "at": found.at - found.shift,
         "layout": found.layout,
@@ -74,7 +50,6 @@ def expectation(found: Any) -> dict[str, Any]:
 
 
 def resolutions(found: Any, probes: Iterable[Any]) -> list[list[Any]]:
-    """What each probe address reaches under the layout this header declares."""
     return [
         [address, reached.region, reached.offset, reached.cycles]
         for address, reached in (
@@ -84,7 +59,6 @@ def resolutions(found: Any, probes: Iterable[Any]) -> list[list[Any]]:
 
 
 def gather(images: Iterable[bytes], probes: Iterable[Any]) -> tuple[list[dict[str, Any]], int, int]:
-    """One case per distinct header combination, counted, in a fixed order."""
     seen: dict[Any, dict[str, Any]] = {}
     counts: collections.Counter[Any] = collections.Counter()
     read = refused = 0

@@ -1,23 +1,3 @@
-"""Cartridges their owner supplies, identified before any of them is read.
-
-The corpus beside this is a recording. This is what the recording was taken from:
-a retail library, walked whole, every header read and checked against what the
-model says it is. A corpus proves the model has not drifted since it was recorded.
-Only the library proves the recording was right in the first place.
-
-Every file is checked against all four of its digests rather than only the one that
-decides. A file can be the right length under the right name and still be a bad
-dump, and a manifest that publishes a crc32 beside a sha256 and then never looks at
-the crc32 is publishing decoration.
-
-Only retail releases are listed. A modified release, a translation and a prototype
-can each carry an edited header, and a header read out of one describes somebody's
-edit rather than a cartridge that was manufactured.
-
-Nothing here carries any part of a cartridge. A name, a length and four digests are
-measurements, and a digest reconstructs nothing.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any, override
@@ -41,12 +21,6 @@ DIRECTORY_VARIABLE = "SNES_CARTRIDGE_DIR"
 DEFAULT_DIRECTORY = ROOT / "cartridges"
 
 ALONGSIDE = ROOT.parent / "cartridges"
-"""Where a project carrying this one as a submodule keeps its own library.
-
-Standalone, the directory in this repository is the one that matters. As a
-submodule the parent owns the library, and asking its owner for a second copy of
-four gigabytes because the path moved is not a reasonable thing to do.
-"""
 
 READABLE_SUFFIXES = (".sfc", ".smc")
 
@@ -72,8 +46,6 @@ class Corrupt(Exception):
 
 
 class Identity:
-    """What a cartridge turned out to be."""
-
     def __init__(self, name: str, title: str, size: int, layout: str, sha256: str) -> None:
         self.name = name
         self.title = title
@@ -87,7 +59,6 @@ class Identity:
 
 
 def digests_of(image: bytes) -> dict[str, str]:
-    """Every digest this manifest publishes, for one file."""
     return {
         "crc32": f"{zlib.crc32(image) & 0xFFFFFFFF:08x}",
         "md5": hashlib.md5(image).hexdigest(),
@@ -104,34 +75,9 @@ def manifest(path: Path | str | None = None) -> dict[str, Any]:
 
 
 DIRECTORY_VARIABLES = (DIRECTORY_VARIABLE,)
-"""Every variable naming a directory, most specific first.
-
-One here, and a tuple anyway, because this is the shared rule below and a member
-that grows a second variable should not have to change the rule to get it.
-"""
 
 
 def directories(environment: Mapping[str, str] | None = None) -> tuple[Path, ...]:
-    """Every place an image is looked for, in the order they are looked at.
-
-    Whatever was named comes first, then the project this package sits inside if
-    it is a submodule of one, then this package itself. More than one can be
-    named at once, separated the way the operating system separates a path.
-
-    `DIRECTORY_VARIABLES` is read in order, so a member that shares a variable
-    with a sibling reads its own name first and the shared one after it. A
-    caller who has set only the shared name keeps working; a caller who sets
-    both points the two members at different directories, which is the whole
-    reason the member's own name exists.
-
-    This function is one rule with a copy in every member that reads a file it
-    does not carry, because no package is a dependency of all of them. The
-    copies are byte-identical below the constants and are meant to stay that
-    way, so a diff against a sibling is the check:
-
-        cut='/^def directories/,/^    return tuple(seen)/p'
-        diff <(sed -n "$cut" mine/thing.py) <(sed -n "$cut" theirs/thing.py)
-    """
     held = environment if environment is not None else os.environ
     wanted = [
         Path(where)
@@ -150,12 +96,6 @@ def directories(environment: Mapping[str, str] | None = None) -> tuple[Path, ...
 def directory(
     environment: Mapping[str, str] | None = None, places: Iterable[Path] | None = None
 ) -> Path:
-    """Where to look: what was named, or the first place that is actually there.
-
-    A named directory wins even when it is empty or missing. Quietly falling back
-    from a path somebody typed turns their typo into a run that skips its tests and
-    reports success, which is the failure this whole file exists to avoid.
-    """
     named = (environment if environment is not None else os.environ).get(DIRECTORY_VARIABLE)
     if named:
         return Path(named)
@@ -166,7 +106,6 @@ def directory(
 
 
 def identify(image: bytes, catalogue: Mapping[str, Any] | None = None) -> Identity:
-    """Which cartridge this is, or why it is not one the manifest knows."""
     found = digests_of(image)
     entries = (catalogue or manifest())["cartridges"]
 
@@ -186,12 +125,6 @@ def identify(image: bytes, catalogue: Mapping[str, Any] | None = None) -> Identi
 
 
 def _confirm(entry: Mapping[str, Any], found: Mapping[str, str]) -> None:
-    """Every other digest the manifest publishes has to agree as well.
-
-    Reaching here means the deciding digest already matched, so a disagreement is
-    not a different file: it is a manifest contradicting itself, which is worth
-    saying out loud rather than passing over.
-    """
     for name in DIGESTS:
         if name == DECIDES or name not in entry:
             continue
@@ -226,7 +159,6 @@ def _diagnosis(image: bytes, found: Mapping[str, str], entries: Iterable[Mapping
 def found(
     where: Path | str | None = None, catalogue: Mapping[str, Any] | None = None
 ) -> Iterator[tuple[Identity, Path]]:
-    """Every cartridge on disk the manifest recognises, with the file it came from."""
     where = Path(where) if where is not None else directory()
     if not where.is_dir():
         return

@@ -1,26 +1,3 @@
-"""Take a census of a cartridge library you own.
-
-A header is thirty two bytes in which a cartridge describes how it is built:
-which layout it declares, which coprocessor is fitted, how much ROM and save
-memory it carries, and where in the address space it expects to be found. Those
-are facts about a physical object. They are not authored, they carry none of the
-game, and a count of how many cartridges share a combination is a measurement.
-
-So this walks a library, reads only those thirty two bytes from each cartridge,
-and writes down what it found. It never records a title, because a title is the
-one field in the header that is a name rather than a measurement, and it never
-reads a byte outside the header at all.
-
-What comes out is the corpus this repository is tested against: every distinct
-combination of header fields the library contains, with a count of how many
-cartridges each one accounts for. A model that gets a rare mapping byte wrong
-fails against the combination that names it.
-
-A cartridge whose header cannot be found is counted as refused rather than
-guessed at. Prototypes and unfinished dumps often carry a blank one, and
-inventing a layout for them would put fiction into a corpus of facts.
-"""
-
 from __future__ import annotations
 
 from typing import TYPE_CHECKING, Any
@@ -42,7 +19,6 @@ SUFFIXES = (".sfc", ".smc")
 
 
 def cartridges(root: Path, limit: int | None = None) -> list[Path]:
-    """Every cartridge image under a directory, in a fixed order."""
     found = sorted(
         path for path in Path(root).rglob("*") if path.is_file() and path.suffix.lower() in SUFFIXES
     )
@@ -50,7 +26,6 @@ def cartridges(root: Path, limit: int | None = None) -> list[Path]:
 
 
 def tally(images: Iterable[bytes]) -> dict[str, Any]:
-    """What the library is made of, with none of what the cartridges hold."""
     mapping: collections.Counter[Any] = collections.Counter()
     chipset: collections.Counter[Any] = collections.Counter()
     layouts: collections.Counter[Any] = collections.Counter()

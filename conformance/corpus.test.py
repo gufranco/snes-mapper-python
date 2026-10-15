@@ -27,12 +27,6 @@ def a_case(at: int, mapping: int) -> dict[str, Any]:
 
 
 def said(found: str | None) -> str:
-    """What a failing case said, insisting that it said something.
-
-    check() returns nothing when a case agreed, so the type is optional. Every use
-    below is about a case that was meant to disagree, and asserting that here means
-    a case that unexpectedly passes fails on that rather than on a None.
-    """
     assert found is not None, "the case agreed when it was meant to disagree"
     return found
 

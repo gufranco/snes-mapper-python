@@ -306,13 +306,6 @@ class MainTest(unittest.TestCase):
         self.assertTrue(any("nothing to report" in one for one in said))
 
     def test_it_runs_end_to_end_whatever_this_machine_holds(self) -> None:
-        """A report, not a verdict that the machine is well.
-
-        Asserting a clean exit here would make the suite require exactly the
-        machine the doctor exists to report on. CI has no cartridges, and a
-        doctor that says so is working. What has to hold on every machine is
-        that it examines everything and prints a line for each finding.
-        """
         said: list[str] = []
 
         code = doctor.main((), doctor.examine, said.append)
@@ -322,13 +315,6 @@ class MainTest(unittest.TestCase):
 
 
 class PathTest(unittest.TestCase):
-    """That the doctor puts the repository on the path when nothing else has.
-
-    Run as a file it has no package to be relative to, so it inserts the
-    repository itself. Under the test suite the path is already set, so the line
-    never runs and nothing would report it broken.
-    """
-
     def test_the_repository_is_put_on_the_path_when_it_is_not_already_there(self) -> None:
         held = [one for one in sys.path if one != str(doctor.ROOT)]
 

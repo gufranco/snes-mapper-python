@@ -8,13 +8,6 @@ from mapper import errors, layout
 
 
 def offset_of(resolution: "layout.Resolution") -> int:
-    """Where a resolved address sits in the file, insisting that it sits anywhere.
-
-    A resolution that landed on open bus or on save memory has no file offset at
-    all, so the attribute is optional. Every use below is about a region that does
-    have one, and saying so here means a test that accidentally resolves into open
-    bus fails on that rather than on arithmetic with None.
-    """
     assert resolution.offset is not None, f"{resolution.region} has no file offset"
     return resolution.offset
 
@@ -111,13 +104,6 @@ class ReachTest(unittest.TestCase):
 
 
 class ExtendedHighTest(unittest.TestCase):
-    """The extended layout reaches past four megabytes; the plain high one cannot.
-
-    Its two halves are swapped relative to where a reader expects them. The banks
-    the console boots from carry the second half of the image, which is the whole
-    reason an extended cartridge keeps its header at 0x40FFC0.
-    """
-
     def test_a_low_bank_reaches_the_far_half_of_the_image(self) -> None:
         found = layout.resolve(layout.EXHIROM, 0x00FFC0)
 
@@ -179,15 +165,6 @@ class ExtendedHighTest(unittest.TestCase):
 
 
 class WholeBankTest(unittest.TestCase):
-    """The map that gives every bank below the window a whole sixty four kilobytes.
-
-    Named for its shape, not for a chip. The S-DD1 boards were where it was first
-    measured, and a cartridge that had its coprocessor removed lands here too,
-    declaring no chipset at all. Every offset asserted below is one a reference
-    implementation asserts, and that reference was validated against a cartridge
-    that boots on hardware.
-    """
-
     BANKS = 192
 
     def test_the_upper_half_of_a_bank_sits_where_plain_low_rom_puts_it(self) -> None:
