@@ -82,8 +82,9 @@ know where to look without already knowing the answer. Every candidate place is
 scored on four independent signals and the best wins.
 
 Each signal earns its point by measurement. The declared size counts when it
-lands between 8 and 13, because across 7,314 cartridges that band holds the byte
-at the right offset 98.85% of the time and at a wrong offset 3.18% of the time.
+lands between 8 and 13, because across 7,314 cartridges the size byte read at
+the right offset falls in that band in 98.85% of them, while a byte read at a
+wrong offset falls there only 3.18% of the time.
 Widening it either way was measured and costs more than it buys. Changing a
 threshold here is changing a measured figure, so it is changed by measuring
 again rather than by reasoning.
