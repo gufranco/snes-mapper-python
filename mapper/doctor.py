@@ -22,14 +22,20 @@ def _version(where: Path | None = None) -> str:
 
 ROOT = Path(__file__).resolve().parent.parent
 
-from mapper import environment  # noqa: E402
+
+def _reachable(root: Path = ROOT, path: list[str] | None = None) -> bool:
+    where = sys.path if path is None else path
+    if str(root) in where:
+        return False
+    where.insert(0, str(root))
+    return True
+
+
+_reachable()
+
+from mapper import environment, header, models  # noqa: E402
 
 VERSION = _version()
-
-if str(ROOT) not in sys.path:
-    sys.path.insert(0, str(ROOT))
-
-from mapper import header, models  # noqa: E402
 
 MANIFEST = ROOT / "cartridges.manifest.json"
 
@@ -191,7 +197,7 @@ def _corpus(path: Path | str = CORPUS) -> Finding:
 def _looking(environment: Mapping[str, str] | None = None) -> list[Finding]:
     held = environment if environment is not None else os.environ
     named = held.get(DIRECTORY_VARIABLE)
-    places = [*([Path(named)] if named else []), DEFAULT_DIRECTORY, ALONGSIDE]
+    places = [*([Path(named)] if named else []), ALONGSIDE, DEFAULT_DIRECTORY]
     chosen = (
         Path(named) if named else next((one for one in places if one.is_dir()), DEFAULT_DIRECTORY)
     )
@@ -206,7 +212,7 @@ def _looking(environment: Mapping[str, str] | None = None) -> list[Finding]:
     ]
 
 
-def _library(where: Path | str) -> Finding:
+def _library(where: Path | str, shipped: Path = DEFAULT_DIRECTORY) -> Finding:
     place = Path(where)
     if not place.is_dir():
         return Finding(
@@ -222,6 +228,13 @@ def _library(where: Path | str) -> Finding:
         ]
     except OSError as trouble:
         return Finding("library", False, f"could not be read: {trouble}")
+    if not present and place == shipped:
+        return Finding(
+            "library",
+            True,
+            f"{place} holds no images yet, so the check against real cartridges will skip"
+            " rather than run",
+        )
     return Finding(
         "library",
         bool(present),

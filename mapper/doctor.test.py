@@ -1,5 +1,7 @@
 import importlib
+import os
 import re
+import subprocess
 import sys
 import tempfile
 import unittest
@@ -10,6 +12,10 @@ from typing import Any
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
 from mapper import doctor, header
+
+SOURCE = Path(__file__).resolve().parent / "doctor.py"
+
+VERDICT = re.compile(r"^  (\d+ checks, nothing to report|\d+ of \d+ checks did not pass)$")
 
 
 class Complaint(Exception):
@@ -202,6 +208,16 @@ class LookingTest(unittest.TestCase):
 
         self.assertEqual(len(found), 3)
 
+    def test_the_places_are_tried_in_the_order_the_sweep_tries_them(self) -> None:
+        # Arrange
+        expected = f"{doctor.ALONGSIDE}, {doctor.DEFAULT_DIRECTORY}"
+
+        # Act
+        found = doctor._looking({})
+
+        # Assert
+        self.assertEqual(found[1].detail, expected)
+
     def test_the_default_is_chosen_when_no_place_exists(self) -> None:
         held = Path(tempfile.mkdtemp()) / "absent"
         with (
@@ -238,6 +254,16 @@ class LibraryTest(unittest.TestCase):
         one = doctor._library(a_directory())
 
         self.assertFalse(one.ok, one.detail)
+
+    def test_the_directory_a_fresh_checkout_ships_empty_is_the_normal_state(self) -> None:
+        # Arrange
+        where = a_directory(("README.md",))
+
+        # Act
+        one = doctor._library(where, shipped=where)
+
+        # Assert
+        self.assertEqual((one.ok, "skip rather than run" in one.detail), (True, True))
 
     def test_because_that_is_what_a_run_over_nothing_looks_like(self) -> None:
         one = doctor._library(a_directory(("notes.txt",)))
@@ -336,6 +362,62 @@ class PathTest(unittest.TestCase):
         where.write_text("NOTHING = 1\n")
 
         self.assertEqual(doctor._version(where), "unknown")
+
+
+class TheDoctorRunsWhereThePackageMightNotImportTest(unittest.TestCase):
+    def test_a_root_that_is_not_on_the_path_is_put_there(self) -> None:
+        # Arrange
+        path: list[str] = []
+
+        # Act
+        added = doctor._reachable(Path("/somewhere"), path)
+
+        # Assert
+        self.assertEqual((added, path), (True, ["/somewhere"]))
+
+    def test_a_root_already_on_the_path_is_left_alone(self) -> None:
+        # Arrange
+        path = ["/somewhere"]
+
+        # Act
+        added = doctor._reachable(Path("/somewhere"), path)
+
+        # Assert
+        self.assertEqual((added, path), (False, ["/somewhere"]))
+
+
+class TheDoctorRunsAsTheReadmeSaysTest(unittest.TestCase):
+    def test_running_it_as_a_file_from_elsewhere_prints_a_report_rather_than_a_traceback(
+        self,
+    ) -> None:
+        # Arrange
+        elsewhere = tempfile.mkdtemp()
+        bare = {name: value for name, value in os.environ.items() if name != "PYTHONPATH"}
+
+        # Act
+        finished = subprocess.run(
+            [sys.executable, str(SOURCE)],
+            capture_output=True,
+            text=True,
+            cwd=elsewhere,
+            env=bare,
+            check=False,
+        )
+
+        # Assert
+        self.assertIn(finished.returncode, (0, 1))
+        self.assertNotIn("Traceback", finished.stderr)
+        self.assertRegex(finished.stdout.splitlines()[-1], VERDICT)
+
+    def test_the_readme_names_the_invocation_that_works(self) -> None:
+        # Arrange
+        readme = doctor.ROOT / "README.md"
+
+        # Act
+        said = readme.read_text()
+
+        # Assert
+        self.assertIn("python3 mapper/doctor.py", said)
 
 
 if __name__ == "__main__":
