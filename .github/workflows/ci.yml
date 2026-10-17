@@ -19,7 +19,7 @@ env:
 jobs:
   lint:
     name: Format and lint
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -60,7 +60,7 @@ jobs:
 
   types:
     name: Types
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -80,7 +80,7 @@ jobs:
 
   test:
     name: Tests on Python ${{ matrix.python }}
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     strategy:
       fail-fast: false
       matrix:
@@ -119,7 +119,7 @@ jobs:
 
   speed:
     name: Throughput
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -132,7 +132,7 @@ jobs:
 
   conformance:
     name: Corpus
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -145,7 +145,7 @@ jobs:
 
   cartridges:
     name: Cartridges
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
@@ -166,7 +166,7 @@ jobs:
 
   package:
     name: package
-    runs-on: ubuntu-latest
+    runs-on: ubuntu-26.04
     steps:
       - uses: actions/checkout@v7
 
