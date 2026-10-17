@@ -1,3 +1,4 @@
+---
 name: Something is wrong
 description: A header reads wrong, an address resolves wrong, or nothing works at all
 labels: ["bug"]

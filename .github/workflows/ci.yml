@@ -1,3 +1,4 @@
+---
 name: CI
 
 on:
@@ -52,6 +53,11 @@ jobs:
       - name: Lint the workflows
         uses: raven-actions/actionlint@v2
 
+      - name: Lint every YAML file
+        run: |
+          pipx install yamllint==1.38.0
+          yamllint --strict .
+
       - name: Lint the shell scripts
         run: |
           sudo apt-get update
@@ -71,10 +77,6 @@ jobs:
       - name: Install the type checker
         run: pipx install mypy==1.14.1
 
-      # Strict, with every optional error class the version offers. This is address
-      # arithmetic end to end, so a bank or an offset crossing a boundary it should
-      # not is exactly what a checker is for. Settings live in pyproject.toml so a
-      # local run and this one agree.
       - name: Every annotation has to hold
         run: mypy
 
@@ -110,11 +112,7 @@ jobs:
       - name: Coverage must be total
         run: python -m coverage report
 
-      # No document is redistributable, so none is here and this checks nothing
-      # on a runner. It says so rather than reporting a pass: the value is that
-      # somebody running it with the manual on disk gets a real answer, and that
-      # a run without it cannot be mistaken for one.
-      - name: Every quoted sentence, against the document it came from
+      - name: Every quoted sentence, against the document it came from, where it is present
         run: python -m conformance.quotes
 
   speed:
@@ -158,7 +156,13 @@ jobs:
           status=0
           python -m conformance.against_cartridges || status="$?"
           if [ "${status}" -eq 2 ]; then
-            echo "::notice title=Cartridges::No cartridge is present on a hosted runner, so this sweep was skipped rather than passed. It reads the header of every retail cartridge in the library and holds each one to the recorded corpus. Run it locally with a library you own, or point SNES_CARTRIDGE_DIR at one."
+            notice="No cartridge is present on a hosted runner,"
+            notice="${notice} so this sweep was skipped rather than passed."
+            notice="${notice} It reads the header of every retail cartridge in the library"
+            notice="${notice} and holds each one to the recorded corpus."
+            notice="${notice} Run it locally with a library you own,"
+            notice="${notice} or point SNES_CARTRIDGE_DIR at one."
+            echo "::notice title=Cartridges::${notice}"
             exit 0
           fi
           exit "${status}"
