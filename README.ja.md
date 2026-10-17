@@ -1,8 +1,8 @@
-[English](README.md) | 日本語 | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
-
 # SNES Mapper
 
 SNESカートリッジのメモリマップとその転送エンジンをPythonで実装したものです。アドレスがどこに着地するか、そこへのアクセスにどれだけかかるか、有効化されたチャンネルが何を転送するかを扱い、2,781本の市販カートリッジのヘッダーで検証しています。
+
+[English](README.md) &nbsp;|&nbsp; 日本語 &nbsp;|&nbsp; [简体中文](README.zh-Hans.md) &nbsp;|&nbsp; [繁體中文（香港）](README.zh-HK.md)
 
 [![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
