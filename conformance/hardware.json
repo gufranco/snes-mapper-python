@@ -17,7 +17,10 @@
       "quote": "2.68 MHz (normal speed) and 3.58 MHz (high speed), from the Map Mode table at page 1-2-17",
       "note": "These are the two speeds the cartridge selects between. They are the only timing figures the manual gives, and both of this project's main access counts follow from them.",
       "document": "developmentManual",
-      "section": "Map Mode table, page 1-2-17"
+      "section": "Map Mode table, page 1-2-17",
+      "heldBy": [
+        "conformance/hardware.test.py::BusSpeedTest.test_rom_accesses_run_at_the_two_printed_bus_speeds"
+      ]
     },
     "masterClockHz": {
       "value": 21477273,

@@ -1,4 +1,5 @@
 import json
+import re
 import sys
 import unittest
 from pathlib import Path
@@ -12,6 +13,12 @@ HARDWARE = Path(__file__).resolve().parent / "hardware.json"
 
 CARRIER = 3579545.4545454545
 
+FAST_HALF_ROM = 0x808000
+
+MEGAHERTZ = 1e6
+
+PRINTED_SPEED = re.compile(r"([\d.]+) MHz \((\w+) speed\)")
+
 
 def declared() -> dict[str, Any]:
     held = json.loads(HARDWARE.read_text())
@@ -23,6 +30,10 @@ def fact(name: str) -> dict[str, Any]:
     found = declared()["facts"][name]
     assert isinstance(found, dict), f"{name} is not recorded as a fact"
     return found
+
+
+def printed_speeds(quote: str) -> dict[str, float]:
+    return {name: float(speed) for speed, name in PRINTED_SPEED.findall(quote)}
 
 
 class DocumentTest(unittest.TestCase):
@@ -99,6 +110,25 @@ class ModelTest(unittest.TestCase):
 
     def test_and_an_extra_slow_one_costs_more_still(self) -> None:
         self.assertGreater(layout.XSLOW, layout.SLOW)
+
+
+class BusSpeedTest(unittest.TestCase):
+    def test_rom_accesses_run_at_the_two_printed_bus_speeds(self) -> None:
+        # Arrange
+        printed = printed_speeds(fact("busSpeeds")["quote"])
+        master = fact("masterClockHz")["value"]
+
+        # Act
+        cycles = {
+            name: layout.resolve(layout.LOROM, FAST_HALF_ROM, fast=name == "high").cycles
+            for name in printed
+        }
+
+        # Assert
+        self.assertEqual(
+            {name: round(master / count / MEGAHERTZ, 2) for name, count in cycles.items()},
+            {"normal": printed["normal"], "high": printed["high"]},
+        )
 
 
 class HonestyTest(unittest.TestCase):
