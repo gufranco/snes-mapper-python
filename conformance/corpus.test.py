@@ -11,8 +11,10 @@ from typing import Any, override
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import mapper  # noqa: E402
 from conformance import corpus  # noqa: E402
-from mapper import header  # noqa: E402
+
+EXHIROM_HEADER = 0x40FFC0
 
 
 def a_case(at: int, mapping: int) -> dict[str, Any]:
@@ -33,29 +35,54 @@ def said(found: str | None) -> str:
 
 class StandInTest(unittest.TestCase):
     def test_a_case_at_a_known_offset_is_built_there(self) -> None:
-        built = corpus.cartridge_for(a_case(header.HIROM_HEADER, 0x21))
+        # Arrange
+        case = a_case(mapper.HIROM_HEADER, 0x21)
 
-        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+        # Act
+        built = corpus.cartridge_for(case)
+
+        # Assert
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[mapper.HIROM_HEADER])
 
     def test_a_stubbed_high_offset_is_built_at_the_high_one(self) -> None:
-        built = corpus.cartridge_for(a_case(header.HIROM_HEADER + header.COPIER_BYTES, 0x21))
+        # Arrange
+        case = a_case(mapper.HIROM_HEADER + mapper.COPIER_BYTES, 0x21)
 
-        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+        # Act
+        built = corpus.cartridge_for(case)
+
+        # Assert
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[mapper.HIROM_HEADER])
 
     def test_and_a_stubbed_low_offset_at_the_low_one(self) -> None:
-        built = corpus.cartridge_for(a_case(header.LOROM_HEADER + header.COPIER_BYTES, 0x20))
+        # Arrange
+        case = a_case(mapper.LOROM_HEADER + mapper.COPIER_BYTES, 0x20)
 
-        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.LOROM_HEADER])
+        # Act
+        built = corpus.cartridge_for(case)
+
+        # Assert
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[mapper.LOROM_HEADER])
 
     def test_an_offset_that_is_neither_falls_back_by_where_it_sits_in_its_bank(self) -> None:
-        built = corpus.cartridge_for(a_case(0x123456, 0x21))
+        # Arrange
+        case = a_case(0x123456, 0x21)
 
-        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[header.HIROM_HEADER])
+        # Act
+        built = corpus.cartridge_for(case)
+
+        # Assert
+        self.assertEqual(len(built), corpus.SIZE_FOR_OFFSET[mapper.HIROM_HEADER])
 
     def test_the_extended_offset_gets_an_image_large_enough_to_hold_it(self) -> None:
-        built = corpus.cartridge_for(a_case(header.EXHIROM_HEADER, 0x35))
+        # Arrange
+        case = a_case(EXHIROM_HEADER, 0x35)
 
-        self.assertGreater(len(built), header.EXHIROM_HEADER)
+        # Act
+        built = corpus.cartridge_for(case)
+
+        # Assert
+        self.assertGreater(len(built), EXHIROM_HEADER)
 
 
 class DefinitionTest(unittest.TestCase):

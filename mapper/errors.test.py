@@ -8,7 +8,9 @@ from pathlib import Path
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
-from mapper import errors  # noqa: E402
+import mapper  # noqa: E402
+
+REFUSALS = ["NeedsBankCount", "NoHeader", "NotWholeBanks", "UnknownModelError"]
 
 
 def reaching_back(source: str) -> list[str]:
@@ -27,28 +29,41 @@ def reaching_back(source: str) -> list[str]:
     return borrowed
 
 
+def exported_refusals() -> list[type[Exception]]:
+    held = [getattr(mapper, name) for name in mapper.__all__]
+    return [one for one in held if isinstance(one, type) and issubclass(one, Exception)]
+
+
 class OneHomeTest(unittest.TestCase):
-    def named(self) -> list[str]:
-        return [
-            name
-            for name, held in vars(errors).items()
-            if isinstance(held, type) and issubclass(held, Exception)
+    def test_the_package_exports_the_refusals_it_makes(self) -> None:
+        # Arrange
+        expected = REFUSALS
+
+        # Act
+        found = sorted(one.__name__ for one in exported_refusals())
+
+        # Assert
+        self.assertEqual(found, expected)
+
+    def test_every_one_of_them_lives_in_the_errors_module(self) -> None:
+        # Arrange
+        home = (ROOT / "mapper" / "errors.py").read_text()
+
+        # Act
+        stray = [
+            one.__name__
+            for one in exported_refusals()
+            if one.__module__ != "mapper.errors" or f"class {one.__name__}(" not in home
         ]
 
-    def test_the_module_defines_the_refusals_this_package_makes(self) -> None:
-        self.assertEqual(
-            sorted(self.named()),
-            ["NeedsBankCount", "NoHeader", "NotWholeBanks", "UnknownModelError"],
-        )
-
-    def test_every_one_of_them_derives_from_exception(self) -> None:
-        stray = [name for name in self.named() if not issubclass(getattr(errors, name), Exception)]
-
+        # Assert
         self.assertEqual(stray, [])
 
     def test_none_of_them_is_a_subclass_of_another(self) -> None:
-        held = [getattr(errors, name) for name in self.named()]
+        # Arrange
+        held = exported_refusals()
 
+        # Act
         overlapping = [
             (one.__name__, other.__name__)
             for one in held
@@ -56,28 +71,49 @@ class OneHomeTest(unittest.TestCase):
             if one is not other and issubclass(one, other)
         ]
 
+        # Assert
         self.assertEqual(overlapping, [])
 
 
 class NoCycleTest(unittest.TestCase):
     def test_it_imports_nothing_from_this_package(self) -> None:
+        # Arrange
         held = (ROOT / "mapper" / "errors.py").read_text()
 
-        self.assertEqual(reaching_back(held), [])
+        # Act
+        found = reaching_back(held)
+
+        # Assert
+        self.assertEqual(found, [])
 
     def test_the_reader_of_that_names_an_absolute_import_back(self) -> None:
-        found = reaching_back("import mapper.layout\n")
+        # Arrange
+        source = "import mapper.layout\n"
 
+        # Act
+        found = reaching_back(source)
+
+        # Assert
         self.assertEqual(found, ["mapper.layout"])
 
     def test_and_a_relative_one(self) -> None:
-        found = reaching_back("from . import layout\n")
+        # Arrange
+        source = "from . import layout\n"
 
+        # Act
+        found = reaching_back(source)
+
+        # Assert
         self.assertEqual(found, ["."])
 
     def test_and_steps_over_one_from_outside(self) -> None:
-        found = reaching_back("from __future__ import annotations\nimport mappertools\n")
+        # Arrange
+        source = "from __future__ import annotations\nimport mappertools\n"
 
+        # Act
+        found = reaching_back(source)
+
+        # Assert
         self.assertEqual(found, [])
 
 

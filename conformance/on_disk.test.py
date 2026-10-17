@@ -4,10 +4,12 @@ from pathlib import Path
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import mapper
 from conformance import against_cartridges, cartridges
-from mapper import header, layout
 
 PRESENT = cartridges.present()
+
+LOROM_REACH = 0x400000
 
 
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
@@ -50,27 +52,41 @@ class SweepTest(unittest.TestCase):  # pragma: no cover
 @unittest.skipUnless(PRESENT, cartridges.WHY_NOT)
 class WholeBankTest(unittest.TestCase):  # pragma: no cover
     def test_no_retail_cartridge_is_on_the_whole_bank_map(self) -> None:
+        # Arrange
+        found = [(identity, mapper.read(path.read_bytes())) for identity, path in PRESENT]
+
+        # Act
         named = [
             identity.name
-            for identity, path in PRESENT
-            if header.board(header.read(path.read_bytes()), identity.size) == header.WHOLEBANK
+            for identity, header in found
+            if mapper.board(header, identity.size) == mapper.WHOLEBANK
         ]
 
+        # Assert
         self.assertEqual(named, [])
 
     def test_no_retail_cartridge_is_large_enough_for_that_map(self) -> None:
-        for identity, _ in PRESENT:
-            self.assertLess(
-                identity.size, layout.WHOLEBANK_BANKS * layout.BANK_BYTES, identity.name
-            )
+        # Arrange
+        sizes = {identity.name: identity.size for identity, _ in PRESENT}
+
+        # Act
+        large = sorted(name for name, size in sizes.items() if size >= mapper.WHOLEBANK_BYTES)
+
+        # Assert
+        self.assertEqual(large, [])
 
     def test_the_cartridges_that_reach_past_the_low_map_are_the_ones_expected(self) -> None:
+        # Arrange
+        identities = [identity for identity, _ in PRESENT]
+
+        # Act
         larger = {
             identity.name.rsplit("/", 1)[-1]
-            for identity, _ in PRESENT
-            if identity.size > header.LOROM_REACH and identity.layout == header.LOROM
+            for identity in identities
+            if identity.size > LOROM_REACH and identity.layout == mapper.LOROM
         }
 
+        # Assert
         self.assertEqual(larger, {"Star Ocean (Japan).sfc"})
 
 

@@ -7,12 +7,12 @@ from typing import override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import mapper
 from conformance import corpus, record
-from mapper import header
 
 
 def a_cartridge(
-    at: int = header.LOROM_HEADER,
+    at: int = mapper.LOROM_HEADER,
     mapping: int = 0x20,
     chipset: int = 0x00,
     size: int = 0x100000,
@@ -36,22 +36,35 @@ PROBES = [0x8000, 0x7E0000]
 
 class FieldsTest(unittest.TestCase):
     def test_a_case_carries_the_numbers_and_not_the_title(self) -> None:
-        found = header.read(a_cartridge())
+        # Arrange
+        found = mapper.read(a_cartridge())
 
+        # Act
         fields = record.fields_of(found)
 
+        # Assert
         self.assertEqual(fields["mapping"], 0x20)
         self.assertNotIn("title", fields)
 
     def test_a_case_carries_the_offset_the_header_sat_at(self) -> None:
-        found = header.read(a_cartridge())
+        # Arrange
+        found = mapper.read(a_cartridge())
 
-        self.assertEqual(record.fields_of(found)["at"], header.LOROM_HEADER)
+        # Act
+        fields = record.fields_of(found)
+
+        # Assert
+        self.assertEqual(fields["at"], 0x7FC0)
 
     def test_a_copier_stub_does_not_change_the_offset_a_case_carries(self) -> None:
-        found = header.read(b"\x00" * header.COPIER_BYTES + a_cartridge())
+        # Arrange
+        found = mapper.read(bytes(0x200) + a_cartridge())
 
-        self.assertEqual(record.fields_of(found)["at"], header.LOROM_HEADER)
+        # Act
+        fields = record.fields_of(found)
+
+        # Assert
+        self.assertEqual(fields["at"], 0x7FC0)
 
 
 class GatherTest(unittest.TestCase):
@@ -73,12 +86,17 @@ class GatherTest(unittest.TestCase):
         self.assertEqual(len(record.gather(pair, PROBES)[0]), 1)
 
     def test_the_same_fields_at_two_offsets_make_two_cases(self) -> None:
+        # Arrange
         pair = [
             a_cartridge(mapping=0x45),
-            a_cartridge(at=header.HIROM_HEADER, mapping=0x45, size=0x200000),
+            a_cartridge(at=0xFFC0, mapping=0x45, size=0x200000),
         ]
 
-        self.assertEqual(len(record.gather(pair, PROBES)[0]), 2)
+        # Act
+        cases, _, _ = record.gather(pair, PROBES)
+
+        # Assert
+        self.assertEqual(len(cases), 2)
 
     def test_a_cartridge_with_no_header_is_refused_rather_than_guessed_at(self) -> None:
         cases, read, refused = record.gather([bytes(0x100000)], PROBES)
@@ -91,9 +109,14 @@ class GatherTest(unittest.TestCase):
         self.assertEqual(len(cases[0]["resolutions"]), len(PROBES))
 
     def test_a_case_records_what_the_model_says_the_header_is(self) -> None:
-        cases, _, _ = record.gather([a_cartridge()], PROBES)
+        # Arrange
+        images = [a_cartridge()]
 
-        self.assertEqual(cases[0]["expect"]["layout"], header.LOROM)
+        # Act
+        cases, _, _ = record.gather(images, PROBES)
+
+        # Assert
+        self.assertEqual(cases[0]["expect"]["layout"], "lorom")
 
     def test_cases_come_out_in_the_same_order_every_time(self) -> None:
         images = [a_cartridge(mapping=0x30), a_cartridge(), a_cartridge(chipset=0x02)]
@@ -106,19 +129,34 @@ class GatherTest(unittest.TestCase):
 
 class StubTest(unittest.TestCase):
     def test_a_stubbed_dump_records_the_offset_the_cartridge_has(self) -> None:
-        cases, _, _ = record.gather([b"\x00" * header.COPIER_BYTES + a_cartridge()], PROBES)
+        # Arrange
+        images = [bytes(0x200) + a_cartridge()]
 
-        self.assertEqual(cases[0]["expect"]["at"], header.LOROM_HEADER)
+        # Act
+        cases, _, _ = record.gather(images, PROBES)
+
+        # Assert
+        self.assertEqual(cases[0]["expect"]["at"], 0x7FC0)
 
     def test_a_stubbed_dump_and_a_bare_one_are_the_same_case(self) -> None:
-        pair = [a_cartridge(), b"\x00" * header.COPIER_BYTES + a_cartridge()]
+        # Arrange
+        pair = [a_cartridge(), bytes(0x200) + a_cartridge()]
 
-        self.assertEqual(len(record.gather(pair, PROBES)[0]), 1)
+        # Act
+        cases, _, _ = record.gather(pair, PROBES)
+
+        # Assert
+        self.assertEqual(len(cases), 1)
 
     def test_what_a_stubbed_dump_records_replays_clean(self) -> None:
-        cases, _, _ = record.gather([b"\x00" * header.COPIER_BYTES + a_cartridge()], corpus.PROBES)
+        # Arrange
+        cases, _, _ = record.gather([bytes(0x200) + a_cartridge()], corpus.PROBES)
 
-        self.assertEqual(corpus.run(cases)[1], 0)
+        # Act
+        _, disagreed, _ = corpus.run(cases)
+
+        # Assert
+        self.assertEqual(disagreed, 0)
 
 
 class ReplayTest(unittest.TestCase):

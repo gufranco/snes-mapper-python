@@ -12,7 +12,7 @@ if TYPE_CHECKING:  # pragma: no cover
     from collections.abc import Callable, Mapping, Sequence
 
 
-def _version(where: Path | None = None) -> str:
+def installed_version(where: Path | None = None) -> str:
     found = re.search(
         r"""VERSION\s*[:=][^"']*["']([^"']+)["']""",
         (where or Path(__file__).resolve().parent / "version.py").read_text(),
@@ -23,7 +23,7 @@ def _version(where: Path | None = None) -> str:
 ROOT = Path(__file__).resolve().parent.parent
 
 
-def _reachable(root: Path = ROOT, path: list[str] | None = None) -> bool:
+def reachable(root: Path = ROOT, path: list[str] | None = None) -> bool:
     where = sys.path if path is None else path
     if str(root) in where:
         return False
@@ -31,11 +31,11 @@ def _reachable(root: Path = ROOT, path: list[str] | None = None) -> bool:
     return True
 
 
-_reachable()
+reachable()
 
 from mapper import environment, header, models  # noqa: E402
 
-VERSION = _version()
+VERSION = installed_version()
 
 MANIFEST = ROOT / "cartridges.manifest.json"
 
@@ -78,7 +78,7 @@ class Finding:
         return f"<Finding {self.name} {'ok' if self.ok else 'not ok'}>"
 
 
-def _python() -> Finding:
+def check_python() -> Finding:
     return Finding(
         "python",
         sys.version_info[:2] >= OLDEST_PYTHON,
@@ -87,7 +87,7 @@ def _python() -> Finding:
     )
 
 
-def _package() -> Finding:
+def check_package() -> Finding:
     return Finding("mapper", True, f"version {VERSION}")
 
 
@@ -99,7 +99,7 @@ PROBE: dict[str, tuple[int, int | None]] = {
 }
 
 
-def _model(name: str) -> Finding:
+def check_model(name: str) -> Finding:
     address, banks = PROBE.get(name, (0x808000, None))
     try:
         one = models.layout_named(name)
@@ -121,7 +121,7 @@ def _model(name: str) -> Finding:
     )
 
 
-def _synthetic() -> bytes:
+def synthetic_image() -> bytes:
     rom = bytearray(b"\x00" * 0x10000)
     rom[0x7FC0 : 0x7FC0 + len(TITLE)] = TITLE
     rom[0x7FD5] = 0x20
@@ -131,7 +131,7 @@ def _synthetic() -> bytes:
     return bytes(rom)
 
 
-def _reading(build: Callable[[], bytes] = _synthetic) -> Finding:
+def check_reading(build: Callable[[], bytes] = synthetic_image) -> Finding:
     try:
         found = header.read(build())
     except Exception as trouble:
@@ -150,7 +150,7 @@ def _reading(build: Callable[[], bytes] = _synthetic) -> Finding:
     )
 
 
-def _manifest(path: Path | str = MANIFEST) -> Finding:
+def check_manifest(path: Path | str = MANIFEST) -> Finding:
     try:
         held = json.loads(Path(path).read_text())
     except OSError as trouble:
@@ -178,7 +178,7 @@ def _manifest(path: Path | str = MANIFEST) -> Finding:
     )
 
 
-def _corpus(path: Path | str = CORPUS) -> Finding:
+def check_corpus(path: Path | str = CORPUS) -> Finding:
     try:
         held = json.loads(Path(path).read_text())
     except OSError as trouble:
@@ -194,7 +194,7 @@ def _corpus(path: Path | str = CORPUS) -> Finding:
     )
 
 
-def _looking(environment: Mapping[str, str] | None = None) -> list[Finding]:
+def check_looking(environment: Mapping[str, str] | None = None) -> list[Finding]:
     held = environment if environment is not None else os.environ
     named = held.get(DIRECTORY_VARIABLE)
     places = [*([Path(named)] if named else []), ALONGSIDE, DEFAULT_DIRECTORY]
@@ -212,7 +212,7 @@ def _looking(environment: Mapping[str, str] | None = None) -> list[Finding]:
     ]
 
 
-def _library(where: Path | str, shipped: Path = DEFAULT_DIRECTORY) -> Finding:
+def check_library(where: Path | str, shipped: Path = DEFAULT_DIRECTORY) -> Finding:
     place = Path(where)
     if not place.is_dir():
         return Finding(
@@ -251,14 +251,14 @@ def examine(
     manifest: Path | str = MANIFEST,
     corpus: Path | str = CORPUS,
 ) -> list[Finding]:
-    found = [_python(), _package()]
-    found.extend(_model(name) for name in sorted(models.MODELS))
-    found.append(_reading())
-    found.append(_manifest(manifest))
-    found.append(_corpus(corpus))
-    where = _looking(environment)
+    found = [check_python(), check_package()]
+    found.extend(check_model(name) for name in sorted(models.MODELS))
+    found.append(check_reading())
+    found.append(check_manifest(manifest))
+    found.append(check_corpus(corpus))
+    where = check_looking(environment)
     found.extend(where)
-    found.append(_library(where[-1].detail))
+    found.append(check_library(where[-1].detail))
     return found
 
 

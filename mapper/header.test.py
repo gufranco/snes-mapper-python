@@ -1,16 +1,19 @@
-import os
 import sys
 import unittest
 from pathlib import Path
-from typing import override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import errors, header
+import mapper
+
+LOW = 0x7FC0
+HIGH = 0xFFC0
+FAR = 0x40FFC0
+STUB = 0x200
 
 
 def a_cartridge(
-    at: int = header.LOROM_HEADER,
+    at: int = LOW,
     title: str = "TEST CARTRIDGE      ",
     mapping: int = 0x20,
     chipset: int = 0x00,
@@ -35,261 +38,431 @@ def a_cartridge(
 
 
 class LocationTest(unittest.TestCase):
+    def test_the_candidate_places_are_the_ones_the_readme_gives(self) -> None:
+        # Arrange
+        expected = (0x7FC0, 0xFFC0, 0x200)
+
+        # Act
+        found = (mapper.LOROM_HEADER, mapper.HIROM_HEADER, mapper.COPIER_BYTES)
+
+        # Assert
+        self.assertEqual(found, expected)
+
     def test_a_low_rom_header_sits_where_low_rom_puts_it(self) -> None:
-        self.assertEqual(header.read(a_cartridge()).at, header.LOROM_HEADER)
+        # Arrange
+        rom = a_cartridge()
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.at, LOW)
 
     def test_a_high_rom_header_sits_where_high_rom_puts_it(self) -> None:
-        rom = a_cartridge(at=header.HIROM_HEADER, mapping=0x21, size=0x100000)
+        # Arrange
+        rom = a_cartridge(at=HIGH, mapping=0x21, size=0x100000)
 
-        self.assertEqual(header.read(rom).at, header.HIROM_HEADER)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.at, HIGH)
+
+    def test_an_extended_header_is_found_four_megabytes_in(self) -> None:
+        # Arrange
+        rom = a_cartridge(at=FAR, mapping=0x35, size=0x500000)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual((found.at, found.layout), (FAR, "exhirom"))
 
     def test_a_copier_stub_is_stepped_over(self) -> None:
-        rom = b"\x00" * header.COPIER_BYTES + a_cartridge()
+        # Arrange
+        rom = bytes(STUB) + a_cartridge()
 
-        self.assertEqual(header.read(rom).at, header.LOROM_HEADER + header.COPIER_BYTES)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual((found.at, found.shift), (LOW + STUB, STUB))
 
     def test_a_rom_too_small_to_hold_a_header_is_refused(self) -> None:
-        with self.assertRaises(errors.NoHeader):
-            header.read(b"\x00" * 64)
+        # Arrange
+        rom = bytes(64)
+
+        # Act
+        with self.assertRaises(mapper.NoHeader) as raised:
+            mapper.read(rom)
+
+        # Assert
+        self.assertEqual(str(raised.exception), "no header found in 64 bytes")
 
     def test_a_rom_with_no_plausible_header_is_refused(self) -> None:
-        with self.assertRaises(errors.NoHeader):
-            header.read(bytes(0x80000))
+        # Arrange
+        rom = bytes(0x80000)
+
+        # Act
+        with self.assertRaises(mapper.NoHeader) as raised:
+            mapper.read(rom)
+
+        # Assert
+        self.assertEqual(str(raised.exception), "no header found in 524288 bytes")
 
 
 class FieldTest(unittest.TestCase):
     def test_the_title_comes_back_without_its_padding(self) -> None:
-        self.assertEqual(header.read(a_cartridge()).title, "TEST CARTRIDGE")
+        # Arrange
+        rom = a_cartridge()
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.title, "TEST CARTRIDGE")
 
     def test_the_mapping_byte_is_kept(self) -> None:
-        self.assertEqual(header.read(a_cartridge(mapping=0x21)).mapping, 0x21)
+        # Arrange
+        rom = a_cartridge(mapping=0x21)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.mapping, 0x21)
 
     def test_the_chipset_byte_is_kept(self) -> None:
-        self.assertEqual(header.read(a_cartridge(chipset=0x03)).chipset, 0x03)
+        # Arrange
+        rom = a_cartridge(chipset=0x03)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.chipset, 0x03)
 
     def test_the_rom_size_is_read_as_a_power_of_two(self) -> None:
-        self.assertEqual(header.read(a_cartridge(rom_size=0x0A)).rom_bytes, 1024 * 1024)
+        # Arrange
+        rom = a_cartridge(rom_size=0x0A)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.rom_bytes, 1024 * 1024)
 
     def test_a_ram_size_of_zero_means_no_save_memory(self) -> None:
-        self.assertEqual(header.read(a_cartridge(ram_size=0x00)).ram_bytes, 0)
+        # Arrange
+        rom = a_cartridge(ram_size=0x00)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.ram_bytes, 0)
 
     def test_a_ram_size_reads_as_a_power_of_two(self) -> None:
-        self.assertEqual(header.read(a_cartridge(ram_size=0x03)).ram_bytes, 8 * 1024)
+        # Arrange
+        rom = a_cartridge(ram_size=0x03)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.ram_bytes, 8 * 1024)
 
     def test_the_country_byte_is_kept(self) -> None:
-        self.assertEqual(header.read(a_cartridge(country=0x02)).country, 0x02)
+        # Arrange
+        rom = a_cartridge(country=0x02)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.country, 0x02)
 
     def test_the_checksum_and_its_complement_are_read(self) -> None:
-        found = header.read(a_cartridge())
+        # Arrange
+        rom = a_cartridge()
 
-        self.assertEqual(found.checksum, 0x1234)
-        self.assertEqual(found.complement, 0x1234 ^ 0xFFFF)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual((found.checksum, found.complement), (0x1234, 0xEDCB))
 
     def test_a_header_whose_checksum_pair_agrees_says_so(self) -> None:
-        self.assertTrue(header.read(a_cartridge()).checksum_agrees)
+        # Arrange
+        rom = a_cartridge()
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertTrue(found.checksum_agrees)
+
+    def test_a_header_whose_pair_does_not_sum_to_ffff_says_so(self) -> None:
+        # Arrange
+        raw = bytes(28) + bytes([0x00, 0x00, 0x34, 0x12])
+
+        # Act
+        found = mapper.Header(LOW, raw)
+
+        # Assert
+        self.assertFalse(found.checksum_agrees)
+
+    def test_a_header_keeps_the_bytes_it_was_built_from(self) -> None:
+        # Arrange
+        raw = bytearray(range(32))
+
+        # Act
+        found = mapper.Header(LOW, raw)
+
+        # Assert
+        self.assertEqual((found.at, found.raw), (LOW, bytes(range(32))))
 
 
 class KindTest(unittest.TestCase):
     def test_the_low_bits_of_the_mapping_byte_name_the_layout(self) -> None:
-        self.assertEqual(header.read(a_cartridge(mapping=0x20)).layout, header.LOROM)
-        self.assertEqual(
-            header.read(a_cartridge(at=header.HIROM_HEADER, mapping=0x21, size=0x100000)).layout,
-            header.HIROM,
-        )
+        # Arrange
+        roms = (a_cartridge(mapping=0x20), a_cartridge(at=HIGH, mapping=0x21, size=0x100000))
+
+        # Act
+        found = [mapper.read(rom).layout for rom in roms]
+
+        # Assert
+        self.assertEqual(found, ["lorom", "hirom"])
 
     def test_the_fast_bit_of_the_mapping_byte_is_read(self) -> None:
-        self.assertFalse(header.read(a_cartridge(mapping=0x20)).fast)
-        self.assertTrue(header.read(a_cartridge(mapping=0x30)).fast)
+        # Arrange
+        roms = (a_cartridge(mapping=0x20), a_cartridge(mapping=0x30))
+
+        # Act
+        found = [mapper.read(rom).fast for rom in roms]
+
+        # Assert
+        self.assertEqual(found, [False, True])
 
     def test_a_chipset_byte_names_whether_a_coprocessor_is_present(self) -> None:
-        self.assertFalse(header.read(a_cartridge(chipset=0x02)).coprocessor)
-        self.assertTrue(header.read(a_cartridge(chipset=0x03)).coprocessor)
+        # Arrange
+        roms = (a_cartridge(chipset=0x02), a_cartridge(chipset=0x03))
+
+        # Act
+        found = [mapper.read(rom).coprocessor for rom in roms]
+
+        # Assert
+        self.assertEqual(found, [False, True])
 
     def test_a_chipset_byte_names_whether_save_memory_is_present(self) -> None:
-        self.assertTrue(header.read(a_cartridge(chipset=0x02)).battery)
-        self.assertFalse(header.read(a_cartridge(chipset=0x00)).battery)
+        # Arrange
+        roms = (a_cartridge(chipset=0x02), a_cartridge(chipset=0x00))
+
+        # Act
+        found = [mapper.read(rom).battery for rom in roms]
+
+        # Assert
+        self.assertEqual(found, [True, False])
 
     def test_a_header_prints_as_its_title_and_layout(self) -> None:
-        printed = repr(header.read(a_cartridge()))
+        # Arrange
+        found = mapper.read(a_cartridge())
 
-        self.assertIn("TEST CARTRIDGE", printed)
-        self.assertIn("lorom", printed)
+        # Act
+        printed = repr(found)
 
-
-class WholeBankTest(unittest.TestCase):
-    def test_an_ordinary_low_cartridge_stays_on_the_low_map(self) -> None:
-        found = header.read(a_cartridge(mapping=0x20))
-
-        self.assertEqual(header.board(found, 0x100000), header.LOROM)
-
-    def test_a_cartridge_of_the_one_length_that_map_has_is_on_it(self) -> None:
-        found = header.read(a_cartridge(mapping=0x30))
-
-        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.WHOLEBANK)
-
-    def test_a_cartridge_past_the_low_map_but_short_of_that_length_is_not(self) -> None:
-        found = header.read(a_cartridge(mapping=0x32, chipset=0x45))
-
-        self.assertEqual(header.board(found, 0x600000), header.LOROM)
-
-    def test_a_cartridge_exactly_at_the_low_map_reach_stays_on_it(self) -> None:
-        found = header.read(a_cartridge(mapping=0x30))
-
-        self.assertEqual(header.board(found, header.LOROM_REACH), header.LOROM)
-
-    def test_the_chipset_byte_is_never_consulted(self) -> None:
-        for chipset in (0x00, 0x02, 0x43, 0x45):
-            found = header.read(a_cartridge(mapping=0x32, chipset=chipset))
-
-            self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.WHOLEBANK)
-            self.assertEqual(header.board(found, 0x400000), header.LOROM)
-
-    def test_an_expansion_still_claiming_a_part_it_no_longer_has_reads_the_same(self) -> None:
-        stale = header.read(a_cartridge(mapping=0x32, chipset=0x45))
-        corrected = header.read(a_cartridge(mapping=0x32, chipset=0x00))
-
-        self.assertEqual(header.board(stale, header.WHOLEBANK_BYTES), header.WHOLEBANK)
-        self.assertEqual(header.board(corrected, header.WHOLEBANK_BYTES), header.WHOLEBANK)
-
-    def test_a_high_cartridge_is_left_where_its_header_put_it(self) -> None:
-        found = header.read(a_cartridge(at=header.HIROM_HEADER, mapping=0x21, size=0x200000))
-
-        self.assertEqual(header.board(found, 0x200000), header.HIROM)
-
-    def test_and_so_is_an_extended_one_at_that_very_length(self) -> None:
-        found = header.read(a_cartridge(at=header.HIROM_HEADER, mapping=0x35, size=0x200000))
-
-        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.EXHIROM)
-
-    def test_a_declared_coprocessor_layout_is_left_alone_too(self) -> None:
-        found = header.read(a_cartridge(mapping=0x23))
-
-        self.assertEqual(header.board(found, header.WHOLEBANK_BYTES), header.SA1)
+        # Assert
+        self.assertEqual(printed, "<Header 'TEST CARTRIDGE' lorom at 0x007fc0>")
 
 
 class OverflowedTitleTest(unittest.TestCase):
     def test_a_mapping_byte_in_the_declared_range_is_a_mapping_byte(self) -> None:
-        self.assertTrue(header.read(a_cartridge(mapping=0x20)).declared)
-        self.assertTrue(header.read(a_cartridge(mapping=0x3A)).declared)
+        # Arrange
+        roms = (a_cartridge(mapping=0x20), a_cartridge(mapping=0x3A))
+
+        # Act
+        found = [mapper.read(rom).declared for rom in roms]
+
+        # Assert
+        self.assertEqual(found, [True, True])
 
     def test_a_byte_outside_that_range_is_not_one(self) -> None:
-        self.assertFalse(header.read(a_cartridge(mapping=0x53)).declared)
+        # Arrange
+        rom = a_cartridge(mapping=0x53)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertFalse(found.declared)
 
     def test_a_letter_left_by_an_overflowed_title_does_not_name_a_layout(self) -> None:
-        overflowed = header.read(a_cartridge(mapping=0x53))
+        # Arrange
+        rom = a_cartridge(mapping=0x53)
 
-        self.assertEqual(overflowed.layout, header.LOROM)
+        # Act
+        overflowed = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(overflowed.layout, "lorom")
 
     def test_the_place_the_header_was_found_names_it_instead(self) -> None:
-        rom = a_cartridge(at=header.HIROM_HEADER, mapping=0x45, size=0x100000)
+        # Arrange
+        rom = a_cartridge(at=HIGH, mapping=0x45, size=0x100000)
 
-        self.assertEqual(header.read(rom).layout, header.HIROM)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.layout, "hirom")
 
     def test_and_that_holds_past_a_copier_stub(self) -> None:
-        rom = b"\x00" * header.COPIER_BYTES + a_cartridge(mapping=0x53)
+        # Arrange
+        rom = bytes(STUB) + a_cartridge(at=HIGH, mapping=0x45, size=0x100000)
 
-        self.assertEqual(header.read(rom).layout, header.LOROM)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.layout, "hirom")
 
     def test_a_letter_is_never_read_as_the_fast_bit(self) -> None:
-        self.assertFalse(header.read(a_cartridge(mapping=0x50)).fast)
+        # Arrange
+        rom = a_cartridge(mapping=0x50)
+
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertFalse(found.fast)
 
     def test_a_declared_mapping_is_still_believed_over_where_it_was_found(self) -> None:
-        rom = a_cartridge(at=header.HIROM_HEADER, mapping=0x35, size=0x100000)
+        # Arrange
+        rom = a_cartridge(at=HIGH, mapping=0x35, size=0x100000)
 
-        self.assertEqual(header.read(rom).layout, header.EXHIROM)
+        # Act
+        found = mapper.read(rom)
+
+        # Assert
+        self.assertEqual(found.layout, "exhirom")
 
     def test_a_header_at_no_known_offset_falls_back_to_the_low_layout(self) -> None:
-        self.assertEqual(header.Header(0x1234, bytes(32)).layout, header.LOROM)
+        # Arrange
+        raw = bytes(32)
+
+        # Act
+        found = mapper.Header(0x1234, raw)
+
+        # Assert
+        self.assertEqual((found.layout, found.shift), ("lorom", 0))
+
+    def test_the_readme_example_of_an_overflowed_title_reads_as_it_says(self) -> None:
+        # Arrange
+        raw = b"CONTRA3 THE ALIEN WARS" + bytes(10)
+
+        # Act
+        found = mapper.Header(LOW, raw)
+
+        # Assert
+        self.assertEqual((found.mapping, found.declared, found.layout), (0x53, False, "lorom"))
 
 
 class ScoreTest(unittest.TestCase):
     def test_the_better_placed_header_is_the_one_chosen(self) -> None:
+        # Arrange
         rom = bytearray(a_cartridge(size=0x100000))
-        rom[header.HIROM_HEADER : header.HIROM_HEADER + 21] = b"\xff" * 21
+        rom[HIGH : HIGH + 21] = b"\xff" * 21
 
-        self.assertEqual(header.read(bytes(rom)).at, header.LOROM_HEADER)
+        # Act
+        found = mapper.read(bytes(rom))
 
-    def test_a_readable_title_counts_towards_a_header(self) -> None:
-        self.assertGreater(header.score(a_cartridge(), header.LOROM_HEADER), 0)
+        # Assert
+        self.assertEqual(found.at, LOW)
+
+    def test_a_well_formed_header_earns_every_point(self) -> None:
+        # Arrange
+        rom = a_cartridge()
+
+        # Act
+        scored = mapper.score(rom, LOW)
+
+        # Assert
+        self.assertEqual(scored, 4)
 
     def test_a_header_of_noise_scores_nothing(self) -> None:
-        self.assertLessEqual(header.score(b"\xff" * 0x10000, header.LOROM_HEADER), 0)
+        # Arrange
+        rom = b"\xff" * 0x10000
+
+        # Act
+        scored = mapper.score(rom, LOW)
+
+        # Assert
+        self.assertEqual(scored, 0)
+
+    def test_a_place_too_near_the_end_for_thirty_two_bytes_scores_below_nothing(self) -> None:
+        # Arrange
+        rom = bytes(LOW + 31)
+
+        # Act
+        scored = mapper.score(rom, LOW)
+
+        # Assert
+        self.assertEqual(scored, -1)
+
+    def test_each_signal_earns_its_own_point(self) -> None:
+        # Arrange
+        roms = (
+            a_cartridge(title="\x00" * 21),
+            a_cartridge(mapping=0x21),
+            a_cartridge(rom_size=0x00),
+        )
+
+        # Act
+        scored = [mapper.score(rom, LOW) for rom in roms]
+
+        # Assert
+        self.assertEqual(scored, [3, 3, 3])
+
+    def test_a_checksum_of_zero_earns_no_point_even_when_its_pair_agrees(self) -> None:
+        # Arrange
+        rom = bytearray(a_cartridge())
+        rom[LOW + 28 : LOW + 32] = bytes([0xFF, 0xFF, 0x00, 0x00])
+
+        # Act
+        scored = mapper.score(bytes(rom), LOW)
+
+        # Assert
+        self.assertEqual(scored, 3)
 
     def test_every_size_a_real_cartridge_declares_counts_towards_a_header(self) -> None:
-        for declared in range(header.SMALLEST_PLAUSIBLE_SIZE, header.LARGEST_PLAUSIBLE_SIZE + 1):
-            scored = header.score(a_cartridge(rom_size=declared), header.LOROM_HEADER)
+        # Arrange
+        band = range(8, 14)
 
-            self.assertGreaterEqual(scored, 3, declared)
+        # Act
+        scored = [mapper.score(a_cartridge(rom_size=declared), LOW) for declared in band]
+
+        # Assert
+        self.assertEqual(scored, [4] * len(band))
 
     def test_a_size_larger_than_any_cartridge_ever_made_does_not(self) -> None:
-        larger = header.LARGEST_PLAUSIBLE_SIZE + 1
-        inside = header.score(
-            a_cartridge(rom_size=header.LARGEST_PLAUSIBLE_SIZE), header.LOROM_HEADER
-        )
+        # Arrange
+        rom = a_cartridge(rom_size=14)
 
-        self.assertEqual(
-            header.score(a_cartridge(rom_size=larger), header.LOROM_HEADER), inside - 1
-        )
+        # Act
+        scored = mapper.score(rom, LOW)
+
+        # Assert
+        self.assertEqual(scored, 3)
 
     def test_and_neither_does_one_smaller_than_the_band(self) -> None:
-        smaller = header.SMALLEST_PLAUSIBLE_SIZE - 1
-        inside = header.score(
-            a_cartridge(rom_size=header.SMALLEST_PLAUSIBLE_SIZE), header.LOROM_HEADER
-        )
+        # Arrange
+        rom = a_cartridge(rom_size=7)
 
-        self.assertEqual(
-            header.score(a_cartridge(rom_size=smaller), header.LOROM_HEADER), inside - 1
-        )
+        # Act
+        scored = mapper.score(rom, LOW)
 
-
-class CopierStubTest(unittest.TestCase):
-    def test_a_whole_number_of_half_banks_carries_no_stub(self) -> None:
-        self.assertFalse(header.has_copier_stub(bytes(0x20000)))
-
-    def test_the_same_length_plus_the_stub_does(self) -> None:
-        self.assertTrue(header.has_copier_stub(bytes(0x20000 + header.COPIER_BYTES)))
-
-    def test_a_file_no_longer_than_the_stub_cannot_be_one(self) -> None:
-        self.assertFalse(header.has_copier_stub(bytes(header.COPIER_BYTES)))
-
-    def test_a_length_of_no_recognised_shape_is_left_alone(self) -> None:
-        self.assertFalse(header.has_copier_stub(bytes(1234)))
-
-    def test_the_length_form_answers_the_same_question(self) -> None:
-        for size in (0, 0x200, 0x8000, 0x8200, 0x20000, 0x20200, 1234):
-            self.assertEqual(header.stub_by_length(size), header.has_copier_stub(bytes(size)), size)
-
-
-class HandedInTest(unittest.TestCase):
-    @override
-    def setUp(self) -> None:
-        held = os.environ.get("SNES_CARTRIDGE_DIR")
-        self.addCleanup(os.environ.__setitem__, "SNES_CARTRIDGE_DIR", held or "")
-        os.environ["SNES_CARTRIDGE_DIR"] = "/nowhere-at-all"
-
-    def built(self) -> bytes:
-        made = bytearray(0x80000)
-        made[0x7FC0 : 0x7FC0 + len(b"HANDED IN DIRECTLY")] = b"HANDED IN DIRECTLY"
-        made[0x7FD5], made[0x7FD6], made[0x7FD7] = 0x20, 0x00, 0x09
-        return bytes(made)
-
-    def test_a_header_is_read_out_of_bytes_alone(self) -> None:
-        found = header.read(self.built())
-
-        self.assertEqual(found.title.strip(), "HANDED IN DIRECTLY")
-
-    def test_a_candidate_place_is_scored_on_bytes_alone(self) -> None:
-        found = header.score(self.built(), header.LOROM_HEADER)
-
-        self.assertGreater(found, 0)
-
-    def test_only_the_doctor_names_that_variable_beside_the_reader(self) -> None:
-        package = Path(__file__).resolve().parent
-        naming = sorted(
-            one.name for one in package.glob("*.py") if "SNES_CARTRIDGE_DIR" in one.read_text()
-        )
-
-        self.assertEqual(naming, sorted(["doctor.py", Path(__file__).name]))
+        # Assert
+        self.assertEqual(scored, 3)
 
 
 if __name__ == "__main__":

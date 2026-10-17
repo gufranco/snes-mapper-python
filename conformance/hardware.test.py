@@ -7,13 +7,15 @@ from typing import Any, override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
-from mapper import layout
+import mapper
 
 HARDWARE = Path(__file__).resolve().parent / "hardware.json"
 
 CARRIER = 3579545.4545454545
 
 FAST_HALF_ROM = 0x808000
+
+CONTROLLER_PORT = 0x004016
 
 MEGAHERTZ = 1e6
 
@@ -97,19 +99,54 @@ class DerivationTest(unittest.TestCase):
 
 class ModelTest(unittest.TestCase):
     def test_the_fast_count_matches_the_documented_derivation(self) -> None:
-        self.assertEqual(layout.FAST, fact("fastAccessMasterCycles")["value"])
+        # Arrange
+        expected = fact("fastAccessMasterCycles")["value"]
+
+        # Act
+        found = mapper.resolve(mapper.LOROM, FAST_HALF_ROM, fast=True)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
     def test_the_slow_count_matches_it_too(self) -> None:
-        self.assertEqual(layout.SLOW, fact("slowAccessMasterCycles")["value"])
+        # Arrange
+        expected = fact("slowAccessMasterCycles")["value"]
+
+        # Act
+        found = mapper.resolve(mapper.LOROM, FAST_HALF_ROM, fast=False)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
     def test_the_extra_slow_count_matches_what_is_recorded_unverified(self) -> None:
-        self.assertEqual(layout.XSLOW, fact("extraSlowAccessMasterCycles")["value"])
+        # Arrange
+        expected = fact("extraSlowAccessMasterCycles")["value"]
+
+        # Act
+        found = mapper.resolve(mapper.LOROM, CONTROLLER_PORT, fast=True)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
     def test_a_slow_access_costs_more_than_a_fast_one(self) -> None:
-        self.assertGreater(layout.SLOW, layout.FAST)
+        # Arrange
+        asked = (True, False)
+
+        # Act
+        found = [mapper.resolve(mapper.LOROM, FAST_HALF_ROM, fast=one).cycles for one in asked]
+
+        # Assert
+        self.assertLess(found[0], found[1])
 
     def test_and_an_extra_slow_one_costs_more_still(self) -> None:
-        self.assertGreater(layout.XSLOW, layout.SLOW)
+        # Arrange
+        addresses = (FAST_HALF_ROM, CONTROLLER_PORT)
+
+        # Act
+        found = [mapper.resolve(mapper.LOROM, one).cycles for one in addresses]
+
+        # Assert
+        self.assertLess(found[0], found[1])
 
 
 class BusSpeedTest(unittest.TestCase):
@@ -120,7 +157,7 @@ class BusSpeedTest(unittest.TestCase):
 
         # Act
         cycles = {
-            name: layout.resolve(layout.LOROM, FAST_HALF_ROM, fast=name == "high").cycles
+            name: mapper.resolve(mapper.LOROM, FAST_HALF_ROM, fast=name == "high").cycles
             for name in printed
         }
 
@@ -190,19 +227,34 @@ class DivergenceTest(unittest.TestCase):
 
 class ResolutionTest(unittest.TestCase):
     def test_a_high_bank_rom_access_costs_the_fast_count_when_fast_is_asked_for(self) -> None:
-        found = layout.resolve(layout.LOROM, 0x808000, fast=True)
+        # Arrange
+        expected = fact("fastAccessMasterCycles")["value"]
 
-        self.assertEqual(found.cycles, layout.FAST)
+        # Act
+        found = mapper.resolve(mapper.LOROM, 0x808000, fast=True)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
     def test_and_the_slow_count_when_it_is_not(self) -> None:
-        found = layout.resolve(layout.LOROM, 0x808000, fast=False)
+        # Arrange
+        expected = fact("slowAccessMasterCycles")["value"]
 
-        self.assertEqual(found.cycles, layout.SLOW)
+        # Act
+        found = mapper.resolve(mapper.LOROM, 0x808000, fast=False)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
     def test_a_low_bank_rom_access_is_slow_whatever_was_asked_for(self) -> None:
-        found = layout.resolve(layout.LOROM, 0x008000, fast=True)
+        # Arrange
+        expected = fact("slowAccessMasterCycles")["value"]
 
-        self.assertEqual(found.cycles, layout.SLOW)
+        # Act
+        found = mapper.resolve(mapper.LOROM, 0x008000, fast=True)
+
+        # Assert
+        self.assertEqual(found.cycles, expected)
 
 
 if __name__ == "__main__":

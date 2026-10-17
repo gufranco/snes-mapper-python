@@ -95,7 +95,7 @@ files = ["mapper", "conformance"]
 exclude = "^cartridges/"
 
 [tool.coverage.run]
-source = ["mapper", "conformance"]
+source = ["."]
 branch = true
 omit = []
 

@@ -7,11 +7,11 @@ from typing import override
 
 sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 
+import mapper
 from conformance import against_cartridges
-from mapper import header
 
 
-def a_cartridge(at: int = header.LOROM_HEADER, mapping: int = 0x20, size: int = 0x100000) -> bytes:
+def a_cartridge(at: int = mapper.LOROM_HEADER, mapping: int = 0x20, size: int = 0x100000) -> bytes:
     rom = bytearray(size)
     rom[at : at + 21] = b"SWEPT CARTRIDGE      "
     rom[at + 21] = mapping
@@ -48,12 +48,15 @@ class SweepTest(unittest.TestCase):
         self.assertIn("no case", wrong[0])
 
     def test_a_case_the_model_now_disagrees_with_is_reported(self) -> None:
+        # Arrange
         cases = copy.deepcopy(against_cartridges.cases_by_key())
-        keyed = cases[against_cartridges.key_of(header.read(a_cartridge()))]
+        keyed = cases[against_cartridges.key_of(mapper.read(a_cartridge()))]
         keyed["expect"]["layout"] = "nonsense"
 
+        # Act
         _, agreed, wrong = against_cartridges.sweep(self.where, cases=list(cases.values()))
 
+        # Assert
         self.assertEqual(agreed, 0)
         self.assertIn("layout", wrong[0])
 
@@ -86,14 +89,17 @@ class SweepTest(unittest.TestCase):
         self.assertEqual(len(wrong), against_cartridges.EXAMPLE_LIMIT)
 
     def test_only_the_first_few_that_disagree_with_their_case_are_reported(self) -> None:
+        # Arrange
         cases = copy.deepcopy(against_cartridges.cases_by_key())
-        keyed = cases[against_cartridges.key_of(header.read(a_cartridge()))]
+        keyed = cases[against_cartridges.key_of(mapper.read(a_cartridge()))]
         keyed["expect"]["layout"] = "nonsense"
         for index in range(against_cartridges.EXAMPLE_LIMIT + 3):
             (self.where / "region" / f"copy{index}.sfc").write_bytes(a_cartridge())
 
+        # Act
         read, agreed, wrong = against_cartridges.sweep(self.where, cases=list(cases.values()))
 
+        # Assert
         self.assertEqual(agreed, 0)
         self.assertEqual(len(wrong), against_cartridges.EXAMPLE_LIMIT)
         self.assertGreater(read, against_cartridges.EXAMPLE_LIMIT)
@@ -111,15 +117,24 @@ class KeyTest(unittest.TestCase):
         self.assertEqual(len(against_cartridges.cases_by_key()), len(against_cartridges.CASES))
 
     def test_a_header_keys_to_the_case_that_recorded_it(self) -> None:
-        found = header.read(a_cartridge())
+        # Arrange
+        found = mapper.read(a_cartridge())
 
-        self.assertIn(against_cartridges.key_of(found), against_cartridges.cases_by_key())
+        # Act
+        key = against_cartridges.key_of(found)
+
+        # Assert
+        self.assertIn(key, against_cartridges.cases_by_key())
 
     def test_a_stubbed_dump_keys_to_the_same_case_as_a_bare_one(self) -> None:
-        bare = header.read(a_cartridge())
-        stubbed = header.read(b"\x00" * header.COPIER_BYTES + a_cartridge())
+        # Arrange
+        found = [mapper.read(a_cartridge()), mapper.read(bytes(0x200) + a_cartridge())]
 
-        self.assertEqual(against_cartridges.key_of(bare), against_cartridges.key_of(stubbed))
+        # Act
+        keys = [against_cartridges.key_of(one) for one in found]
+
+        # Assert
+        self.assertEqual(keys[0], keys[1])
 
 
 class MainTest(unittest.TestCase):

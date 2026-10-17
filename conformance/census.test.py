@@ -11,14 +11,14 @@ from typing import Any, override
 ROOT = Path(__file__).resolve().parent.parent
 sys.path.insert(0, str(ROOT))
 
+import mapper  # noqa: E402
 from conformance import census  # noqa: E402
-from mapper import header  # noqa: E402
 
 
 def a_cartridge(
     mapping: int = 0x20,
     chipset: int = 0x00,
-    at: int = header.LOROM_HEADER,
+    at: int = mapper.LOROM_HEADER,
     size: int = 0x80000,
 ) -> bytes:
     rom = bytearray(size)
