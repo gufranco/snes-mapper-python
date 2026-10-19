@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,016** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,060** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -273,20 +273,21 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 
 每个工具都在仓库根目录运行。`conformance/` 下的所有内容都以模块方式运行。
 
-| 命令                                                            | 作用                                                 | 退出码                                                       |
-| :-------------------------------------------------------------- | :--------------------------------------------------- | :----------------------------------------------------------- |
-| `python3 mapper/doctor.py`                                      | 报告本机和检出的状态                                 | 0 正常，1 有检查失败                                         |
-| `python3 mapper/environment.py`                                 | 仅报告其中关于本机的一半                             | 0 正常，1 有检查失败                                         |
-| `python3 -m conformance.corpus [corpus]`                        | 重放每种已记录的头部组合                             | 0 全部一致，1 有不一致，2 没有语料库                         |
-| `python3 -m conformance.against_cartridges [directory]`         | 读取现有的每个卡带，并用其对应的用例逐一检验         | 0 全部一致，1 有不一致，2 未找到卡带                         |
-| `python3 -m conformance.testcarts [--record out.json]`          | 映射现有的每个测试卡带，并与记录的读取结果逐一对照   | 0 全部一致，1 有一个不一致，2 没有测试卡带或参数错误         |
-| `python3 -m conformance.census <directory> <out> [limit]`       | 统计一个卡带库的头部                                 | 0 已写入，1 没有卡带，2 参数错误                             |
-| `python3 -m conformance.record <directory> [out] [limit]`       | 根据卡带库重建语料库                                 | 0 已写入，1 没有卡带，2 参数错误                             |
-| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下载手册并校验其摘要，或校验已有的副本               | 0 已校验，1 被拒绝、无匹配或参数错误                         |
-| `python3 -m conformance.quotes`                                 | 在手册中查找每一句被引用的句子                       | 0 全部找到或手册不存在，1 某处引文缺失或某条出处指向错误位置 |
-| `python3 -m conformance.speed`                                  | 吞吐量下限                                           | 0 高于下限，1 低于下限                                       |
-| `python3 -m conformance.links`                                  | 请求本 README 引用的每个地址，并以 JSON 打印每个状态 | 0 每个地址仍然存在，1 某个地址已失效，状态为 `404` 或 `410`  |
-| `python3 -m conformance.package <wheel>`                        | 检查构建出的 wheel 是否包含每个模块且不含测试文件    | 0 正常，1 有问题或该处没有 wheel，2 未提供参数               |
+| 命令                                                            | 作用                                                           | 退出码                                                       |
+| :-------------------------------------------------------------- | :------------------------------------------------------------- | :----------------------------------------------------------- |
+| `python3 mapper/doctor.py`                                      | 报告本机和检出的状态                                           | 0 正常，1 有检查失败                                         |
+| `python3 mapper/environment.py`                                 | 仅报告其中关于本机的一半                                       | 0 正常，1 有检查失败                                         |
+| `python3 -m conformance.corpus [corpus]`                        | 重放每种已记录的头部组合                                       | 0 全部一致，1 有不一致，2 没有语料库                         |
+| `python3 -m conformance.against_cartridges [directory]`         | 读取现有的每个卡带，并用其对应的用例逐一检验                   | 0 全部一致，1 有不一致，2 未找到卡带                         |
+| `python3 -m conformance.testcarts [--record out.json]`          | 映射现有的每个测试卡带，并与记录的读取结果逐一对照             | 0 全部一致，1 有一个不一致，2 没有测试卡带或参数错误         |
+| `python3 -m conformance.selftest [--record out.json]`           | 重放从现有每个自检卡带中读出的工厂自检，并与记录的结果逐一对照 | 0 全部一致，1 有一个不一致，2 没有自检卡带或参数错误         |
+| `python3 -m conformance.census <directory> <out> [limit]`       | 统计一个卡带库的头部                                           | 0 已写入，1 没有卡带，2 参数错误                             |
+| `python3 -m conformance.record <directory> [out] [limit]`       | 根据卡带库重建语料库                                           | 0 已写入，1 没有卡带，2 参数错误                             |
+| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下载手册并校验其摘要，或校验已有的副本                         | 0 已校验，1 被拒绝、无匹配或参数错误                         |
+| `python3 -m conformance.quotes`                                 | 在手册中查找每一句被引用的句子                                 | 0 全部找到或手册不存在，1 某处引文缺失或某条出处指向错误位置 |
+| `python3 -m conformance.speed`                                  | 吞吐量下限                                                     | 0 高于下限，1 低于下限                                       |
+| `python3 -m conformance.links`                                  | 请求本 README 引用的每个地址，并以 JSON 打印每个状态           | 0 每个地址仍然存在，1 某个地址已失效，状态为 `404` 或 `410`  |
+| `python3 -m conformance.package <wheel>`                        | 检查构建出的 wheel 是否包含每个模块且不含测试文件              | 0 正常，1 有问题或该处没有 wheel，2 未提供参数               |
 
 ## 本项目要防止的错误
 

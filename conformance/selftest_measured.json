@@ -1,0 +1,602 @@
+{
+  "aging-1-00": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  },
+  "burn-in-rev-d": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  },
+  "control-deck-tester-rev-1": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  },
+  "ntf-2-5-rev-a": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  },
+  "snsp-aging-1-02": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  },
+  "test-program": {
+    "mirror": {
+      "agreed": 6,
+      "banks": [
+        "$00",
+        "$20"
+      ],
+      "compares": 6,
+      "outside": 0,
+      "stores": 12
+    },
+    "registers": {
+      "agreed": 704,
+      "first": "$4300",
+      "last": "$437A",
+      "patterns": 8,
+      "reads": 704,
+      "registers": 88
+    },
+    "transfers": {
+      "agreed": 8,
+      "channels": [
+        {
+          "agrees": true,
+          "channel": 0,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 1,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 2,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 3,
+          "countLanded": [],
+          "destination": "$2118",
+          "length": 16,
+          "step": 0,
+          "toCpu": false
+        },
+        {
+          "agrees": true,
+          "channel": 4,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 5,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 6,
+          "countLanded": [],
+          "destination": "$2139",
+          "length": 16,
+          "step": 1,
+          "toCpu": true
+        },
+        {
+          "agrees": true,
+          "channel": 7,
+          "countLanded": [
+            "$4355"
+          ],
+          "destination": "$2139",
+          "length": null,
+          "step": 1,
+          "toCpu": true
+        }
+      ],
+      "enables": 8
+    }
+  }
+}

@@ -186,6 +186,21 @@ jobs:
           exit "${status}"
         shell: bash
 
+      - name: Replay the factory self-tests from every image present
+        run: |
+          status=0
+          python -m conformance.selftest || status="$?"
+          if [ "${status}" -eq 2 ]; then
+            notice="No self-test cartridge is present on a hosted runner,"
+            notice="${notice} so the factory self-tests were not replayed from an image."
+            notice="${notice} Their recorded results are still held by the tests."
+            notice="${notice} Point SNES_TEST_CARTRIDGE_DIR at a folder holding them."
+            echo "::notice title=Self-test cartridges::${notice}"
+            exit 0
+          fi
+          exit "${status}"
+        shell: bash
+
   package:
     name: package
     runs-on: ubuntu-26.04

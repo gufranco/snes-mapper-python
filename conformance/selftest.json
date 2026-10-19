@@ -1,0 +1,90 @@
+{
+  "what": "Where each factory self-test sits in each image, as file offsets: the DMA register walk, the work RAM mirror check and the DMA transfer test. selftest.py reads the stimulus and the expected values from the image between each start and stop and replays them on this package. The offsets are not cartridge bytes; the image is read at run time and nothing from it is kept but the measurements in selftest_measured.json.",
+  "source": "Each test was found in a MAME 0.289 trace and a static disassembly of its image on 2026-10-19. Every offset here was re-read from the image, and selftest_code.py decodes the instructions between start and stop.",
+  "tests": {
+    "burn-in-rev-d": {
+      "registers": {
+        "start": "0x0d76",
+        "stop": "0x0dfe"
+      },
+      "mirror": {
+        "start": "0x0664",
+        "stop": "0x06c2"
+      },
+      "transfers": {
+        "start": "0x1253",
+        "stop": "0x147b"
+      }
+    },
+    "snsp-aging-1-02": {
+      "registers": {
+        "start": "0x0aa5",
+        "stop": "0x0b2d"
+      },
+      "mirror": {
+        "start": "0x0391",
+        "stop": "0x03ef"
+      },
+      "transfers": {
+        "start": "0x0f82",
+        "stop": "0x11aa"
+      }
+    },
+    "control-deck-tester-rev-1": {
+      "registers": {
+        "start": "0x0ad4",
+        "stop": "0x0b5c"
+      },
+      "mirror": {
+        "start": "0x03a0",
+        "stop": "0x03fe"
+      },
+      "transfers": {
+        "start": "0x0fbd",
+        "stop": "0x11d9"
+      }
+    },
+    "aging-1-00": {
+      "registers": {
+        "start": "0x09cd",
+        "stop": "0x0a65"
+      },
+      "mirror": {
+        "start": "0x039a",
+        "stop": "0x03f8"
+      },
+      "transfers": {
+        "start": "0x0f05",
+        "stop": "0x1125"
+      }
+    },
+    "ntf-2-5-rev-a": {
+      "registers": {
+        "start": "0x0d17",
+        "stop": "0x0d9f"
+      },
+      "mirror": {
+        "start": "0x080c",
+        "stop": "0x086a"
+      },
+      "transfers": {
+        "start": "0x106d",
+        "stop": "0x1289"
+      }
+    },
+    "test-program": {
+      "registers": {
+        "start": "0x0d17",
+        "stop": "0x0d9f"
+      },
+      "mirror": {
+        "start": "0x080c",
+        "stop": "0x086a"
+      },
+      "transfers": {
+        "start": "0x106d",
+        "stop": "0x1289"
+      }
+    }
+  }
+}

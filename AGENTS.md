@@ -111,24 +111,22 @@ enough that the far copy would sit past the end of the file.
 ## Test cartridges
 
 [`conformance/testroms.json`](conformance/testroms.json) lists the 18 images in
-`snes-roms/5 Tools & Service Test Carts/`, each pinned by SHA-256, and every one
-is `read`: this package scores its header, names the board, and resolves the
-reset vector at `$00:FFFC` and the address it holds. The images live beside this
-repository in `snes-roms/`, or wherever `SNES_TEST_CARTRIDGE_DIR` points, and
-are never committed.
+`snes-roms/5 Tools & Service Test Carts/`, each pinned by SHA-256. The images
+live beside this repository in `snes-roms/`, or wherever
+`SNES_TEST_CARTRIDGE_DIR` points, and are never committed.
+
+**Every one is read.** This package scores its header, names the board, and
+resolves the reset vector at `$00:FFFC` and the address it holds.
 
 ```bash
 python3 -m conformance.testcarts
 python3 -m conformance.testcarts --record conformance/testcarts.json
 ```
 
-The first maps every listed image present and compares it with
-[`conformance/testcarts.json`](conformance/testcarts.json), which holds the
-board, the reset address and no title. It exits 2, and CI annotates the skip,
-when no image is present. The second rewrites the record.
-
+[`conformance/testcarts.json`](conformance/testcarts.json) holds the board, the
+reset address and no title, and
 [`conformance/testcarts_recorded.test.py`](conformance/testcarts_recorded.test.py)
-holds each one, resolving the recorded reset address again with no image present:
+resolves each recorded reset address again with no image present.
 
 - **Eight are mapped.** Both 240p Test Suite builds, Emudetect and HD
   Retrovision on `lorom`; the Evoke 2010 demo, the SA-1 3D Demo, the SA-1 Speed
@@ -141,8 +139,46 @@ holds each one, resolving the recorded reset address again with no image present
   them names a board, so `read` raises `NoHeader`, as it does for any image with
   no header. The DSP1 Tech Demo needs a DSP-1 that no byte of it declares.
 
-The `BIOS/` and `CPU/` folders beside them are not test cartridges. Nothing
-waits on another member here.
+**Six are run.** Burn-in Rev D, SNSP Aging 1.02, Super Famicom Aging 1.00, the
+Control Deck Tester, NTF 2.5 and the Test Program, which is NTF 2.5 overdumped,
+each test three things this package models with code a console ran:
+
+- **The DMA register test.** Eight patterns written to `$43x0` to `$43xA` of all
+  eight channels and read back: 704 reads.
+- **The work RAM mirror check.** Three words written through bank `$00` and read
+  through bank `$20`, then three more the other way, which
+  `work_ram_offset` has to send to the same cells.
+- **The transfer half of the DMA test.** The registers each channel is given
+  become `Engine.plans()`. A channel that moves to work RAM has to cover the
+  bytes the program reads back, and one that moves from it has to read the cell
+  the program filled. The VRAM half needs `snes-ppu`.
+
+```bash
+python3 -m conformance.selftest
+python3 -m conformance.selftest --record conformance/selftest_measured.json
+```
+
+[`conformance/selftest.json`](conformance/selftest.json) says where each test
+sits, as file offsets. [`conformance/selftest_code.py`](conformance/selftest_code.py)
+decodes the instructions there, so the patterns, the register walk, the words
+and the transfer registers come from the image the user holds, and
+[`conformance/selftest_measured.json`](conformance/selftest_measured.json) keeps
+only counts and plans. It exits 2, and CI annotates the skip, when no image is
+present. [`conformance/selftest_recorded.test.py`](conformance/selftest_recorded.test.py)
+replays the recorded results with no image present. All six agree on every part.
+
+**An observation of the cartridges, not of this package:** in all six, the code
+that sets up channel 7 for the transfer test writes its byte count to `$4355`,
+channel 5's register, instead of `$4375`. Channel 7 then moves whatever count
+`$4375` already held. The record keeps that channel's length as `null` and
+names `$4355` under `countLanded`. The trace that found the slip reported
+the compared bytes still matching under MAME 0.289; that run was not repeated
+here, and what a console moves on that channel is not measured.
+
+The `BIOS/` and `CPU/` folders beside them are not test cartridges. Every other
+test these cartridges carry needs a member that does not exist yet:
+`snes-ppu`, `snes-cpu-io`, `snes-wram`, `snes-sa1` or `snes-joypad`. Those
+belong to the members that model them, not here.
 
 ## Every gate, in the order to run them
 
@@ -160,12 +196,13 @@ done
 "${cov[@]}" report
 ```
 
-Then the three that are not part of the coverage step:
+Then the four that are not part of the coverage step:
 
 ```bash
 python3 -m conformance.corpus
 python3 -m conformance.speed
 python3 -m conformance.testcarts
+python3 -m conformance.selftest
 ```
 
 The corpus needs no cartridge anywhere. The sweep over a real library does, and
@@ -248,8 +285,9 @@ comments either, so their reasons live here:
   run, never committed.
 - `docs/`, `specs/`, `.work/` and `.claude/`: local working material, never
   committed.
-- `conformance/corpus.json` and `cartridges.manifest.json`: records of what was
-  measured. Only the recorder rewrites them, never a hand and never a formatter.
+- `conformance/corpus.json`, `conformance/selftest_measured.json` and
+  `cartridges.manifest.json`: records of what was measured. Only the recorder
+  rewrites them, never a hand and never a formatter.
 
 ## Layout
 
@@ -273,6 +311,11 @@ conformance/
   testroms.json         every test cartridge, pinned by SHA-256, and what it exercises
   testcarts.py          maps each one present and compares it with testcarts.json
   testcarts.json        what each one mapped to: board and reset address, no title
+  selftest.json         where each factory self-test sits in each image
+  selftest_code.py      decodes the instructions a self-test is made of
+  selftest_replay.py    replays the register, mirror and transfer tests on this package
+  selftest.py           replays each image present and compares it with its record
+  selftest_measured.json  what each replay measured: counts and plans, no bytes
   hardware.json         what Nintendo printed, with the sentence
   divergences.json      where sources part, with a status and a severity
   links.py              the weekly check that every cited address still answers

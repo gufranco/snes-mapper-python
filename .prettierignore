@@ -18,3 +18,4 @@ specs/
 .claude/
 conformance/corpus.json
 cartridges.manifest.json
+conformance/selftest_measured.json

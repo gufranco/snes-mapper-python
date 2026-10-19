@@ -27,10 +27,11 @@
       "title": "Burn-in Test Cartridge, Rev D",
       "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
       "source": "snes-roms/5 Tools & Service Test Carts/Burn-in - Test Cartridge (USA) (Rev D).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_burn_in_rev_d"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_burn_in_rev_d",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_burn_in_rev_d"
       ]
     },
     {
@@ -104,10 +105,11 @@
       "title": "NTF 2.5 Test Cartridge, Rev A",
       "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
       "source": "snes-roms/5 Tools & Service Test Carts/NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_ntf_2_5_rev_a"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_ntf_2_5_rev_a",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_ntf_2_5_rev_a"
       ]
     },
     {
@@ -159,10 +161,11 @@
       "title": "SNES Test Program",
       "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
       "source": "snes-roms/5 Tools & Service Test Carts/SNES Test Program (U).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_test_program"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_test_program",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_test_program"
       ]
     },
     {
@@ -170,10 +173,11 @@
       "title": "SNSP Aging 1.02",
       "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
       "source": "snes-roms/5 Tools & Service Test Carts/SNSP Aging Ver 1.02 (Japan) (En).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_snsp_aging_1_02"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_snsp_aging_1_02",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_snsp_aging_1_02"
       ]
     },
     {
@@ -181,10 +185,11 @@
       "title": "Super Famicom Aging Program 1.00",
       "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
       "source": "snes-roms/5 Tools & Service Test Carts/Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_aging_1_00"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_aging_1_00",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_aging_1_00"
       ]
     },
     {
@@ -192,10 +197,11 @@
       "title": "Super NES Control Deck Tester, Rev 1",
       "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
       "source": "snes-roms/5 Tools & Service Test Carts/Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
-      "exercises": "the header scorer, the board it names and where the reset vector lands",
-      "outcome": "read",
+      "exercises": "the header scorer and the board it names; and, run from the image's own code, its DMA register test through the eight channels' registers, the low work RAM mirror check through work_ram_offset, and the transfer plan half of its DMA test through Engine.plans",
+      "outcome": "run",
       "heldBy": [
-        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_control_deck_tester_rev_1"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_control_deck_tester_rev_1",
+        "conformance/selftest_recorded.test.py::EachSelfTestReplaysAsRecordedTest.test_control_deck_tester_rev_1"
       ]
     }
   ]
