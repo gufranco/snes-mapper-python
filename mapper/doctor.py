@@ -96,6 +96,8 @@ PROBE: dict[str, tuple[int, int | None]] = {
     "hirom": (0xC00000, None),
     "exhirom": (0xC00000, None),
     "wholebank": (0xC00000, 192),
+    "sa1": (0xC00000, None),
+    "spc7110": (0xC00000, None),
 }
 
 

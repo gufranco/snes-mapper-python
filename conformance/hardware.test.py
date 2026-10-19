@@ -63,7 +63,11 @@ class DocumentTest(unittest.TestCase):
         facts = declared()["facts"]
 
         # Act
-        citing = sorted(name for name, one in facts.items() if one.get("document"))
+        citing = sorted(
+            name
+            for name, one in facts.items()
+            if one.get("document") in ("developmentManual", "developmentManualScan")
+        )
 
         # Assert
         self.assertEqual(

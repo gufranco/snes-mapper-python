@@ -7,6 +7,7 @@ sys.path.insert(0, str(Path(__file__).resolve().parent.parent))
 import mapper
 
 REGIONS = {"rom", "work-ram", "save-ram", "registers", "open-bus"}
+COPROCESSOR_KINDS = (mapper.SA1, mapper.SPC7110)
 SWEEP = [(bank << 16) | page for bank in range(0, 0x100, 7) for page in range(0, 0x10000, 0x1000)]
 
 
@@ -17,10 +18,17 @@ def offsets(kind: str, addresses: list[int]) -> list[int | None]:
 class RegionTest(unittest.TestCase):
     def test_the_published_names_are_the_ones_the_readme_gives(self) -> None:
         # Arrange
-        expected = ("rom", "work-ram", "save-ram", "registers", "open-bus", 6, 8, 12)
+        expected = ("rom", "work-ram", "save-ram", "registers", "open-bus", "coprocessor", 6, 8, 12)
 
         # Act
-        found = (mapper.ROM, mapper.WORK_RAM, mapper.SAVE_RAM, mapper.REGISTERS, mapper.OPEN_BUS)
+        found = (
+            mapper.ROM,
+            mapper.WORK_RAM,
+            mapper.SAVE_RAM,
+            mapper.REGISTERS,
+            mapper.OPEN_BUS,
+            mapper.COPROCESSOR,
+        )
 
         # Assert
         self.assertEqual((*found, mapper.FAST, mapper.SLOW, mapper.XSLOW), expected)
@@ -234,7 +242,7 @@ class OffsetTest(unittest.TestCase):
         addresses = [0xC10000, 0x206000]
 
         # Act
-        found = [mapper.resolve("sa1", one) for one in addresses]
+        found = [mapper.resolve("superfx", one) for one in addresses]
 
         # Assert
         self.assertEqual(
@@ -292,6 +300,41 @@ class ReachTest(unittest.TestCase):
 
         # Assert
         self.assertEqual(found, REGIONS)
+
+
+class CoprocessorLayoutTest(unittest.TestCase):
+    def test_every_address_resolves_under_the_two_coprocessor_layouts(self) -> None:
+        # Arrange
+        kinds = COPROCESSOR_KINDS
+
+        # Act
+        found = {mapper.resolve(kind, address).region for kind in kinds for address in SWEEP}
+
+        # Assert
+        self.assertEqual(found, REGIONS | {"coprocessor"})
+
+    def test_the_console_still_decides_what_an_access_costs(self) -> None:
+        # Arrange
+        addresses = (0x002200, 0x003000, 0x004016, 0x004800, 0x006000, 0x808000, 0xC00000)
+
+        # Act
+        found = [
+            [mapper.resolve(kind, one, fast=True).cycles for one in addresses]
+            for kind in COPROCESSOR_KINDS
+        ]
+
+        # Assert
+        self.assertEqual(found, [[6, 6, 12, 6, 8, 6, 6]] * 2)
+
+    def test_an_sa1_bank_below_the_window_is_not_the_low_layout_s(self) -> None:
+        # Arrange
+        addresses = [0x808000, 0x208000]
+
+        # Act
+        found = offsets(mapper.SA1, addresses) + offsets(mapper.LOROM, addresses)
+
+        # Assert
+        self.assertEqual(found, [0x200000, 0x100000, 0x000000, 0x100000])
 
 
 class ExtendedHighTest(unittest.TestCase):

@@ -125,6 +125,226 @@
       "note": "Derived from the third speed section 21.1 prints, for the region Figure 2-21-1 labels CONTROLLER.",
       "document": "developmentManual",
       "section": "21.1 CPU Clock, page 2-21-1"
+    },
+    "sa1BankSwitching": {
+      "quote": "The entire mask ROM is divided into 8 Mbit blocks, which can be projected onto the 8 Mbit areas, 0000H-FFFFH in banks C0H-CFH, D0H-DFH, E0H-EFH, and F0H-FFH.",
+      "document": "developmentManualBookII",
+      "section": "3.3.1 ROM Bank Switching, page 1-3-3",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::DirectBankTest.test_each_sixteen_banks_from_c0_carry_one_eight_megabit_block"
+      ]
+    },
+    "sa1RomProjection": {
+      "quote": "The ROM data in banks CXH, DXH, EXH, and FXH, described above, is image projected onto, respectively, the 8 Mbit area 8000H-FFFFH, in banks 00H-1FH, 20H-3FH, 80H-9FH, and A0H-BFH.",
+      "document": "developmentManualBookII",
+      "section": "3.3.2 ROM Image Projection, page 1-3-3",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::ProjectionTest.test_each_thirty_two_banks_below_the_window_carry_one_block"
+      ]
+    },
+    "sa1RomOrder": {
+      "quote": "The image projection method used is different from that used in Map Mode 21 in that the ROM data is projected in successive order, as demonstrated below. C0:0000H~C0:7FFFH -> 00:8000H~00:FFFFH C0:8000H~C0:FFFFH -> 01:8000H~01:FFFFH",
+      "document": "developmentManualBookII",
+      "section": "3.3.2 ROM Image Projection, page 1-3-3",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::ProjectionTest.test_the_projection_runs_in_successive_order"
+      ]
+    },
+    "sa1FirstBlocks": {
+      "quote": "It is also possible to project the first 8 Mbits of data in the mask ROM (00:0000H~0F:FFFFH) onto bank 00H-1FH, regardless of the settings for banks CXH, DXH, EXH, and FXH. In a similar manner, data in 10:0000H~1F:FFFFH, 20:0000H~2F:FFFFH, and 30:0000H~3F:FFFFH can be projected onto banks 20H-3FH, 80H-9FH, and A0H-BFH, respectively.",
+      "document": "developmentManualBookII",
+      "section": "3.3.2 ROM Image Projection, page 1-3-3",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::ProjectionTest.test_the_fixed_projection_puts_the_blocks_in_order"
+      ]
+    },
+    "sa1BackupRamBanks": {
+      "quote": "Backup RAM is assigned to areas in bank 40H, justified to 0000H",
+      "document": "developmentManualBookII",
+      "section": "3.3.3 Backup RAM, page 1-3-3",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::BackupRamTest.test_backup_ram_starts_at_bank_40"
+      ]
+    },
+    "sa1BackupRamImage": {
+      "quote": "Backup RAM is image projected to the 64 Kbit areas in 6000H-7FFFH of banks 00H-3FH and 80H-BFH.",
+      "document": "developmentManualBookII",
+      "section": "3.3.3 Backup RAM, page 1-3-4",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::BackupRamTest.test_and_is_projected_into_every_system_bank"
+      ]
+    },
+    "sa1Registers": {
+      "quote": "The Super MMC control registers are assigned to 2200H-23FFH of banks 00H-3FH and 80H-BFH.",
+      "document": "developmentManualBookII",
+      "section": "3.3.5 Control Registers, page 1-3-4",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::WindowTest.test_the_sa1_registers_are_the_coprocessor_s"
+      ]
+    },
+    "sa1Iram": {
+      "quote": "The I-RAM is assigned to 3000H-37FFH in banks 00H-3FH and 80H-BFH during Super NES CPU access",
+      "document": "developmentManualBookII",
+      "section": "3.3.6.5 SA-1 I-RAM Pre-assigned, page 1-3-5",
+      "parts": ["sa1"],
+      "note": "The text layer prints l-RAM, a recogniser's reading of I-RAM; the page image reads I-RAM.",
+      "heldBy": ["conformance/hardware_sa1.test.py::WindowTest.test_and_so_is_its_internal_ram"]
+    },
+    "sa1Vectors": {
+      "quote": "Set the address for the Super NES CPU vectors and ROM-registered data to 00:7FB0H~00:7FFFH. When set to this area, they are assigned to FFB0H-FFFFH in bank 00H at Super NES start-up.",
+      "document": "developmentManualBookII",
+      "section": "3.4 Vectors and ROM-Registered Data, page 1-3-5",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::ProjectionTest.test_the_vectors_reach_the_registration_data"
+      ]
+    },
+    "sa1NoHighSpeed": {
+      "quote": "The SAS cannot use the Super NES CPU high-speed mode (3.58 MHz).",
+      "document": "developmentManualBookII",
+      "section": "3.3.6.1 High Speed Mode, page 1-3-4",
+      "parts": ["sa1"],
+      "note": "The console still decides the speed from the address, as Figure 2-21-1 of Book I prints it; this is why the SA-1 mapping byte is 23H and never 33H.",
+      "unreachable": "A rule for the program rather than for the map. The console decides the speed of an access from its address, as Figure 2-21-1 of Book I prints it, and nothing in a memory map can stop a program setting 420D; the header that a census reads carries 23H and never 33H, which the Map Mode table at page 1-2-17 of Book I also leaves out."
+    },
+    "sa1Cxb": {
+      "quote": "SET SUPER MMC BANK C (CXB) Access: Super NES CPU Write Address: **2220H Size: 8 bits Initial value: 00H",
+      "document": "developmentManualBookII",
+      "section": "4.1.16, page 1-4-10",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::InitialValueTest.test_the_map_is_the_one_the_initial_bank_values_select"
+      ]
+    },
+    "sa1Dxb": {
+      "quote": "SET SUPER MMC BANK D (DXB) Access: Super NES CPU Write Address: **2221H Size: 8 bits Initial value: 01H",
+      "document": "developmentManualBookII",
+      "section": "4.1.17, page 1-4-11",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::InitialValueTest.test_the_map_is_the_one_the_initial_bank_values_select"
+      ]
+    },
+    "sa1Exb": {
+      "quote": "SET SUPER MMC BANK E (EXB) Access: Super NES CPU Write Address: **2222H Size: 8 bits Initial value: 02H",
+      "document": "developmentManualBookII",
+      "section": "4.1.18, page 1-4-12",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::InitialValueTest.test_the_map_is_the_one_the_initial_bank_values_select"
+      ]
+    },
+    "sa1Fxb": {
+      "quote": "SET SUPER MMC BANK F (FXB) Access: Super NES CPU Write Address: **2223H Size: 8 bits Initial value: 03H",
+      "document": "developmentManualBookII",
+      "section": "4.1.19, page 1-4-13",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::InitialValueTest.test_the_map_is_the_one_the_initial_bank_values_select"
+      ]
+    },
+    "sa1CxbFixed": {
+      "quote": "The game pak ROM area 1 is copied to addresses 8000H-FFFFH of banks 0XH-1XH.",
+      "document": "developmentManualBookII",
+      "section": "4.1.16 CBM, page 1-4-10",
+      "parts": ["sa1"],
+      "note": "The CBM bit, cleared by the initial value. The area is printed as a circled 1, which the text layer reads as a copyright sign.",
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::InitialValueTest.test_the_map_is_the_one_the_initial_bank_values_select"
+      ]
+    },
+    "sa1Bmaps": {
+      "quote": "SUPER NES CPU BW-RAM ADDRESS MAPPING (BMAPS) Access: Super NES CPU Write Address: **2224H Size: 8 bits Initial value: 00H",
+      "document": "developmentManualBookII",
+      "section": "4.1.20, page 1-4-14",
+      "parts": ["sa1"],
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::BackupRamTest.test_and_is_projected_into_every_system_bank"
+      ]
+    },
+    "sa1Map": {
+      "parts": ["sa1"],
+      "rows": [
+        {
+          "pages": "0000-1FFF",
+          "banks": "00-3F, 80-BF",
+          "label": "SUPER NES WRAM"
+        },
+        {
+          "pages": "2200-23FF",
+          "banks": "00-3F, 80-BF",
+          "label": "SA-1 Register"
+        },
+        {
+          "pages": "3000-37FF",
+          "banks": "00-3F, 80-BF",
+          "label": "SA-1 I-RAM"
+        },
+        {
+          "pages": "6000-7FFF",
+          "banks": "00-3F, 80-BF",
+          "label": "BW-RAM Image (00) ~ (1F)"
+        },
+        {
+          "pages": "8000-FFFF",
+          "banks": "00-1F",
+          "label": "Select Game Pak ROM Image [0] or Bank CX Data"
+        },
+        {
+          "pages": "8000-FFFF",
+          "banks": "20-3F",
+          "label": "Select Game Pak ROM Image [1] or Bank DX Data"
+        },
+        {
+          "pages": "8000-FFFF",
+          "banks": "80-9F",
+          "label": "Select Game Pak ROM Image [2] or Bank EX Data"
+        },
+        {
+          "pages": "8000-FFFF",
+          "banks": "A0-BF",
+          "label": "Select Game Pak ROM Image [3] or Bank FX Data"
+        },
+        {
+          "pages": "0000-FFFF",
+          "banks": "40-43",
+          "label": "BW-RAM AREA 2M Bits Max"
+        },
+        {
+          "pages": "0000-FFFF",
+          "banks": "44-4F",
+          "label": "BW-RAM IMAGE"
+        },
+        {
+          "pages": "0000-FFFF",
+          "banks": "50-7D",
+          "label": "cross-hatched: only the Super NES CPU and PPU registers have access"
+        },
+        {
+          "pages": "0000-FFFF",
+          "banks": "7E-7F",
+          "label": "SUPER NES WRAM"
+        },
+        {
+          "pages": "0000-FFFF",
+          "banks": "C0-FF",
+          "label": "GAME PAK ROM Select [0] ~ [7]"
+        }
+      ],
+      "document": "developmentManualBookIIScan",
+      "section": "3.1 Memory Map from Super NES CPU Perspective, Super NES Memory Map (SAS, Super NES CPU), printed page 1-3-1",
+      "filePage": 18,
+      "readFrom": "The page image only, because the text layer of this page is recognition noise. Rendered at 120 and again at 300 dots per inch, the page turned upright and cropped to each half; both readings agree. The bands between 2000H and 6000H are drawn to no scale, so the register and I-RAM pages are taken from sections 3.3.5 and 3.3.6.5 rather than from the drawing.",
+      "heldBy": [
+        "conformance/hardware_sa1.test.py::MapTest.test_every_row_of_the_figure_lands_where_it_is_drawn"
+      ]
     }
   },
   "notCycleAccurate": {
@@ -157,6 +377,47 @@
       "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
       "bytes": 21022582,
       "note": "The same scan the archived text was recognised from. File page 94 is printed page 2-21-2, which carries Figure 2-21-1."
+    },
+    "developmentManualBookII": {
+      "publisher": "Nintendo",
+      "title": "Super Nintendo Entertainment System Development Manual, Book II",
+      "readOn": "2026-10-19",
+      "readVia": "archive.org/download/SNESDevManual/book2_djvu.txt, and the text layer of book2_text.pdf, which is what the quote checker reads",
+      "file": "book2_djvu.txt",
+      "sha256": "546f8e38caf6cb19c8aa9d5a1fef090d8cfc4a0a13b54c3b56d704975ab8398a",
+      "bytes": 463516,
+      "note": "Section 1, the Super Accelerator System, chapters 3 and 4: the memory map the console's processor sees through the SA-1, and the initial value of each register that moves it."
+    },
+    "developmentManualBookIIScan": {
+      "publisher": "Nintendo",
+      "title": "Super Nintendo Entertainment System Development Manual, Book II, the scanned pages with their text layer",
+      "readOn": "2026-10-19",
+      "readVia": "archive.org/download/SNESDevManual/book2_text.pdf, file page 18 rendered as an image",
+      "file": "book2_text.pdf",
+      "sha256": "05197923d9b73b63845fc5c2d609e753ec634dc1e4b403ce7a57326e1259c3ed",
+      "bytes": 29575127,
+      "note": "File page 18 is printed page 1-3-1, which carries the SA-1 memory map as the console's processor sees it."
     }
-  }
+  },
+  "notStated": [
+    {
+      "what": "The SPC7110 board's memory map, as resolve reads it for the spc7110 layout: registers at 4800 to 483F of banks 00 to 3F and 80 to BF, the decompression port in banks 50 and 58, backup RAM at 6000 to 7FFF, program ROM in the first megabyte of the image reached in banks 00 to 0F, 80 to 8F and C0 to CF, and data ROM after it in the other banks, at the bank registers' reset values, which give every data bank the data ROM's first megabyte.",
+      "parts": ["spc7110"],
+      "verified": false,
+      "source": "ares at commit 9408cb43d4948fc3ea6e152a307a34348df3fe04: mia/Database/Super Famicom Boards.bml, boards SPC7110-RAM and SPC7110-RAM-EPSONRTC; ares/sfc/coprocessor/spc7110/spc7110.cpp, power() and mcuromRead(); ares/sfc/coprocessor/spc7110/data.cpp, dataromRead(); mia/medium/super-famicom.cpp, the program and data ROM split at 0x100000.",
+      "why": "No Nintendo document known to exist prints the SPC7110 board, so this is an implementation's reading, cited as one. The header offset, FFC0, is the corpus's: all four retail SPC7110 cartridges carry it there.",
+      "howToSettleIt": "The board's schematic, or a logic analyser on a cartridge: the chip select lines of the program and data ROMs for an access to each bank, and the bank registers 4830 to 4834 read back after a reset.",
+      "heldBy": [
+        "mapper/layout_spc7110.test.py::Spc7110Test.test_the_program_rom_is_the_first_megabyte"
+      ]
+    },
+    {
+      "what": "Where the SA-1 maps anything once a program writes its bank or backup RAM registers, 2220 to 2224. resolve answers for the initial values Book II prints, which is the map before the first write.",
+      "parts": ["sa1"],
+      "verified": false,
+      "source": "Book II prints both the registers and the map they select; this package keeps no register state, so it answers for one setting of them.",
+      "why": "resolve is a question about an address and does not depend on anything having run, so the one map it can answer for is the one the initial values select.",
+      "howToSettleIt": "Nothing here is unknown: Book II chapter 4 prints what each value selects. Modelling it needs a stateful map, which this package does not have."
+    }
+  ]
 }

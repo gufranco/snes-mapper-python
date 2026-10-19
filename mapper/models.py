@@ -76,6 +76,28 @@ _CATALOGUE = (
         header_at=0x7FC0,
         aliases=("whole", "wholebanks", "interleaved"),
     ),
+    Model(
+        name=spaces.SA1,
+        summary=(
+            "The SA-1's own memory controller, at the bank settings its registers hold "
+            "before anything writes them: four eight megabit blocks in order, each a "
+            "thirty two kilobyte page per bank below the window and a whole bank above "
+            "it, with backup RAM in banks $40 to $4F and its own registers and work RAM "
+            "inside the console's register window."
+        ),
+        header_at=0x7FC0,
+        aliases=("mode23", "23"),
+    ),
+    Model(
+        name=spaces.SPC7110,
+        summary=(
+            "The SPC7110's program ROM in the first megabyte of the image, a whole bank "
+            "per bank from $C0 and in the upper half of $00 to $0F, and its data ROM "
+            "behind it, as one second implementation reads the board before the game "
+            "selects its data banks."
+        ),
+        header_at=0xFFC0,
+    ),
 )
 
 MODELS = {model.name: model for model in _CATALOGUE}

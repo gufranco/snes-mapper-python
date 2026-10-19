@@ -10,7 +10,7 @@ import mapper
 class CatalogueTest(unittest.TestCase):
     def test_the_package_names_every_layout_it_covers(self) -> None:
         # Arrange
-        expected = ["exhirom", "hirom", "lorom", "wholebank"]
+        expected = ["exhirom", "hirom", "lorom", "sa1", "spc7110", "wholebank"]
 
         # Act
         found = sorted(mapper.MODELS)
@@ -46,6 +46,8 @@ class CatalogueTest(unittest.TestCase):
             "hirom": ("hi", "mode21", "21"),
             "exhirom": ("exhi", "mode25", "25"),
             "wholebank": ("whole", "wholebanks", "interleaved"),
+            "sa1": ("mode23", "23"),
+            "spc7110": (),
         }
 
         # Act
@@ -56,14 +58,14 @@ class CatalogueTest(unittest.TestCase):
 
     def test_a_layout_the_package_does_not_have_is_refused_by_name(self) -> None:
         # Arrange
-        name = "sa1"
+        name = "superfx"
 
         # Act
         with self.assertRaises(mapper.UnknownModelError) as raised:
             mapper.layout_named(name)
 
         # Assert
-        self.assertTrue(str(raised.exception).startswith("sa1 is not a layout"))
+        self.assertTrue(str(raised.exception).startswith("superfx is not a layout"))
 
     def test_the_refusal_lists_what_is_available(self) -> None:
         # Arrange
@@ -76,7 +78,8 @@ class CatalogueTest(unittest.TestCase):
         # Assert
         self.assertEqual(
             str(raised.exception),
-            "nonsense is not a layout this package covers; it has exhirom, hirom, lorom, wholebank",
+            "nonsense is not a layout this package covers;"
+            " it has exhirom, hirom, lorom, sa1, spc7110, wholebank",
         )
 
     def test_a_layout_prints_as_its_name_and_header(self) -> None:

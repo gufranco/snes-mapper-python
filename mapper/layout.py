@@ -10,14 +10,17 @@ LOROM = "lorom"
 HIROM = "hirom"
 EXHIROM = "exhirom"
 WHOLEBANK = "wholebank"
+SA1 = "sa1"
+SPC7110 = "spc7110"
 
 ROM = "rom"
 WORK_RAM = "work-ram"
 SAVE_RAM = "save-ram"
 REGISTERS = "registers"
 OPEN_BUS = "open-bus"
+COPROCESSOR = "coprocessor"
 
-REGIONS = frozenset({ROM, WORK_RAM, SAVE_RAM, REGISTERS, OPEN_BUS})
+REGIONS = frozenset({ROM, WORK_RAM, SAVE_RAM, REGISTERS, OPEN_BUS, COPROCESSOR})
 
 FAST = 6
 SLOW = 8
@@ -60,6 +63,19 @@ WHOLEBANK_BYTES = 0xC00000
 
 EXHIROM_BYTES = 0x800000
 
+SYSTEM_SAVE_WINDOW = (0x6000, 0x8000)
+
+SA1_WINDOWS = ((0x2200, 0x2400), (0x3000, 0x3800))
+SA1_SAVE_BANKS = range(0x40, 0x50)
+SA1_BLOCK = 0x100000
+SA1_DIRECT_BANKS = 0xC0
+
+SPC7110_WINDOW = (0x4800, 0x4840)
+SPC7110_PORT_BANKS = (0x50, 0x58)
+SPC7110_PROGRAM_BANKS = 0x10
+SPC7110_DATA_AT = 0x100000
+SPC7110_DIRECT_BANKS = 0xC0
+
 
 class Resolution:
     __slots__ = ("address", "cycles", "offset", "region")
@@ -80,7 +96,7 @@ class Resolution:
 
 
 def _speed(bank: int, page: int, fast: bool) -> int:
-    if (bank & 0x7F) < SYSTEM_BANKS and page < SYSTEM_PAGES:
+    if _system_bank(bank) and page < SYSTEM_PAGES:
         return next(cycles for end, cycles in SYSTEM_PAGE_SPEEDS if page < end)
     return FAST if fast and bank >= FAST_HALF else SLOW
 
@@ -99,6 +115,42 @@ def _exhirom_offset(bank: int, page: int) -> int:
 
 def _wholebank_offset(bank: int, page: int, banks: int) -> int:
     return image.address_to_file(bank, page, banks)
+
+
+def _system_bank(bank: int) -> bool:
+    return (bank & 0x7F) < SYSTEM_BANKS
+
+
+def _decoded_by_coprocessor(kind: str, bank: int, page: int) -> bool:
+    if kind == SA1:
+        return _system_bank(bank) and any(low <= page < high for low, high in SA1_WINDOWS)
+    if kind == SPC7110:
+        in_window = _system_bank(bank) and SPC7110_WINDOW[0] <= page < SPC7110_WINDOW[1]
+        return in_window or bank in SPC7110_PORT_BANKS
+    return False
+
+
+def _sa1(bank: int, page: int) -> tuple[str, int | None]:
+    if _system_bank(bank) and SYSTEM_SAVE_WINDOW[0] <= page < SYSTEM_SAVE_WINDOW[1]:
+        return SAVE_RAM, None
+    if bank in SA1_SAVE_BANKS:
+        return SAVE_RAM, None
+    if bank >= SA1_DIRECT_BANKS:
+        return ROM, (bank - SA1_DIRECT_BANKS) * BANK_BYTES + page
+    if _system_bank(bank) and page >= LOROM_PAGE:
+        block = ((bank >> 5) & 1) | ((bank >> 6) & 2)
+        return ROM, block * SA1_BLOCK + (bank & 0x1F) * LOROM_PAGE + page - LOROM_PAGE
+    return OPEN_BUS, None
+
+
+def _spc7110(bank: int, page: int) -> tuple[str, int | None]:
+    if _system_bank(bank) and SYSTEM_SAVE_WINDOW[0] <= page < SYSTEM_SAVE_WINDOW[1]:
+        return SAVE_RAM, None
+    if bank >= SPC7110_DIRECT_BANKS or (_system_bank(bank) and page >= LOROM_PAGE):
+        within = ((bank & 0x0F) * BANK_BYTES) + page
+        program = (bank & 0x3F) < SPC7110_PROGRAM_BANKS
+        return ROM, within if program else SPC7110_DATA_AT + within
+    return OPEN_BUS, None
 
 
 def resolve(
@@ -128,8 +180,14 @@ def resolve(
 
     if bank in WORK_RAM_BANKS or ((bank & 0x7F) < 0x40 and page < WORK_RAM_MIRROR):
         region, offset = WORK_RAM, None
-    elif (bank & 0x7F) < 0x40 and REGISTER_WINDOW[0] <= page < REGISTER_WINDOW[1]:
+    elif _decoded_by_coprocessor(kind, bank, page):
+        region, offset = COPROCESSOR, None
+    elif _system_bank(bank) and REGISTER_WINDOW[0] <= page < REGISTER_WINDOW[1]:
         region, offset = REGISTERS, None
+    elif kind == SA1:
+        region, offset = _sa1(bank, page)
+    elif kind == SPC7110:
+        region, offset = _spc7110(bank, page)
     elif (
         kind in (LOROM, WHOLEBANK)
         and (bank & 0x7F) in SAVE_RAM_BANKS

@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** 種標頭組合在 **2,781** 盒零售版卡帶上重放，**0** 處不一致，**6** 種佈局中 **4** 種可解析，**8** 個傳輸通道，**928** 個測試，**100%** 語句及分支覆蓋率，沒有任何依賴
+**289** 種標頭組合在 **2,781** 盒零售版卡帶上重放，**0** 處不一致，**6** 種佈局中 **6** 種可解析，**8** 個傳輸通道，**947** 個測試，**100%** 語句及分支覆蓋率，沒有任何依賴
 
 ```python
 from mapper import LOROM, resolve
@@ -47,7 +47,7 @@ python3 mapper/doctor.py
 診斷腳本會報告機器資訊，將一個探測位址經過每種佈局解析，從它自行建立的映像檔讀出標頭，統計清單和語料庫，並說明找到了哪個卡帶庫。全新的 checkout 沒有卡帶庫，診斷腳本會報告針對真實卡帶的檢查將被略過。所有檢查通過時以 0 結束，否則以 1 結束。提交錯誤報告時請貼上它的完整輸出。
 
 ```
-  13 checks, nothing to report
+  15 checks, nothing to report
 ```
 
 發佈版本遵循 [Semantic Versioning](https://semver.org/)，由 semantic-release 根據提交歷史產生。每個發佈版本都有標籤，並列於[發佈頁面](https://github.com/gufranco/snes-mapper-python/releases)。
@@ -58,15 +58,15 @@ python3 mapper/doctor.py
 
 ### 位址
 
-`resolve(kind, address, fast=False, banks=None, save=False)` 傳回一個 `Resolution`。`kind` 是 `LOROM`、`HIROM`、`EXHIROM` 或 `WHOLEBANK`。`fast` 是標頭對較快匯流排的要求。`banks` 是以 64 KB bank 計算的映像檔大小，`WHOLEBANK` 必須提供。`save` 在 `WHOLEBANK` 上把 bank `$70` 至 `$7D` 映射為存檔記憶體，否則它們屬於卡帶。`kind` 若為其他字串，則以 `HIROM` 的方式讀取卡帶 bank，且沒有存檔記憶體窗口。
+`resolve(kind, address, fast=False, banks=None, save=False)` 傳回一個 `Resolution`。`kind` 是 `LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`、`SA1` 或 `SPC7110`。`fast` 是標頭對較快匯流排的要求。`banks` 是以 64 KB bank 計算的映像檔大小，`WHOLEBANK` 必須提供。`save` 在 `WHOLEBANK` 上把 bank `$70` 至 `$7D` 映射為存檔記憶體，否則它們屬於卡帶。`kind` 若為其他字串，則以 `HIROM` 的方式讀取卡帶 bank，且沒有存檔記憶體窗口。
 
-| 屬性      | 含義                                                                                                                          |
-| :-------- | :---------------------------------------------------------------------------------------------------------------------------- |
-| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS` 或 `OPEN_BUS`，其值分別為 `rom`、`work-ram`、`save-ram`、`registers` 和 `open-bus` |
-| `offset`  | 該位址讀取映像檔中的哪個位置；區域不是 `rom` 時為 `None`                                                                      |
-| `cycles`  | 該次存取花費的主時鐘數：`FAST` 為 6，`SLOW` 為 8，`XSLOW` 為 12                                                               |
-| `address` | 所查詢的位址，遮罩至 24 位元                                                                                                  |
-| `is_rom`  | `region` 為 `rom` 時為 True                                                                                                   |
+| 屬性      | 含義                                                                                                                                                                                                                                                      |
+| :-------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS`、`OPEN_BUS` 或 `COPROCESSOR`，其值分別為 `rom`、`work-ram`、`save-ram`、`registers`、`open-bus` 和 `coprocessor`。`coprocessor` 是由卡帶上的晶片解碼的位址：SA-1 的暫存器和工作 RAM，SPC7110 的暫存器和埠 bank |
+| `offset`  | 該位址讀取映像檔中的哪個位置；區域不是 `rom` 時為 `None`                                                                                                                                                                                                  |
+| `cycles`  | 該次存取花費的主時鐘數：`FAST` 為 6，`SLOW` 為 8，`XSLOW` 為 12                                                                                                                                                                                           |
+| `address` | 所查詢的位址，遮罩至 24 位元                                                                                                                                                                                                                              |
+| `is_rom`  | `region` 為 `rom` 時為 True                                                                                                                                                                                                                               |
 
 在 bank `$00` 至 `$3F` 和 `$80` 至 `$BF` 的 `$8000` 以下，主機按 Book I 圖 2-21-1 所印固定速度，與 `fast` 無關：`$2000` 至 `$3FFF` 和 `$4200` 至 `$5FFF` 花費 6，`$4000` 至 `$41FF` 的控制器埠花費 12，工作 RAM 和 `$6000` 至 `$7FFF` 花費 8。`fast` 只作用於 bank `$80` 至 `$BF` 的 `$8000` 及以上，以及 bank `$C0` 至 `$FF`。
 
@@ -80,18 +80,20 @@ python3 mapper/doctor.py
 | `hirom`     | `hi`、`mode21`、`21`                 | `$FFC0`                             |
 | `exhirom`   | `exhi`、`mode25`、`25`               | `$FFC0`，映像檔夠大時還有 `$40FFC0` |
 | `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0`                             |
+| `sa1`       | `mode23`、`23`                       | `$7FC0`                             |
+| `spc7110`   | 沒有                                 | `$FFC0`                             |
 
 ```python
 import mapper
 
-for name in ("lorom", "hirom", "exhirom", "wholebank"):
+for name in ("lorom", "hirom", "exhirom", "wholebank", "sa1", "spc7110"):
     model = mapper.layout_named(name)
     print(model.name, model.aliases, f"{model.header_at:#06x}")
 
 print(mapper.layout_named("Mode-20").name)
 
 try:
-    mapper.layout_named("sa1")
+    mapper.layout_named("superfx")
 except mapper.UnknownModelError as error:
     print(error)
 ```
@@ -101,8 +103,10 @@ lorom ('lo', 'mode20', '20') 0x7fc0
 hirom ('hi', 'mode21', '21') 0xffc0
 exhirom ('exhi', 'mode25', '25') 0xffc0
 wholebank ('whole', 'wholebanks', 'interleaved') 0x7fc0
+sa1 ('mode23', '23') 0x7fc0
+spc7110 () 0xffc0
 lorom
-sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
+superfx is not a layout this package covers; it has exhirom, hirom, lorom, sa1, spc7110, wholebank
 ```
 
 ### 標頭
@@ -261,7 +265,7 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 
 ### 模組內容
 
-`mapper.__version__` 是已安裝的版本。佈局名稱 `LOROM`、`HIROM`、`EXHIROM` 和 `WHOLEBANK` 分別是字串 `lorom`、`hirom`、`exhirom` 和 `wholebank`。子模組 `header`、`layout`、`image`、`transfer`、`models` 和 `errors` 可作為屬性存取，而 `layout.EXHIROM_BYTES` 為 8 MB。
+`mapper.__version__` 是已安裝的版本。佈局名稱 `LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`、`SA1` 和 `SPC7110` 分別是字串 `lorom`、`hirom`、`exhirom`、`wholebank`、`sa1` 和 `spc7110`。子模組 `header`、`layout`、`image`、`transfer`、`models` 和 `errors` 可作為屬性存取，而 `layout.EXHIROM_BYTES` 為 8 MB。
 
 ### 命令列工具
 
@@ -374,6 +378,8 @@ print(f"{layout_named('lorom').header_at:#06x}")
 print(f"{layout_named('hirom').header_at:#06x}")
 print(f"{layout_named('exhirom').header_at:#06x}")
 print(f"{layout_named('wholebank').header_at:#06x}")
+print(f"{layout_named('sa1').header_at:#06x}")
+print(f"{layout_named('spc7110').header_at:#06x}")
 
 print(layout_named("mode20").name)
 print(layout_named("hirom").resolve(0xC00000).region)
@@ -384,18 +390,51 @@ print(layout_named("hirom").resolve(0xC00000).region)
 0xffc0
 0xffc0
 0x7fc0
+0x7fc0
+0xffc0
 lorom
 rom
 ```
 
-| 佈局        | 形態                                                                                                        |
-| :---------- | :---------------------------------------------------------------------------------------------------------- |
-| `lorom`     | 每個 bank 一個 32 KB 頁面，位於各 bank 的上半部，存檔記憶體佔據 bank `$70` 至 `$7D` 及 `$F0` 至 `$FD`       |
-| `hirom`     | 每個 bank 一個完整的 64 KB bank，存檔記憶體位於 bank `$20` 至 `$3F` 及 `$A0` 至 `$BF` 的 `$6000` 至 `$7FFF` |
-| `exhirom`   | 兩個 4 MB 半部互換的 `hirom`                                                                                |
-| `wholebank` | `$C0` 以下每個 bank 一個完整的 64 KB，來自一個交錯的 12 MB 映像檔                                           |
+| 佈局        | 形態                                                                                                                                                                    |
+| :---------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lorom`     | 每個 bank 一個 32 KB 頁面，位於各 bank 的上半部，存檔記憶體佔據 bank `$70` 至 `$7D` 及 `$F0` 至 `$FD`                                                                   |
+| `hirom`     | 每個 bank 一個完整的 64 KB bank，存檔記憶體位於 bank `$20` 至 `$3F` 及 `$A0` 至 `$BF` 的 `$6000` 至 `$7FFF`                                                             |
+| `exhirom`   | 兩個 4 MB 半部互換的 `hirom`                                                                                                                                            |
+| `wholebank` | `$C0` 以下每個 bank 一個完整的 64 KB，來自一個交錯的 12 MB 映像檔                                                                                                       |
+| `sa1`       | 四個 8 Mbit 區塊依次排列：`$00` 至 `$3F` 和 `$80` 至 `$BF` 每個 bank 一頁 32 KB，由 `$C0` 起每個 bank 一個完整 bank，備份 RAM 在 `$40` 至 `$4F` 以及 `$6000` 至 `$7FFF` |
+| `spc7110`   | 程式 ROM 即映像檔的第一個百萬位元組，位於 `$00` 至 `$0F`、`$80` 至 `$8F` 和 `$C0` 至 `$CF`，其後的數據 ROM 位於其餘每個 ROM bank                                        |
 
-標頭也會宣告 `sa1` 和 `spc7110`。普查會統計它們，而 `layout_named` 拒絕它們：兩者的位址映射背後都沒有語料庫。
+### The two coprocessor maps
+
+```python
+from mapper import SA1, SPC7110, resolve
+
+for kind, addresses in (
+    (SA1, (0x002200, 0x003000, 0x008000, 0x808000, 0x406000, 0xD00000)),
+    (SPC7110, (0x004800, 0x500000, 0x008000, 0x108000, 0xD00000)),
+):
+    for address in addresses:
+        landed = resolve(kind, address)
+        where = "-" if landed.offset is None else f"{landed.offset:#08x}"
+        print(kind, f"{address:06X}", landed.region, where)
+```
+
+```
+sa1 002200 coprocessor -
+sa1 003000 coprocessor -
+sa1 008000 rom 0x000000
+sa1 808000 rom 0x200000
+sa1 406000 save-ram -
+sa1 D00000 rom 0x100000
+spc7110 004800 coprocessor -
+spc7110 500000 coprocessor -
+spc7110 008000 rom 0x008000
+spc7110 108000 rom 0x108000
+spc7110 D00000 rom 0x100000
+```
+
+SA-1 的映射是 Book II 為主機處理器印出的那一張，取 bank 暫存器 `$2220` 至 `$2223` 和備份 RAM 暫存器 `$2224` 的初始值。bank `$80` 至 `$BF` 載有第三和第四個區塊，而不是前兩個的鏡像。程式寫入這些暫存器會移動映射，`resolve` 不會跟隨。沒有任何 Nintendo 文件印出 SPC7110 的電路板，所以它的映射取自固定提交的 ares 電路板數據庫和 SPC7110 原始碼，記錄中標記為未經驗證。在遊戲選定數據 bank 之前，每個數據 bank 都讀取程式 ROM 之後的第一個百萬位元組。
 
 ### 擴展佈局互換其兩個半部
 
@@ -534,11 +573,13 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 每項證據的價值
 
-| 證據                                                                                    | 能確定甚麼                                                      | 不能確定甚麼                     |
-| :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------- | :------------------------------- |
-| Nintendo 的手冊，連同 [`conformance/hardware.json`](conformance/hardware.json) 中的算式 | 三種 CPU 時鐘速度及各自適用的位址，從而確定 6、8 和 12 的時鐘數 | 主時鐘，手冊沒有印出             |
-| 從 2,781 盒卡帶讀出的標頭組合                                                           | 一種組合在已發行卡帶上的含義                                    | 沒有任何卡帶帶有的組合           |
-| 每盒已讀取卡帶的摘要                                                                    | 讀取的檔案就是所指名的檔案                                      | 該發行版本是否就是你想要的那一版 |
+| 證據                                                                                    | 能確定甚麼                                                      | 不能確定甚麼                                |
+| :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------- | :------------------------------------------ |
+| Nintendo 的手冊，連同 [`conformance/hardware.json`](conformance/hardware.json) 中的算式 | 三種 CPU 時鐘速度及各自適用的位址，從而確定 6、8 和 12 的時鐘數 | 主時鐘，手冊沒有印出                        |
+| Book II 第 1 部分第 3、4 章                                                             | 暫存器初始值下的 SA-1 映射                                      | 程式寫入之後的映射                          |
+| 固定提交的 ares 電路板數據庫和 SPC7110 原始碼                                           | 沒有；它是線索，標記為未經驗證                                  | 沒有任何 Nintendo 文件印出的 SPC7110 電路板 |
+| 從 2,781 盒卡帶讀出的標頭組合                                                           | 一種組合在已發行卡帶上的含義                                    | 沒有任何卡帶帶有的組合                      |
+| 每盒已讀取卡帶的摘要                                                                    | 讀取的檔案就是所指名的檔案                                      | 該發行版本是否就是你想要的那一版            |
 
 未模擬的部分：處理器，因此不知道一條指令會作多少次存取；刷新和傳輸造成的停頓；以及到達位址之後發生的任何事情。
 
@@ -589,12 +630,14 @@ python3 -m conformance.speed
 
 ## 參考資料
 
-| 文件                                                | 出版者                   | 閱讀日期   |     位元組 | SHA-256                                                            |
-| :-------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_，存檔的全文       | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
-| _SNES Development Manual, Book I_，附文字層的掃描頁 | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| 文件                                                 | 出版者                   | 閱讀日期   |     位元組 | SHA-256                                                            |
+| :--------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_，存檔的全文        | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_，附文字層的掃描頁  | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| _SNES Development Manual, Book II_，存檔的全文       | Nintendo of America Inc. | 2026-10-19 |    463,516 | `546f8e38caf6cb19c8aa9d5a1fef090d8cfc4a0a13b54c3b56d704975ab8398a` |
+| _SNES Development Manual, Book II_，附文字層的掃描頁 | Nintendo of America Inc. | 2026-10-19 | 29,575,127 | `05197923d9b73b63845fc5c2d609e753ec634dc1e4b403ce7a57326e1259c3ed` |
 
-兩者都不可再分發，也都不在本儲存庫中。`python3 -m conformance.documents` 從 https://archive.org/download/SNESDevManual/book1_djvu.txt 和 https://archive.org/download/SNESDevManual/book1_text.pdf 下載它們到 git 忽略的 `docs/`，並拒絕摘要不同的任何檔案。`--check` 驗證已存在的副本。[`conformance/documents.json`](conformance/documents.json) 載有摘要和網址。取自該文件的句子在 [`conformance/hardware.json`](conformance/hardware.json) 中，每句都附有其出處的表格和頁碼。
+四者都不可再分發，也都不在本儲存庫中。`python3 -m conformance.documents` 從 archive.org 項目 https://archive.org/details/SNESDevManual 下載全部四個檔案到 git 忽略的 `docs/`，並拒絕摘要不同的任何檔案。`--check` 驗證已存在的副本。[`conformance/documents.json`](conformance/documents.json) 載有摘要和網址。取自該文件的句子在 [`conformance/hardware.json`](conformance/hardware.json) 中，每句都附有其出處的表格和頁碼。
 
 [`conformance/corpus.json`](conformance/corpus.json) 背後的 2,781 個標頭來自作者擁有的一個零售版卡帶庫。除了 [`cartridges.manifest.json`](cartridges.manifest.json) 中的摘要之外，其中的任何內容都沒有提交。
 

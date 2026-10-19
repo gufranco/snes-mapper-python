@@ -23,7 +23,9 @@ it does not move the answer.
 ## What would settle almost all of them
 
 A page of a manual, or a schematic. The question below about the master clock
-would be closed by a printed frequency or by the crystal on a board.
+would be closed by a printed frequency or by the crystal on a board, and the one
+about the SPC7110 by the board's schematic or a logic analyser on its chip
+selects.
 
 Every entry is also carried in
 [`conformance/divergences.json`](conformance/divergences.json) with its status
@@ -45,6 +47,30 @@ every step came from Nintendo, and one step did not.
 
 **What would settle or reopen it.** A passage in either book giving the master
 clock frequency, or the crystal value from a schematic or a board photograph.
+
+## Where no document exists and one implementation is the source
+
+### Where the SPC7110 board puts its ROMs and its registers.
+
+**The document says.** Nothing. Book I names the SPC7110's mapping byte and no
+memory map, and Book II has no SPC7110 chapter.
+
+**What this project follows.** ares at commit
+`9408cb43d4948fc3ea6e152a307a34348df3fe04`: its board database for the
+SPC7110 boards and its SPC7110 source for what the bank registers select after a
+reset. Registers at `$4800` to `$483F`, the decompression port in banks `$50`
+and `$58`, backup RAM at `$6000` to `$7FFF`, program ROM as the image's first
+megabyte, and data ROM after it. It is recorded under `notStated` in
+[`conformance/hardware.json`](conformance/hardware.json) with `verified: false`.
+The header offset, `$FFC0`, is the corpus's rather than ares's: all four retail
+SPC7110 cartridges carry it there.
+
+**Why.** An implementation is a lead, not an authority, and with no document
+above it the map is a claim about what ares does.
+
+**What would settle or reopen it.** The board's schematic, or a logic analyser
+on a cartridge: the chip select lines of the program and data ROMs for an access
+to each bank, and the bank registers `$4830` to `$4834` read back after a reset.
 
 ## Where the question is a scope boundary, not an unknown
 
@@ -68,9 +94,12 @@ So the boundary is visible rather than implied:
 - **Which layout a cartridge is on.** Held to 289 header combinations covering
   2,781 retail cartridges, with no disagreements, including the thirteen whose
   mapping byte is a letter left behind by an overflowing title.
-- **Where an address lands under each of the four resolvable layouts.** Held to
-  fourteen probe addresses per combination, and to a sweep over the whole
+- **Where an address lands under each of the six layouts.** Held to fourteen
+  probe addresses per combination, and to a sweep over the whole
   twenty-four-bit space in [`mapper/layout.test.py`](mapper/layout.test.py).
+  The SA-1 map is also held, page by page, to what Book II prints for the
+  console's processor in section 1, chapters 3 and 4, in
+  [`conformance/hardware_sa1.test.py`](conformance/hardware_sa1.test.py).
 - **What the fast, slow and controller-port accesses cost.** Six, eight and
   twelve master cycles, derived by arithmetic from the three speeds Book I
   prints in section 21.1, with the arithmetic shown. Figure 2-21-1 labels
@@ -92,10 +121,14 @@ Absent rather than unknown, and absent on purpose:
   model and is not one.
 - **Refresh and transfer stalls.** Every cycle the console spends on something
   other than the access itself.
-- **The SA-1 and SPC7110 address maps.** A header declaring either is recognised
-  and counted, because real cartridges declare them and a census has to count
-  them. Neither is resolvable, because neither has a corpus behind it, and a
-  layout with nothing backing it would be a guess sitting in a table of answers.
+- **The SA-1's map once a program writes its bank or backup RAM registers.**
+  Book II prints what every value of `$2220` to `$2224` selects. `resolve`
+  keeps no state, so it answers for the initial values, which is the map before
+  the first write.
+- **The SPC7110's data bank selection and the Epson clock some of its boards
+  carry.** Data banks read what the bank registers select after a reset, and
+  `$4840` to `$4842` resolve as the console's registers, because `resolve` takes
+  a layout rather than a chipset.
 - **Anything outside a header.** The census reads thirty two bytes and never
   reads a byte past them, which is what lets a measurement over a library be
   published when the library cannot be.

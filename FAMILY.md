@@ -1148,7 +1148,10 @@ the others do not also get._
 three CPU clock speeds in section 21.1, the two a cartridge selects in its Map
 Mode table, and the addresses each speed applies to in Figure 2-21-1, and no
 table of access cycles per region. All three access figures this project uses
-follow from those speeds by arithmetic that is shown rather than asserted.
+follow from those speeds by arithmetic that is shown rather than asserted. Book
+II prints the SA-1's map as the console's processor sees it, and the initial
+value of every register that moves it. No Nintendo document prints the SPC7110
+board, so that map is an implementation's and is marked unverified.
 
 **Where the evidence is a cartridge rather than a document.** Header field
 combinations are read out of a library of retail cartridges, every distinct

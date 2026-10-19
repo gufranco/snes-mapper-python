@@ -48,8 +48,9 @@ the far end of a cycle.
    them, and [`cartridges.manifest.json`](cartridges.manifest.json) names each
    file by four digests so a later run reads the same bytes.
 3. **A recording from an independent implementation.** Nothing here rests on one.
-4. **Anything else.** Nothing here rests on it. The controller-port count once
-   did, and Book I's section 21.1 replaced it.
+4. **Anything else.** The SPC7110 map alone, read out of ares's board database
+   and SPC7110 source at a pinned commit, because no Nintendo document prints
+   it. It is recorded under `notStated` and marked unverified.
 
 The corpus and the manual answer different questions and neither overrides the
 other. The manual is an instruction issued to licensees, so a genuine cartridge
@@ -64,7 +65,9 @@ byte is a letter left behind by a title overflowing its field.
 
 **Settled: where an address lands.** Fourteen probe addresses per combination,
 plus a sweep over the whole twenty-four-bit space in
-[`mapper/layout.test.py`](mapper/layout.test.py).
+[`mapper/layout.test.py`](mapper/layout.test.py). The SA-1 map is held to Book
+II's section 1, chapters 3 and 4, at the initial values its registers hold, in
+[`conformance/hardware_sa1.test.py`](conformance/hardware_sa1.test.py).
 
 **Settled: the fast, slow and controller-port access counts.** Six, eight and
 twelve master cycles, derived by arithmetic from the three speeds the manual
@@ -72,10 +75,10 @@ prints in section 21.1, with the arithmetic shown in the record rather than
 asserted. Figure 2-21-1 says which addresses run at which, and it is an image
 the archived text does not carry, so it was read off the scanned page.
 
-**Not settled: 2 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
-what would close it. One is the master clock the manual never printed, and one
-is a scope boundary listed so nobody mistakes it for a gap. Do not close one by
-argument.
+**Not settled: 3 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+what would close it. One is the master clock the manual never printed, one is
+the SPC7110 map no Nintendo document prints, and one is a scope boundary listed
+so nobody mistakes it for a gap. Do not close one by argument.
 
 ## The header has no fixed home
 

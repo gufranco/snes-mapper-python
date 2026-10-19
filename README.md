@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **4** of **6** layouts resolvable, **8** transfer channels, **928** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **947** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -47,7 +47,7 @@ The package imports nothing outside the standard library.
 The doctor reports the machine, resolves a probe address through every layout, reads a header out of an image it builds, counts the manifest and the corpus, and says which cartridge library it found. A fresh checkout has none, and the doctor reports that the check against real cartridges will skip. It exits 0 when every check passes and 1 otherwise. Paste its whole output into any bug report.
 
 ```
-  13 checks, nothing to report
+  15 checks, nothing to report
 ```
 
 Releases follow [Semantic Versioning](https://semver.org/) and are cut from the commit history by semantic-release. Every release is tagged and listed on the [releases page](https://github.com/gufranco/snes-mapper-python/releases).
@@ -58,15 +58,15 @@ Nothing here is built and then driven, and nothing executes code. Every call is 
 
 ### Addresses
 
-`resolve(kind, address, fast=False, banks=None, save=False)` returns a `Resolution`. `kind` is `LOROM`, `HIROM`, `EXHIROM` or `WHOLEBANK`. `fast` is the header's request for the faster bus. `banks` is the image size in 64 KB banks, which `WHOLEBANK` requires. `save` maps banks `$70` to `$7D` as save memory on `WHOLEBANK`, where they are cartridge otherwise. Any other string for `kind` reads cartridge banks the way `HIROM` does, with no save memory window.
+`resolve(kind, address, fast=False, banks=None, save=False)` returns a `Resolution`. `kind` is `LOROM`, `HIROM`, `EXHIROM`, `WHOLEBANK`, `SA1` or `SPC7110`. `fast` is the header's request for the faster bus. `banks` is the image size in 64 KB banks, which `WHOLEBANK` requires. `save` maps banks `$70` to `$7D` as save memory on `WHOLEBANK`, where they are cartridge otherwise. Any other string for `kind` reads cartridge banks the way `HIROM` does, with no save memory window.
 
-| Attribute | Meaning                                                                                                                              |
-| :-------- | :----------------------------------------------------------------------------------------------------------------------------------- |
-| `region`  | `ROM`, `WORK_RAM`, `SAVE_RAM`, `REGISTERS` or `OPEN_BUS`, whose values are `rom`, `work-ram`, `save-ram`, `registers` and `open-bus` |
-| `offset`  | Where in the image the address reads, or `None` when the region is not `rom`                                                         |
-| `cycles`  | Master clocks the access costs: `FAST` is 6, `SLOW` is 8, `XSLOW` is 12                                                              |
-| `address` | The address asked about, masked to 24 bits                                                                                           |
-| `is_rom`  | True when `region` is `rom`                                                                                                          |
+| Attribute | Meaning                                                                                                                                                                                                                                                                                                     |
+| :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`, `WORK_RAM`, `SAVE_RAM`, `REGISTERS`, `OPEN_BUS` or `COPROCESSOR`, whose values are `rom`, `work-ram`, `save-ram`, `registers`, `open-bus` and `coprocessor`. `coprocessor` is an address the cartridge's chip decodes: the SA-1's registers and work RAM, the SPC7110's registers and its port banks |
+| `offset`  | Where in the image the address reads, or `None` when the region is not `rom`                                                                                                                                                                                                                                |
+| `cycles`  | Master clocks the access costs: `FAST` is 6, `SLOW` is 8, `XSLOW` is 12                                                                                                                                                                                                                                     |
+| `address` | The address asked about, masked to 24 bits                                                                                                                                                                                                                                                                  |
+| `is_rom`  | True when `region` is `rom`                                                                                                                                                                                                                                                                                 |
 
 Below `$8000` in banks `$00` to `$3F` and `$80` to `$BF`, the console fixes the speed whatever `fast` says, as Figure 2-21-1 of Book I prints it: `$2000` to `$3FFF` and `$4200` to `$5FFF` cost 6, the controller ports at `$4000` to `$41FF` cost 12, and work RAM and `$6000` to `$7FFF` cost 8. `fast` reaches only `$8000` and above in banks `$80` to `$BF`, and banks `$C0` to `$FF`.
 
@@ -80,18 +80,20 @@ Below `$8000` in banks `$00` to `$3F` and `$80` to `$BF`, the console fixes the 
 | `hirom`     | `hi`, `mode21`, `21`                 | `$FFC0`                                          |
 | `exhirom`   | `exhi`, `mode25`, `25`               | `$FFC0`, and `$40FFC0` when the image reaches it |
 | `wholebank` | `whole`, `wholebanks`, `interleaved` | `$7FC0`                                          |
+| `sa1`       | `mode23`, `23`                       | `$7FC0`                                          |
+| `spc7110`   | none                                 | `$FFC0`                                          |
 
 ```python
 import mapper
 
-for name in ("lorom", "hirom", "exhirom", "wholebank"):
+for name in ("lorom", "hirom", "exhirom", "wholebank", "sa1", "spc7110"):
     model = mapper.layout_named(name)
     print(model.name, model.aliases, f"{model.header_at:#06x}")
 
 print(mapper.layout_named("Mode-20").name)
 
 try:
-    mapper.layout_named("sa1")
+    mapper.layout_named("superfx")
 except mapper.UnknownModelError as error:
     print(error)
 ```
@@ -101,8 +103,10 @@ lorom ('lo', 'mode20', '20') 0x7fc0
 hirom ('hi', 'mode21', '21') 0xffc0
 exhirom ('exhi', 'mode25', '25') 0xffc0
 wholebank ('whole', 'wholebanks', 'interleaved') 0x7fc0
+sa1 ('mode23', '23') 0x7fc0
+spc7110 () 0xffc0
 lorom
-sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
+superfx is not a layout this package covers; it has exhirom, hirom, lorom, sa1, spc7110, wholebank
 ```
 
 ### Headers
@@ -261,7 +265,7 @@ Each message carries more after its first sentence: `NeedsBankCount` goes on to 
 
 ### Module contents
 
-`mapper.__version__` is the installed version. The layout names `LOROM`, `HIROM`, `EXHIROM` and `WHOLEBANK` are the strings `lorom`, `hirom`, `exhirom` and `wholebank`. The submodules `header`, `layout`, `image`, `transfer`, `models` and `errors` are reachable as attributes, and `layout.EXHIROM_BYTES` is 8 MB.
+`mapper.__version__` is the installed version. The layout names `LOROM`, `HIROM`, `EXHIROM`, `WHOLEBANK`, `SA1` and `SPC7110` are the strings `lorom`, `hirom`, `exhirom`, `wholebank`, `sa1` and `spc7110`. The submodules `header`, `layout`, `image`, `transfer`, `models` and `errors` are reachable as attributes, and `layout.EXHIROM_BYTES` is 8 MB.
 
 ### Command-line tools
 
@@ -374,6 +378,8 @@ print(f"{layout_named('lorom').header_at:#06x}")
 print(f"{layout_named('hirom').header_at:#06x}")
 print(f"{layout_named('exhirom').header_at:#06x}")
 print(f"{layout_named('wholebank').header_at:#06x}")
+print(f"{layout_named('sa1').header_at:#06x}")
+print(f"{layout_named('spc7110').header_at:#06x}")
 
 print(layout_named("mode20").name)
 print(layout_named("hirom").resolve(0xC00000).region)
@@ -384,18 +390,51 @@ print(layout_named("hirom").resolve(0xC00000).region)
 0xffc0
 0xffc0
 0x7fc0
+0x7fc0
+0xffc0
 lorom
 rom
 ```
 
-| Layout      | Shape                                                                                                                   |
-| :---------- | :---------------------------------------------------------------------------------------------------------------------- |
-| `lorom`     | A 32 KB page per bank, in the upper half of each bank, with save memory filling banks `$70` to `$7D` and `$F0` to `$FD` |
-| `hirom`     | A whole 64 KB bank per bank, with save memory at `$6000` to `$7FFF` in banks `$20` to `$3F` and `$A0` to `$BF`          |
-| `exhirom`   | `hirom` with its two 4 MB halves swapped                                                                                |
-| `wholebank` | A whole 64 KB per bank below `$C0` from an interleaved 12 MB image                                                      |
+| Layout      | Shape                                                                                                                                                                             |
+| :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lorom`     | A 32 KB page per bank, in the upper half of each bank, with save memory filling banks `$70` to `$7D` and `$F0` to `$FD`                                                           |
+| `hirom`     | A whole 64 KB bank per bank, with save memory at `$6000` to `$7FFF` in banks `$20` to `$3F` and `$A0` to `$BF`                                                                    |
+| `exhirom`   | `hirom` with its two 4 MB halves swapped                                                                                                                                          |
+| `wholebank` | A whole 64 KB per bank below `$C0` from an interleaved 12 MB image                                                                                                                |
+| `sa1`       | Four 8 Mbit blocks in order: a 32 KB page per bank in `$00` to `$3F` and `$80` to `$BF`, a whole bank per bank from `$C0`, backup RAM in `$40` to `$4F` and at `$6000` to `$7FFF` |
+| `spc7110`   | Program ROM, the image's first megabyte, in `$00` to `$0F`, `$80` to `$8F` and `$C0` to `$CF`, and data ROM after it in every other ROM bank                                      |
 
-A header also declares `sa1` and `spc7110`. The census counts them, and `layout_named` refuses them: neither has a corpus behind its address mapping.
+### The two coprocessor maps
+
+```python
+from mapper import SA1, SPC7110, resolve
+
+for kind, addresses in (
+    (SA1, (0x002200, 0x003000, 0x008000, 0x808000, 0x406000, 0xD00000)),
+    (SPC7110, (0x004800, 0x500000, 0x008000, 0x108000, 0xD00000)),
+):
+    for address in addresses:
+        landed = resolve(kind, address)
+        where = "-" if landed.offset is None else f"{landed.offset:#08x}"
+        print(kind, f"{address:06X}", landed.region, where)
+```
+
+```
+sa1 002200 coprocessor -
+sa1 003000 coprocessor -
+sa1 008000 rom 0x000000
+sa1 808000 rom 0x200000
+sa1 406000 save-ram -
+sa1 D00000 rom 0x100000
+spc7110 004800 coprocessor -
+spc7110 500000 coprocessor -
+spc7110 008000 rom 0x008000
+spc7110 108000 rom 0x108000
+spc7110 D00000 rom 0x100000
+```
+
+The SA-1 map is the one Book II prints for the console's processor, at the initial values of the bank registers `$2220` to `$2223` and the backup RAM register `$2224`. Banks `$80` to `$BF` carry the third and fourth blocks rather than mirroring the first two. A program that writes those registers moves the map, and `resolve` does not follow it. No Nintendo document prints the SPC7110 board, so its map comes from ares's board database and SPC7110 source at a pinned commit, and the record marks it unverified. Until the game selects its data banks, every data bank reads the first megabyte after the program ROM.
 
 ### The extended layout swaps its halves
 
@@ -534,11 +573,13 @@ Every file is checked against all four digests in [`cartridges.manifest.json`](c
 
 ## What each piece of evidence is worth
 
-| Evidence                                                                                       | What it settles                                                                               | What it cannot                                    |
-| :--------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------ |
-| Nintendo's manual, with arithmetic in [`conformance/hardware.json`](conformance/hardware.json) | The three CPU clock speeds and the addresses each applies to, so the 6, 8 and 12 clock counts | The master clock, which the manual does not print |
-| Header combinations read out of 2,781 cartridges                                               | What a combination means on shipped cartridges                                                | Combinations no cartridge carries                 |
-| Digests of every cartridge read                                                                | That the file read is the file named                                                          | Whether that release is the one you meant         |
+| Evidence                                                                                       | What it settles                                                                               | What it cannot                                       |
+| :--------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- | :--------------------------------------------------- |
+| Nintendo's manual, with arithmetic in [`conformance/hardware.json`](conformance/hardware.json) | The three CPU clock speeds and the addresses each applies to, so the 6, 8 and 12 clock counts | The master clock, which the manual does not print    |
+| Book II, section 1, chapters 3 and 4                                                           | The SA-1 map at its registers' initial values                                                 | The map once a program writes them                   |
+| ares's board database and SPC7110 source at a pinned commit                                    | Nothing; it is a lead, marked unverified                                                      | The SPC7110 board, which no Nintendo document prints |
+| Header combinations read out of 2,781 cartridges                                               | What a combination means on shipped cartridges                                                | Combinations no cartridge carries                    |
+| Digests of every cartridge read                                                                | That the file read is the file named                                                          | Whether that release is the one you meant            |
 
 Not modelled: the processor, so how many accesses an instruction makes; refresh and transfer stalls; and anything that happens once an address is reached.
 
@@ -589,12 +630,14 @@ Each module has a test file beside it, named `<module>.test.py`, and each runs o
 
 ## References
 
-| Document                                                               | Publisher                | Read on    |      Bytes | SHA-256                                                            |
-| :--------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_, full text as archived               | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
-| _SNES Development Manual, Book I_, scanned pages with their text layer | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| Document                                                                | Publisher                | Read on    |      Bytes | SHA-256                                                            |
+| :---------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_, full text as archived                | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_, scanned pages with their text layer  | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| _SNES Development Manual, Book II_, full text as archived               | Nintendo of America Inc. | 2026-10-19 |    463,516 | `546f8e38caf6cb19c8aa9d5a1fef090d8cfc4a0a13b54c3b56d704975ab8398a` |
+| _SNES Development Manual, Book II_, scanned pages with their text layer | Nintendo of America Inc. | 2026-10-19 | 29,575,127 | `05197923d9b73b63845fc5c2d609e753ec634dc1e4b403ce7a57326e1259c3ed` |
 
-Neither is redistributable and neither is in this repository. `python3 -m conformance.documents` downloads both from https://archive.org/download/SNESDevManual/book1_djvu.txt and https://archive.org/download/SNESDevManual/book1_text.pdf into `docs/`, which git ignores, and refuses any file whose digest differs. `--check` verifies the copy already present. [`conformance/documents.json`](conformance/documents.json) carries the digest and the address. The sentences taken from it are in [`conformance/hardware.json`](conformance/hardware.json), each with the table and page it came from.
+None of the four is redistributable and none is in this repository. `python3 -m conformance.documents` downloads all four from the archive.org item https://archive.org/details/SNESDevManual into `docs/`, which git ignores, and refuses any file whose digest differs. `--check` verifies the copy already present. [`conformance/documents.json`](conformance/documents.json) carries the digest and the address. The sentences taken from it are in [`conformance/hardware.json`](conformance/hardware.json), each with the table and page it came from.
 
 The 2,781 headers behind [`conformance/corpus.json`](conformance/corpus.json) come from a retail cartridge library the author owns. Nothing from it is committed beyond the digests in [`cartridges.manifest.json`](cartridges.manifest.json).
 

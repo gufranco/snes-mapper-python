@@ -8,7 +8,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**4**種類を解決可能、転送チャンネル**8**本、テスト**928**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**947**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
@@ -47,7 +47,7 @@ python3 mapper/doctor.py
 ドクターはマシンの情報を報告し、プローブ用アドレスをすべてのレイアウトで解決し、自ら組み立てたイメージからヘッダーを読み、マニフェストとコーパスの件数を数え、見つかったカートリッジライブラリを示します。チェックアウト直後にはライブラリがないため、ドクターは実カートリッジに対するチェックがスキップされることを報告します。すべてのチェックに通れば0で、それ以外は1で終了します。バグ報告にはその出力全体を貼り付けてください。
 
 ```
-  13 checks, nothing to report
+  15 checks, nothing to report
 ```
 
 リリースは[Semantic Versioning](https://semver.org/)に従い、semantic-releaseがコミット履歴から作成します。各リリースにはタグが付けられ、[リリースページ](https://github.com/gufranco/snes-mapper-python/releases)に掲載されます。
@@ -58,15 +58,15 @@ python3 mapper/doctor.py
 
 ### アドレス
 
-`resolve(kind, address, fast=False, banks=None, save=False)`は`Resolution`を返します。`kind`は`LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`のいずれかです。`fast`はヘッダーによる高速バスの要求です。`banks`は64 KBバンク単位のイメージサイズで、`WHOLEBANK`では必須です。`save`は`WHOLEBANK`でバンク`$70`から`$7D`をセーブメモリとしてマップします。指定しない場合、これらのバンクはカートリッジです。`kind`にそれ以外の文字列を渡すと、カートリッジのバンクを`HIROM`と同じ方法で読み、セーブメモリのウィンドウは持ちません。
+`resolve(kind, address, fast=False, banks=None, save=False)`は`Resolution`を返します。`kind`は`LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`、`SA1`、`SPC7110`のいずれかです。`fast`はヘッダーによる高速バスの要求です。`banks`は64 KBバンク単位のイメージサイズで、`WHOLEBANK`では必須です。`save`は`WHOLEBANK`でバンク`$70`から`$7D`をセーブメモリとしてマップします。指定しない場合、これらのバンクはカートリッジです。`kind`にそれ以外の文字列を渡すと、カートリッジのバンクを`HIROM`と同じ方法で読み、セーブメモリのウィンドウは持ちません。
 
-| 属性      | 意味                                                                                                                                       |
-| :-------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
-| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS`、`OPEN_BUS`のいずれかで、値はそれぞれ`rom`、`work-ram`、`save-ram`、`registers`、`open-bus`です |
-| `offset`  | そのアドレスがイメージ内のどこを読むか。リージョンが`rom`でない場合は`None`                                                                |
-| `cycles`  | アクセスにかかるマスタークロック数。`FAST`は6、`SLOW`は8、`XSLOW`は12                                                                      |
-| `address` | 問い合わせたアドレスを24ビットでマスクしたもの                                                                                             |
-| `is_rom`  | `region`が`rom`のときTrue                                                                                                                  |
+| 属性      | 意味                                                                                                                                                                                                                                                                                                  |
+| :-------- | :---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS`、`OPEN_BUS`、`COPROCESSOR`のいずれかで、値はそれぞれ`rom`、`work-ram`、`save-ram`、`registers`、`open-bus`、`coprocessor`です。`coprocessor`はカートリッジのチップがデコードするアドレスで、SA-1のレジスタとワークRAM、SPC7110のレジスタとポートバンクです |
+| `offset`  | そのアドレスがイメージ内のどこを読むか。リージョンが`rom`でない場合は`None`                                                                                                                                                                                                                           |
+| `cycles`  | アクセスにかかるマスタークロック数。`FAST`は6、`SLOW`は8、`XSLOW`は12                                                                                                                                                                                                                                 |
+| `address` | 問い合わせたアドレスを24ビットでマスクしたもの                                                                                                                                                                                                                                                        |
+| `is_rom`  | `region`が`rom`のときTrue                                                                                                                                                                                                                                                                             |
 
 バンク`$00`から`$3F`と`$80`から`$BF`の`$8000`未満では、Book Iの図2-21-1が記載するとおり、`fast`に関係なく本体が速度を固定します。`$2000`から`$3FFF`と`$4200`から`$5FFF`は6、`$4000`から`$41FF`のコントローラーポートは12、ワークRAMと`$6000`から`$7FFF`は8です。`fast`が効くのは、バンク`$80`から`$BF`の`$8000`以上と、バンク`$C0`から`$FF`だけです。
 
@@ -80,18 +80,20 @@ python3 mapper/doctor.py
 | `hirom`     | `hi`、`mode21`、`21`                 | `$FFC0`                                              |
 | `exhirom`   | `exhi`、`mode25`、`25`               | `$FFC0`、およびイメージがそこまで届く場合は`$40FFC0` |
 | `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0`                                              |
+| `sa1`       | `mode23`、`23`                       | `$7FC0`                                              |
+| `spc7110`   | なし                                 | `$FFC0`                                              |
 
 ```python
 import mapper
 
-for name in ("lorom", "hirom", "exhirom", "wholebank"):
+for name in ("lorom", "hirom", "exhirom", "wholebank", "sa1", "spc7110"):
     model = mapper.layout_named(name)
     print(model.name, model.aliases, f"{model.header_at:#06x}")
 
 print(mapper.layout_named("Mode-20").name)
 
 try:
-    mapper.layout_named("sa1")
+    mapper.layout_named("superfx")
 except mapper.UnknownModelError as error:
     print(error)
 ```
@@ -101,8 +103,10 @@ lorom ('lo', 'mode20', '20') 0x7fc0
 hirom ('hi', 'mode21', '21') 0xffc0
 exhirom ('exhi', 'mode25', '25') 0xffc0
 wholebank ('whole', 'wholebanks', 'interleaved') 0x7fc0
+sa1 ('mode23', '23') 0x7fc0
+spc7110 () 0xffc0
 lorom
-sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
+superfx is not a layout this package covers; it has exhirom, hirom, lorom, sa1, spc7110, wholebank
 ```
 
 ### ヘッダー
@@ -261,7 +265,7 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 
 ### モジュールの内容
 
-`mapper.__version__`はインストールされているバージョンです。レイアウト名`LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`は、それぞれ文字列`lorom`、`hirom`、`exhirom`、`wholebank`です。サブモジュール`header`、`layout`、`image`、`transfer`、`models`、`errors`は属性としてアクセスでき、`layout.EXHIROM_BYTES`は8 MBです。
+`mapper.__version__`はインストールされているバージョンです。レイアウト名`LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`、`SA1`、`SPC7110`は、それぞれ文字列`lorom`、`hirom`、`exhirom`、`wholebank`、`sa1`、`spc7110`です。サブモジュール`header`、`layout`、`image`、`transfer`、`models`、`errors`は属性としてアクセスでき、`layout.EXHIROM_BYTES`は8 MBです。
 
 ### コマンドラインツール
 
@@ -374,6 +378,8 @@ print(f"{layout_named('lorom').header_at:#06x}")
 print(f"{layout_named('hirom').header_at:#06x}")
 print(f"{layout_named('exhirom').header_at:#06x}")
 print(f"{layout_named('wholebank').header_at:#06x}")
+print(f"{layout_named('sa1').header_at:#06x}")
+print(f"{layout_named('spc7110').header_at:#06x}")
 
 print(layout_named("mode20").name)
 print(layout_named("hirom").resolve(0xC00000).region)
@@ -384,18 +390,51 @@ print(layout_named("hirom").resolve(0xC00000).region)
 0xffc0
 0xffc0
 0x7fc0
+0x7fc0
+0xffc0
 lorom
 rom
 ```
 
-| レイアウト  | 形                                                                                                                  |
-| :---------- | :------------------------------------------------------------------------------------------------------------------ |
-| `lorom`     | 各バンクの上位半分に32 KBのページを1つずつ置き、セーブメモリがバンク`$70`から`$7D`と`$F0`から`$FD`を占めます        |
-| `hirom`     | 各バンクに64 KBのバンク全体を置き、セーブメモリはバンク`$20`から`$3F`と`$A0`から`$BF`の`$6000`から`$7FFF`にあります |
-| `exhirom`   | `hirom`の4 MBずつの2つの半分を入れ替えたもの                                                                        |
-| `wholebank` | `$C0`未満の各バンクに64 KB全体を置き、インターリーブされた12 MBのイメージから読みます                               |
+| レイアウト  | 形                                                                                                                                                                                      |
+| :---------- | :-------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `lorom`     | 各バンクの上位半分に32 KBのページを1つずつ置き、セーブメモリがバンク`$70`から`$7D`と`$F0`から`$FD`を占めます                                                                            |
+| `hirom`     | 各バンクに64 KBのバンク全体を置き、セーブメモリはバンク`$20`から`$3F`と`$A0`から`$BF`の`$6000`から`$7FFF`にあります                                                                     |
+| `exhirom`   | `hirom`の4 MBずつの2つの半分を入れ替えたもの                                                                                                                                            |
+| `wholebank` | `$C0`未満の各バンクに64 KB全体を置き、インターリーブされた12 MBのイメージから読みます                                                                                                   |
+| `sa1`       | 8 Mbitのブロック4つを順に置きます。`$00`から`$3F`と`$80`から`$BF`では各バンクに32 KBのページ、`$C0`からは各バンクに1バンク全体、バックアップRAMは`$40`から`$4F`と`$6000`から`$7FFF`です |
+| `spc7110`   | イメージの最初の1メガバイトであるプログラムROMを`$00`から`$0F`、`$80`から`$8F`、`$C0`から`$CF`に置き、その後ろのデータROMを他のすべてのROMバンクに置きます                              |
 
-ヘッダーは`sa1`と`spc7110`も宣言します。全数調査ではこれらを数えますが、`layout_named`は拒否します。どちらもアドレスマッピングを裏付けるコーパスがないためです。
+### The two coprocessor maps
+
+```python
+from mapper import SA1, SPC7110, resolve
+
+for kind, addresses in (
+    (SA1, (0x002200, 0x003000, 0x008000, 0x808000, 0x406000, 0xD00000)),
+    (SPC7110, (0x004800, 0x500000, 0x008000, 0x108000, 0xD00000)),
+):
+    for address in addresses:
+        landed = resolve(kind, address)
+        where = "-" if landed.offset is None else f"{landed.offset:#08x}"
+        print(kind, f"{address:06X}", landed.region, where)
+```
+
+```
+sa1 002200 coprocessor -
+sa1 003000 coprocessor -
+sa1 008000 rom 0x000000
+sa1 808000 rom 0x200000
+sa1 406000 save-ram -
+sa1 D00000 rom 0x100000
+spc7110 004800 coprocessor -
+spc7110 500000 coprocessor -
+spc7110 008000 rom 0x008000
+spc7110 108000 rom 0x108000
+spc7110 D00000 rom 0x100000
+```
+
+SA-1のマップは、Book IIが本体のプロセッサーから見たものとして記載しているもので、バンクレジスタ`$2220`から`$2223`とバックアップRAMレジスタ`$2224`の初期値におけるものです。バンク`$80`から`$BF`は最初の2ブロックのミラーではなく、3番目と4番目のブロックを持ちます。プログラムがこれらのレジスタに書き込むとマップは動き、`resolve`はそれを追いません。SPC7110のボードを記載したNintendoの文書はないため、そのマップは固定したコミットのaresのボードデータベースとSPC7110のソースから取っており、記録では未検証としています。ゲームがデータバンクを選ぶまで、すべてのデータバンクはプログラムROMの後ろの最初の1メガバイトを読みます。
 
 ### 拡張レイアウトは半分を入れ替える
 
@@ -534,11 +573,13 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 各証拠の価値
 
-| 証拠                                                                                       | 確定できること                                                                     | 確定できないこと                         |
-| :----------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :--------------------------------------- |
-| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 3つのCPUクロック速度とそれぞれが適用されるアドレス、つまり6、8、12クロックという値 | マニュアルに記載のないマスタークロック   |
-| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ                                    | 出荷されたカートリッジにおいてその組み合わせが意味すること                         | どのカートリッジも持たない組み合わせ     |
-| 読み取ったすべてのカートリッジのダイジェスト                                               | 読んだファイルが名前どおりのファイルであること                                     | そのリリースが意図したものであるかどうか |
+| 証拠                                                                                       | 確定できること                                                                     | 確定できないこと                                  |
+| :----------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :------------------------------------------------ |
+| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 3つのCPUクロック速度とそれぞれが適用されるアドレス、つまり6、8、12クロックという値 | マニュアルに記載のないマスタークロック            |
+| Book IIのセクション1、第3章と第4章                                                         | レジスタの初期値におけるSA-1のマップ                                               | プログラムが書き込んだ後のマップ                  |
+| 固定したコミットのaresのボードデータベースとSPC7110のソース                                | なし。手がかりであり、未検証として記されています                                   | Nintendoのどの文書も記載していないSPC7110のボード |
+| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ                                    | 出荷されたカートリッジにおいてその組み合わせが意味すること                         | どのカートリッジも持たない組み合わせ              |
+| 読み取ったすべてのカートリッジのダイジェスト                                               | 読んだファイルが名前どおりのファイルであること                                     | そのリリースが意図したものであるかどうか          |
 
 モデル化していないもの：プロセッサ、つまり1命令が何回アクセスするか。リフレッシュと転送によるストール。そしてアドレスに到達した後に起こるすべてのこと。
 
@@ -589,12 +630,14 @@ python3 -m conformance.speed
 
 ## 参考文献
 
-| 文書                                                                    | 発行者                   | 参照日     |   バイト数 | SHA-256                                                            |
-| :---------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_、アーカイブされた全文                 | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
-| _SNES Development Manual, Book I_、テキストレイヤー付きのスキャンページ | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| 文書                                                                     | 発行者                   | 参照日     |   バイト数 | SHA-256                                                            |
+| :----------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_、アーカイブされた全文                  | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_、テキストレイヤー付きのスキャンページ  | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
+| _SNES Development Manual, Book II_、アーカイブされた全文                 | Nintendo of America Inc. | 2026-10-19 |    463,516 | `546f8e38caf6cb19c8aa9d5a1fef090d8cfc4a0a13b54c3b56d704975ab8398a` |
+| _SNES Development Manual, Book II_、テキストレイヤー付きのスキャンページ | Nintendo of America Inc. | 2026-10-19 | 29,575,127 | `05197923d9b73b63845fc5c2d609e753ec634dc1e4b403ce7a57326e1259c3ed` |
 
-どちらも再配布できず、このリポジトリには含まれていません。`python3 -m conformance.documents`は両方を https://archive.org/download/SNESDevManual/book1_djvu.txt と https://archive.org/download/SNESDevManual/book1_text.pdf から、gitが無視する`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。`--check`はすでにあるコピーを検証します。[`conformance/documents.json`](conformance/documents.json)はダイジェストとアドレスを保持しています。この文書から引用した文は、それぞれの出典の表とページとともに[`conformance/hardware.json`](conformance/hardware.json)にあります。
+4つとも再配布できず、このリポジトリには含まれていません。`python3 -m conformance.documents`は4つすべてをarchive.orgのアイテム https://archive.org/details/SNESDevManual から、gitが無視する`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。`--check`はすでにあるコピーを検証します。[`conformance/documents.json`](conformance/documents.json)はダイジェストとアドレスを保持しています。この文書から引用した文は、それぞれの出典の表とページとともに[`conformance/hardware.json`](conformance/hardware.json)にあります。
 
 [`conformance/corpus.json`](conformance/corpus.json)の元になった2,781件のヘッダーは、作者が所有する市販カートリッジのライブラリから取得したものです。そこからコミットされているのは[`cartridges.manifest.json`](cartridges.manifest.json)のダイジェストだけです。
 
