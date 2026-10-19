@@ -70,8 +70,8 @@ class DocumentTest(unittest.TestCase):
             citing,
             [
                 "busSpeeds",
-                "controllerRegion",
                 "cpuClockSpeeds",
+                "cpuMemoryMap",
                 "extraSlowAccessMasterCycles",
                 "fastAccessMasterCycles",
                 "slowAccessMasterCycles",
@@ -219,7 +219,7 @@ class ClockSpeedTest(unittest.TestCase):
 
     def test_the_controller_region_runs_at_the_third_printed_speed(self) -> None:
         # Arrange
-        row = fact("controllerRegion")["rows"][0]
+        row = next(one for one in fact("cpuMemoryMap")["rows"] if one["label"] == "CONTROLLER")
         master = fact("masterClockHz")["value"]
         addresses = (int(row["from"], 16), int(row["to"], 16), 0x800000 | int(row["to"], 16))
 
@@ -231,6 +231,50 @@ class ClockSpeedTest(unittest.TestCase):
 
         # Assert
         self.assertEqual(found, {float(row["speed"].split()[0])})
+
+    def test_every_system_page_runs_at_the_speed_the_figure_prints(self) -> None:
+        # Arrange
+        rows = fact("cpuMemoryMap")["rows"]
+        master = fact("masterClockHz")["value"]
+        banks = (0x00, 0x3F, 0x80, 0xBF)
+
+        # Act
+        found = [
+            {
+                round(master / mapper.resolve(kind, (bank << 16) | page, fast=fast).cycles / 1e6, 2)
+                for kind in (mapper.LOROM, mapper.HIROM)
+                for bank in banks
+                for fast in (False, True)
+                for page in (int(row["from"], 16), int(row["to"], 16))
+            }
+            for row in rows
+        ]
+
+        # Assert
+        self.assertEqual(found, [{float(row["speed"].rstrip("M"))} for row in rows])
+
+    def test_memory_2_alone_follows_the_speed_the_cartridge_asks_for(self) -> None:
+        # Arrange
+        master = fact("masterClockHz")["value"]
+        memory = {
+            "Memory 1": (0x008000, 0x3FFFFF, 0x400000, 0x7DFFFF),
+            "Memory 2": (0x808000, 0xBFFFFF, 0xC00000, 0xFFFFFF),
+        }
+
+        # Act
+        found = {
+            name: sorted(
+                {
+                    round(master / mapper.resolve(mapper.HIROM, one, fast=fast).cycles / 1e6, 2)
+                    for one in addresses
+                    for fast in (False, True)
+                }
+            )
+            for name, addresses in memory.items()
+        }
+
+        # Assert
+        self.assertEqual(found, {"Memory 1": [2.68], "Memory 2": [2.68, 3.58]})
 
 
 class HonestyTest(unittest.TestCase):

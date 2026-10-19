@@ -147,25 +147,35 @@ class SpeedTest(unittest.TestCase):
         # Assert
         self.assertEqual(found.cycles, 8)
 
-    def test_the_register_window_runs_at_its_own_speed(self) -> None:
+    def test_only_the_controller_ports_run_at_the_slowest_speed(self) -> None:
         # Arrange
-        addresses = (0x004016, 0x004200, 0x804200)
+        addresses = (0x004016, 0x0041FF, 0x004200, 0x804200, 0x805FFF)
 
         # Act
         found = [mapper.resolve(mapper.LOROM, one, fast=True).cycles for one in addresses]
 
         # Assert
-        self.assertEqual(found, [12, 12, 12])
+        self.assertEqual(found, [12, 12, 6, 6, 6])
 
-    def test_the_display_and_audio_registers_follow_the_bus_speed(self) -> None:
+    def test_the_display_and_audio_registers_run_fast_in_every_bank(self) -> None:
         # Arrange
-        addresses = (0x002100, 0x802100)
+        addresses = (0x002100, 0x802100, 0x3F2140)
 
         # Act
-        found = [mapper.resolve(mapper.LOROM, one, fast=True).cycles for one in addresses]
+        found = [mapper.resolve(mapper.LOROM, one, fast=False).cycles for one in addresses]
 
         # Assert
-        self.assertEqual(found, [8, 6])
+        self.assertEqual(found, [6, 6, 6])
+
+    def test_the_expansion_pages_stay_slow_in_the_upper_banks(self) -> None:
+        # Arrange
+        addresses = (0x806000, 0xB07FFF, 0x006000)
+
+        # Act
+        found = [mapper.resolve(mapper.HIROM, one, fast=True).cycles for one in addresses]
+
+        # Assert
+        self.assertEqual(found, [8, 8, 8])
 
 
 class OffsetTest(unittest.TestCase):

@@ -31,22 +31,70 @@
         "conformance/hardware.test.py::ClockSpeedTest.test_every_access_runs_at_one_of_the_three_printed_speeds"
       ]
     },
-    "controllerRegion": {
+    "cpuMemoryMap": {
       "rows": [
+        {
+          "from": "0000",
+          "to": "1FFF",
+          "speed": "2.68M",
+          "label": "WRAM (8K - BYTE)"
+        },
+        {
+          "from": "2000",
+          "to": "3FFF",
+          "speed": "3.58 M",
+          "label": "PPU, etc."
+        },
         {
           "from": "4000",
           "to": "41FF",
           "speed": "1.79 M",
           "label": "CONTROLLER"
+        },
+        {
+          "from": "4200",
+          "to": "5FFF",
+          "speed": "3.58 M",
+          "label": "CPU DMA, etc."
+        },
+        {
+          "from": "6000",
+          "to": "7FFF",
+          "speed": "2.68M",
+          "label": "EXPAND"
         }
       ],
       "banks": "00-3F and 80-BF",
+      "legend": [
+        {
+          "label": "Memory 1",
+          "speed": "Fix 2.68 MHz",
+          "where": "8000-FFFF of banks 00-3F, and banks 40-7D"
+        },
+        {
+          "label": "Memory 2",
+          "speed": "Switch 2.68 MHz/3.58 MHz",
+          "where": "8000-FFFF of banks 80-BF, and banks C0-FF"
+        },
+        {
+          "label": "RAM 1",
+          "speed": "Fix 2.68 MHz 8K byte",
+          "where": "0000-1FFF of banks 00-3F and 80-BF"
+        },
+        {
+          "label": "RAM 2",
+          "speed": "Fix 2.68 MHz 120K byte",
+          "where": "banks 7E and 7F"
+        }
+      ],
       "document": "developmentManualScan",
       "section": "Figure 2-21-1, Super NES CPU Memory Map, printed page 2-21-2",
       "filePage": 94,
-      "readFrom": "The page image only, because the text layer carries the caption and none of the figure. Rendered at 110 and again at 250 dots per inch, cropped to the address legend; both readings agree.",
+      "readFrom": "The page image only, because the text layer carries the caption and none of the figure. Rendered at 110 and again at 250 dots per inch, cropped to the address legend; both readings agree. The rows are the legend beside banks 00 to 3F; the columns for banks 80 to BF carry the same divisions.",
       "heldBy": [
-        "conformance/hardware.test.py::ClockSpeedTest.test_the_controller_region_runs_at_the_third_printed_speed"
+        "conformance/hardware.test.py::ClockSpeedTest.test_the_controller_region_runs_at_the_third_printed_speed",
+        "conformance/hardware.test.py::ClockSpeedTest.test_every_system_page_runs_at_the_speed_the_figure_prints",
+        "conformance/hardware.test.py::ClockSpeedTest.test_memory_2_alone_follows_the_speed_the_cartridge_asks_for"
       ]
     },
     "masterClockHz": {

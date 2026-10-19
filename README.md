@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **4** of **6** layouts resolvable, **8** transfer channels, **925** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **4** of **6** layouts resolvable, **8** transfer channels, **928** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -67,6 +67,8 @@ Nothing here is built and then driven, and nothing executes code. Every call is 
 | `cycles`  | Master clocks the access costs: `FAST` is 6, `SLOW` is 8, `XSLOW` is 12                                                              |
 | `address` | The address asked about, masked to 24 bits                                                                                           |
 | `is_rom`  | True when `region` is `rom`                                                                                                          |
+
+Below `$8000` in banks `$00` to `$3F` and `$80` to `$BF`, the console fixes the speed whatever `fast` says, as Figure 2-21-1 of Book I prints it: `$2000` to `$3FFF` and `$4200` to `$5FFF` cost 6, the controller ports at `$4000` to `$41FF` cost 12, and work RAM and `$6000` to `$7FFF` cost 8. `fast` reaches only `$8000` and above in banks `$80` to `$BF`, and banks `$C0` to `$FF`.
 
 ### Layouts
 

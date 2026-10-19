@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **4** 种可解析，**8** 个传输通道，**925** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **4** 种可解析，**8** 个传输通道，**928** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -67,6 +67,8 @@ python3 mapper/doctor.py
 | `cycles`  | 访问耗费的主时钟数：`FAST` 为 6，`SLOW` 为 8，`XSLOW` 为 12                                                                   |
 | `address` | 所询问的地址，掩码为 24 位                                                                                                    |
 | `is_rom`  | `region` 为 `rom` 时为 True                                                                                                   |
+
+在 bank `$00` 到 `$3F` 和 `$80` 到 `$BF` 的 `$8000` 以下，主机按 Book I 图 2-21-1 所印固定速度，与 `fast` 无关：`$2000` 到 `$3FFF` 和 `$4200` 到 `$5FFF` 耗费 6，`$4000` 到 `$41FF` 的手柄端口耗费 12，工作 RAM 和 `$6000` 到 `$7FFF` 耗费 8。`fast` 只作用于 bank `$80` 到 `$BF` 的 `$8000` 及以上，以及 bank `$C0` 到 `$FF`。
 
 ### 布局
 

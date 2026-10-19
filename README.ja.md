@@ -8,7 +8,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**4**種類を解決可能、転送チャンネル**8**本、テスト**925**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**4**種類を解決可能、転送チャンネル**8**本、テスト**928**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
@@ -67,6 +67,8 @@ python3 mapper/doctor.py
 | `cycles`  | アクセスにかかるマスタークロック数。`FAST`は6、`SLOW`は8、`XSLOW`は12                                                                      |
 | `address` | 問い合わせたアドレスを24ビットでマスクしたもの                                                                                             |
 | `is_rom`  | `region`が`rom`のときTrue                                                                                                                  |
+
+バンク`$00`から`$3F`と`$80`から`$BF`の`$8000`未満では、Book Iの図2-21-1が記載するとおり、`fast`に関係なく本体が速度を固定します。`$2000`から`$3FFF`と`$4200`から`$5FFF`は6、`$4000`から`$41FF`のコントローラーポートは12、ワークRAMと`$6000`から`$7FFF`は8です。`fast`が効くのは、バンク`$80`から`$BF`の`$8000`以上と、バンク`$C0`から`$FF`だけです。
 
 ### レイアウト
 

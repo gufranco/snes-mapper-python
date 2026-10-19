@@ -28,6 +28,18 @@ WORK_RAM_MIRROR = 0x2000
 
 REGISTER_WINDOW = (0x2000, 0x6000)
 
+SYSTEM_PAGES = 0x8000
+
+SYSTEM_PAGE_SPEEDS = (
+    (0x2000, SLOW),
+    (0x4000, FAST),
+    (0x4200, XSLOW),
+    (0x6000, FAST),
+    (SYSTEM_PAGES, SLOW),
+)
+
+SYSTEM_BANKS = 0x40
+
 LOROM_PAGE = 0x8000
 BANK_BYTES = 0x10000
 
@@ -67,13 +79,9 @@ class Resolution:
         return f"<{self.region} at {self.address:06X}, {self.cycles} clocks>"
 
 
-def _speed(bank: int, page: int, region: str, fast: bool) -> int:
-    if region == REGISTERS and REGISTER_WINDOW[0] <= page < 0x4000:
-        return FAST if fast and bank >= FAST_HALF else SLOW
-    if region == REGISTERS:
-        return XSLOW
-    if region == WORK_RAM:
-        return SLOW
+def _speed(bank: int, page: int, fast: bool) -> int:
+    if (bank & 0x7F) < SYSTEM_BANKS and page < SYSTEM_PAGES:
+        return next(cycles for end, cycles in SYSTEM_PAGE_SPEEDS if page < end)
     return FAST if fast and bank >= FAST_HALF else SLOW
 
 
@@ -145,4 +153,4 @@ def resolve(
     else:
         region, offset = ROM, _hirom_offset(bank, page)
 
-    return Resolution(address, region, offset, _speed(bank, page, region, fast))
+    return Resolution(address, region, offset, _speed(bank, page, fast))
