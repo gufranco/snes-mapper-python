@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** 種標頭組合在 **2,781** 盒零售版卡帶上重放，**0** 處不一致，**6** 種佈局中 **6** 種可解析，**8** 個傳輸通道，**947** 個測試，**100%** 語句及分支覆蓋率，沒有任何依賴
+**289** 種標頭組合在 **2,781** 盒零售版卡帶上重放，**0** 處不一致，**6** 種佈局中 **6** 種可解析，**8** 個傳輸通道，**984** 個測試，**100%** 語句及分支覆蓋率，沒有任何依賴
 
 ```python
 from mapper import LOROM, resolve
@@ -277,6 +277,7 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 | `python3 mapper/environment.py`                                 | 只報告上述報告中機器的一半                           | 0 正常，1 有檢查失敗                                   |
 | `python3 -m conformance.corpus [corpus]`                        | 重放每種已記錄的標頭組合                             | 0 全部一致，1 有一項不一致，2 沒有語料庫               |
 | `python3 -m conformance.against_cartridges [directory]`         | 讀取現有的每盒卡帶，並逐一以其案例核對               | 0 全部一致，1 有一項不一致，2 找不到卡帶               |
+| `python3 -m conformance.testcarts [--record out.json]`          | 映射現有的每盒測試卡帶，並與紀錄的讀取結果逐一對照   | 0 全部一致，1 有一盒不一致，2 沒有測試卡帶或參數錯誤   |
 | `python3 -m conformance.census <directory> <out> [limit]`       | 統計一個卡帶庫的標頭                                 | 0 已寫入，1 沒有卡帶，2 參數錯誤                       |
 | `python3 -m conformance.record <directory> [out] [limit]`       | 從一個卡帶庫重建語料庫                               | 0 已寫入，1 沒有卡帶，2 參數錯誤                       |
 | `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下載手冊並驗證其摘要，或驗證現有的副本               | 0 已驗證，1 被拒絕、沒有相符項或參數錯誤               |

@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **947** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **984** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -277,6 +277,7 @@ Each runs from the repository root. Everything under `conformance/` runs as a mo
 | `python3 mapper/environment.py`                                 | The machine half of that report alone                                    | 0 clean, 1 a check failed                                                                  |
 | `python3 -m conformance.corpus [corpus]`                        | Replays every recorded header combination                                | 0 all agree, 1 one did not, 2 no corpus                                                    |
 | `python3 -m conformance.against_cartridges [directory]`         | Reads every cartridge present and holds each to its case                 | 0 all agree, 1 one did not, 2 no cartridge found                                           |
+| `python3 -m conformance.testcarts [--record out.json]`          | Maps every test cartridge present and holds each to its recorded reading | 0 all agree, 1 one did not, 2 no test cartridge found or bad arguments                     |
 | `python3 -m conformance.census <directory> <out> [limit]`       | Tallies the headers of a library                                         | 0 written, 1 no cartridge, 2 bad arguments                                                 |
 | `python3 -m conformance.record <directory> [out] [limit]`       | Rebuilds the corpus from a library                                       | 0 written, 1 no cartridge, 2 bad arguments                                                 |
 | `python3 -m conformance.documents [--check] [--only SUBSTRING]` | Fetches the manual and verifies its digest, or verifies the copy present | 0 verified, 1 refused, no match or bad arguments                                           |

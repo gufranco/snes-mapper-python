@@ -172,6 +172,20 @@ jobs:
           exit "${status}"
         shell: bash
 
+      - name: Map every test cartridge present
+        run: |
+          status=0
+          python -m conformance.testcarts || status="$?"
+          if [ "${status}" -eq 2 ]; then
+            notice="No test cartridge is present on a hosted runner,"
+            notice="${notice} so the test cartridges were not mapped."
+            notice="${notice} Point SNES_TEST_CARTRIDGE_DIR at a folder holding them."
+            echo "::notice title=Test cartridges::${notice}"
+            exit 0
+          fi
+          exit "${status}"
+        shell: bash
+
   package:
     name: package
     runs-on: ubuntu-26.04

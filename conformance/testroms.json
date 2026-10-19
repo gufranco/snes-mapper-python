@@ -1,0 +1,202 @@
+{
+  "cartridges": [
+    {
+      "id": "240p-test-suite-ntsc",
+      "title": "240p Test Suite 1.061, NTSC",
+      "sha256": "fe88b5db3f5612e36f1c8f662839d5d3d32c8959ee7f766ca2d5bb3318d42900",
+      "source": "snes-roms/5 Tools & Service Test Carts/240p Test Suite (World) (v1.061) (NTSC) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_ntsc"
+      ]
+    },
+    {
+      "id": "240p-test-suite-pal",
+      "title": "240p Test Suite 1.061, PAL",
+      "sha256": "16068420d905a4cc7710770428dcd7cb526c30bb47e201dcb0a6bd85a099b6aa",
+      "source": "snes-roms/5 Tools & Service Test Carts/240p Test Suite (World) (v1.061) (PAL) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_pal"
+      ]
+    },
+    {
+      "id": "burn-in-rev-d",
+      "title": "Burn-in Test Cartridge, Rev D",
+      "sha256": "092e80eab0d3a5300a30f7d41cf4e454cdb79cc0fac66f052567d37322cb891f",
+      "source": "snes-roms/5 Tools & Service Test Carts/Burn-in - Test Cartridge (USA) (Rev D).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_burn_in_rev_d"
+      ]
+    },
+    {
+      "id": "campus-challenge-92-menu",
+      "title": "Campus Challenge '92 Menu",
+      "sha256": "baa58b79c92b43baa9a96079a7b8e3f9c526b188ad7b819d687884eb8765e13f",
+      "source": "snes-roms/5 Tools & Service Test Carts/Campus Challenge '92 Menu (USA).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_campus_challenge_92_menu"
+      ]
+    },
+    {
+      "id": "controller-test-cassette",
+      "title": "Controller Test Cassette",
+      "sha256": "76e60393139669b25c5a82247c3fbbc6f2a9715049532b2d14991adbec60ac9b",
+      "source": "snes-roms/5 Tools & Service Test Carts/Controller Test Cassette (Japan).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_controller_test_cassette"
+      ]
+    },
+    {
+      "id": "dsp1-tech-demo",
+      "title": "DSP1 Tech Demo",
+      "sha256": "7fa4c45862e889e50d7f16debb127d5b1b75789ca4cef5ae4fe9c51c4b1de6ac",
+      "source": "snes-roms/5 Tools & Service Test Carts/DSP1 Tech Demo (USA) (Tech Demo).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_dsp1_tech_demo"
+      ]
+    },
+    {
+      "id": "emudetect-v21",
+      "title": "Emudetect v21",
+      "sha256": "feaf8a89225df0003ae4ce9f0ff9764b8e57fc012a583b6be9f24d4f6cd0ea23",
+      "source": "snes-roms/5 Tools & Service Test Carts/Emudetect (PD) v21 Alcaro 2011-08-30.sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_emudetect_v21"
+      ]
+    },
+    {
+      "id": "evoke-2010-logo-zoomer",
+      "title": "Evoke 2010 Logo Zoomer",
+      "sha256": "d63ebf4001f31fa6759db7e8f2e8277639b46940455a1b7e31d6b65e8749758e",
+      "source": "snes-roms/5 Tools & Service Test Carts/Evoke 2010 PAL-Only Logo Zoomer (PD) dforce3000.sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_evoke_2010_logo_zoomer"
+      ]
+    },
+    {
+      "id": "hd-retrovision-1-4",
+      "title": "HD Retrovision Test Rom 1.4",
+      "sha256": "7a9902d1090519d7c92b7844db0221dd46113cb7a97d500039994649a2e3382b",
+      "source": "snes-roms/5 Tools & Service Test Carts/HD Retrovision Test Rom (PD) v1.4 HD Retrovision.sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_hd_retrovision_1_4"
+      ]
+    },
+    {
+      "id": "ntf-2-5-rev-a",
+      "title": "NTF 2.5 Test Cartridge, Rev A",
+      "sha256": "3a3ba7500728920093ff48caf5baac0c1ec9b19aacda4fe4dce8afbdd69e859e",
+      "source": "snes-roms/5 Tools & Service Test Carts/NTF 2.5 Test Cartridge (USA) (Rev A).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_ntf_2_5_rev_a"
+      ]
+    },
+    {
+      "id": "sa1-3d-demo",
+      "title": "SA-1 3D Demo",
+      "sha256": "25e2438c261ed4da4364c868631da6e0bf4ca20b5efd14fdbc2bcedf9ee2773a",
+      "source": "snes-roms/5 Tools & Service Test Carts/SA-1 3D Demo (PD) dforce3000.sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_3d_demo"
+      ]
+    },
+    {
+      "id": "sa1-speed-test-5-1",
+      "title": "SA-1 Speed Test 5.1",
+      "sha256": "21c24e4b0ec2cb32eeba25c5311aa39bd3228fc1327d2719c0b88671884c2541",
+      "source": "snes-roms/5 Tools & Service Test Carts/SA-1 Speed Test (World) (v5.1) (Program) (Aftermarket) (Unl).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_speed_test_5_1"
+      ]
+    },
+    {
+      "id": "sa1-demonstration",
+      "title": "SA1 Demonstration Program",
+      "sha256": "88b6f7d6a9d36128572418ccdf5ff03491295d3f4f6073a7aa81cea66e3f6f77",
+      "source": "snes-roms/5 Tools & Service Test Carts/SA1 Demonstration Program (Unknown).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration"
+      ]
+    },
+    {
+      "id": "sa1-demonstration-header-fix",
+      "title": "SA1 Demonstration Program, header fix",
+      "sha256": "a32576a44883afaf55a58ce7453088d922a74556aa5e218ee6a3b1ddf0582e6d",
+      "source": "snes-roms/5 Tools & Service Test Carts/SA1 Demonstration Program (Unknown) [SA1 header fix].sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration_header_fix"
+      ]
+    },
+    {
+      "id": "test-program",
+      "title": "SNES Test Program",
+      "sha256": "f732685db2bfc93e995128e015657165fbaaa2dd8723e7655507fda4ddc2a3a9",
+      "source": "snes-roms/5 Tools & Service Test Carts/SNES Test Program (U).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_test_program"
+      ]
+    },
+    {
+      "id": "snsp-aging-1-02",
+      "title": "SNSP Aging 1.02",
+      "sha256": "6c84f60b7a48b279ca4c1801947f843d79841cd92227c82d8c250edc25be2a9b",
+      "source": "snes-roms/5 Tools & Service Test Carts/SNSP Aging Ver 1.02 (Japan) (En).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_snsp_aging_1_02"
+      ]
+    },
+    {
+      "id": "aging-1-00",
+      "title": "Super Famicom Aging Program 1.00",
+      "sha256": "f58837be3cf307edf550ec971993672d8d00e4fba99a2c5dee58383202d08c54",
+      "source": "snes-roms/5 Tools & Service Test Carts/Super Famicom Aging Program Ver. 1.00 (Japan) (En).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_aging_1_00"
+      ]
+    },
+    {
+      "id": "control-deck-tester-rev-1",
+      "title": "Super NES Control Deck Tester, Rev 1",
+      "sha256": "77c03d014c6e94a378d2acb7c2e92cdb14347d675eac1127e11164b1104fcd83",
+      "source": "snes-roms/5 Tools & Service Test Carts/Super NES Control Deck Tester (Japan) (En) (Rev 1).sfc",
+      "exercises": "the header scorer, the board it names and where the reset vector lands",
+      "outcome": "read",
+      "heldBy": [
+        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_control_deck_tester_rev_1"
+      ]
+    }
+  ]
+}

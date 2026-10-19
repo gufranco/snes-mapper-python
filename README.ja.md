@@ -8,7 +8,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**947**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**984**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
@@ -277,6 +277,7 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 | `python3 mapper/environment.py`                                 | その報告のうちマシンに関する部分だけを出力します                                       | 0は問題なし、1はチェック失敗                                                         |
 | `python3 -m conformance.corpus [corpus]`                        | 記録されたすべてのヘッダーの組み合わせを再生します                                     | 0はすべて一致、1は不一致あり、2はコーパスなし                                        |
 | `python3 -m conformance.against_cartridges [directory]`         | 存在するすべてのカートリッジを読み、それぞれを対応するケースと照合します               | 0はすべて一致、1は不一致あり、2はカートリッジなし                                    |
+| `python3 -m conformance.testcarts [--record out.json]`          | 手元のテストカートリッジをすべてマップし、それぞれを記録された読み取り結果と照合します | 0はすべて一致、1は不一致あり、2はテストカートリッジなしまたは引数の誤り              |
 | `python3 -m conformance.census <directory> <out> [limit]`       | ライブラリのヘッダーを集計します                                                       | 0は書き込み完了、1はカートリッジなし、2は引数の誤り                                  |
 | `python3 -m conformance.record <directory> [out] [limit]`       | ライブラリからコーパスを再構築します                                                   | 0は書き込み完了、1はカートリッジなし、2は引数の誤り                                  |
 | `python3 -m conformance.documents [--check] [--only SUBSTRING]` | マニュアルを取得してダイジェストを検証するか、手元のコピーを検証します                 | 0は検証済み、1は拒否、一致なし、または引数の誤り                                     |

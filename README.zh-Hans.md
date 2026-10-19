@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**947** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**984** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -277,6 +277,7 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 | `python3 mapper/environment.py`                                 | 仅报告其中关于本机的一半                             | 0 正常，1 有检查失败                                         |
 | `python3 -m conformance.corpus [corpus]`                        | 重放每种已记录的头部组合                             | 0 全部一致，1 有不一致，2 没有语料库                         |
 | `python3 -m conformance.against_cartridges [directory]`         | 读取现有的每个卡带，并用其对应的用例逐一检验         | 0 全部一致，1 有不一致，2 未找到卡带                         |
+| `python3 -m conformance.testcarts [--record out.json]`          | 映射现有的每个测试卡带，并与记录的读取结果逐一对照   | 0 全部一致，1 有一个不一致，2 没有测试卡带或参数错误         |
 | `python3 -m conformance.census <directory> <out> [limit]`       | 统计一个卡带库的头部                                 | 0 已写入，1 没有卡带，2 参数错误                             |
 | `python3 -m conformance.record <directory> [out] [limit]`       | 根据卡带库重建语料库                                 | 0 已写入，1 没有卡带，2 参数错误                             |
 | `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下载手册并校验其摘要，或校验已有的副本               | 0 已校验，1 被拒绝、无匹配或参数错误                         |

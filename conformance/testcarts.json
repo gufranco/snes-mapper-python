@@ -1,0 +1,124 @@
+{
+  "240p-test-suite-ntsc": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "lorom",
+    "reset": 32951,
+    "shift": 0,
+    "size": 524288
+  },
+  "240p-test-suite-pal": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "lorom",
+    "reset": 32951,
+    "shift": 0,
+    "size": 524288
+  },
+  "aging-1-00": {
+    "account": "no header",
+    "layout": null,
+    "size": 131072
+  },
+  "burn-in-rev-d": {
+    "account": "no header",
+    "layout": null,
+    "size": 524288
+  },
+  "campus-challenge-92-menu": {
+    "account": "no header",
+    "layout": null,
+    "size": 262144
+  },
+  "control-deck-tester-rev-1": {
+    "account": "no header",
+    "layout": null,
+    "size": 524288
+  },
+  "controller-test-cassette": {
+    "account": "no header",
+    "layout": null,
+    "size": 131072
+  },
+  "dsp1-tech-demo": {
+    "account": "no header",
+    "layout": null,
+    "size": 131072
+  },
+  "emudetect-v21": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "lorom",
+    "reset": 61440,
+    "shift": 0,
+    "size": 1048576
+  },
+  "evoke-2010-logo-zoomer": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "sa1",
+    "reset": 32799,
+    "shift": 0,
+    "size": 524288
+  },
+  "hd-retrovision-1-4": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "lorom",
+    "reset": 33035,
+    "shift": 0,
+    "size": 524288
+  },
+  "ntf-2-5-rev-a": {
+    "account": "no header",
+    "layout": null,
+    "size": 655360
+  },
+  "sa1-3d-demo": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "sa1",
+    "reset": 32799,
+    "shift": 0,
+    "size": 1048576
+  },
+  "sa1-demonstration": {
+    "account": "no header",
+    "layout": null,
+    "size": 1048576
+  },
+  "sa1-demonstration-header-fix": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "sa1",
+    "reset": 65280,
+    "shift": 0,
+    "size": 1048576
+  },
+  "sa1-speed-test-5-1": {
+    "account": "mapped",
+    "banks": null,
+    "fast": false,
+    "layout": "sa1",
+    "reset": 32768,
+    "shift": 0,
+    "size": 65536
+  },
+  "snsp-aging-1-02": {
+    "account": "no header",
+    "layout": null,
+    "size": 131072
+  },
+  "test-program": {
+    "account": "no header",
+    "layout": null,
+    "size": 1048576
+  }
+}

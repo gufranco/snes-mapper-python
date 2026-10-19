@@ -105,6 +105,42 @@ A byte that **is** in range is believed even where it disagrees with the offset,
 because `exhirom` puts its header where `hirom` does whenever the image is small
 enough that the far copy would sit past the end of the file.
 
+## Test cartridges
+
+[`conformance/testroms.json`](conformance/testroms.json) lists the 18 images in
+`snes-roms/5 Tools & Service Test Carts/`, each pinned by SHA-256, and every one
+is `read`: this package scores its header, names the board, and resolves the
+reset vector at `$00:FFFC` and the address it holds. The images live beside this
+repository in `snes-roms/`, or wherever `SNES_TEST_CARTRIDGE_DIR` points, and
+are never committed.
+
+```bash
+python3 -m conformance.testcarts
+python3 -m conformance.testcarts --record conformance/testcarts.json
+```
+
+The first maps every listed image present and compares it with
+[`conformance/testcarts.json`](conformance/testcarts.json), which holds the
+board, the reset address and no title. It exits 2, and CI annotates the skip,
+when no image is present. The second rewrites the record.
+
+[`conformance/testcarts.test.py`](conformance/testcarts.test.py) holds each one,
+resolving the recorded reset address again with no image present:
+
+- **Eight are mapped.** Both 240p Test Suite builds, Emudetect and HD
+  Retrovision on `lorom`; the Evoke 2010 demo, the SA-1 3D Demo, the SA-1 Speed
+  Test and the SA1 Demonstration Program's header fix on `sa1`. Every reset
+  address lands in the program.
+- **Ten carry no header, and the package refuses to guess.** Nintendo's Burn-in,
+  NTF 2.5, Test Program, both Aging programs and the Control Deck Tester, the
+  Controller Test Cassette, the Campus Challenge menu, the DSP1 Tech Demo and the
+  unpatched SA1 Demonstration Program have only vectors at `0x7FE0`. Nothing in
+  them names a board, so `read` raises `NoHeader`, as it does for any image with
+  no header. The DSP1 Tech Demo needs a DSP-1 that no byte of it declares.
+
+The `BIOS/` and `CPU/` folders beside them are not test cartridges. Nothing
+waits on another member here.
+
 ## Every gate, in the order to run them
 
 ```bash
@@ -121,11 +157,12 @@ done
 "${cov[@]}" report
 ```
 
-Then the two that are not part of the coverage step:
+Then the three that are not part of the coverage step:
 
 ```bash
 python3 -m conformance.corpus
 python3 -m conformance.speed
+python3 -m conformance.testcarts
 ```
 
 The corpus needs no cartridge anywhere. The sweep over a real library does, and
@@ -230,6 +267,9 @@ conformance/
   cartridges.py         identifying a supplied cartridge by all four of its digests
   against_cartridges.py reading every cartridge present, against the case that recorded it
   on_disk.test.py       everything that needs a library, kept out of the coverage count
+  testroms.json         every test cartridge, pinned by SHA-256, and what it exercises
+  testcarts.py          maps each one present and compares it with testcarts.json
+  testcarts.json        what each one mapped to: board and reset address, no title
   hardware.json         what Nintendo printed, with the sentence
   divergences.json      where sources part, with a status and a severity
   links.py              the weekly check that every cited address still answers
