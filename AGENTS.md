@@ -136,20 +136,20 @@ module of the same name.
 
 ## Conventions that are not negotiable
 
-| Thing | Rule |
-|:------|:-----|
-| Language | Python only |
-| Comments | None in source, and a docstring counts as one |
-| Test layout | `<module>.test.py` beside the module it covers |
-| Test shape | Arrange, act, assert, each opened by its bare marker |
-| Coverage | 100% statements and branches, enforced |
-| Types | `mypy` at strict, plus every optional error class |
-| Commits | Conventional Commits, subject under 50 characters |
-| Corpus | Measurements over cartridges, never cartridges |
-| Cartridges | Never committed, in any form, for any reason. A digest is published; a byte of content is not |
-| Titles | Never recorded. A title is a name rather than a measurement |
-| Fidelity | Where the board and convenience disagree, the board wins |
-| Public API | This and the rest of the family present the same shape. See [FAMILY.md](FAMILY.md) |
+| Thing       | Rule                                                                                          |
+| :---------- | :-------------------------------------------------------------------------------------------- |
+| Language    | Python only                                                                                   |
+| Comments    | None in source, and a docstring counts as one                                                 |
+| Test layout | `<module>.test.py` beside the module it covers                                                |
+| Test shape  | Arrange, act, assert, each opened by its bare marker                                          |
+| Coverage    | 100% statements and branches, enforced                                                        |
+| Types       | `mypy` at strict, plus every optional error class                                             |
+| Commits     | Conventional Commits, subject under 50 characters                                             |
+| Corpus      | Measurements over cartridges, never cartridges                                                |
+| Cartridges  | Never committed, in any form, for any reason. A digest is published; a byte of content is not |
+| Titles      | Never recorded. A title is a name rather than a measurement                                   |
+| Fidelity    | Where the board and convenience disagree, the board wins                                      |
+| Public API  | This and the rest of the family present the same shape. See [FAMILY.md](FAMILY.md)            |
 
 The linter's ignores in [`pyproject.toml`](pyproject.toml) carry no comments, so
 their reasons live here:
@@ -191,6 +191,20 @@ their reasons live here:
 - `@unittest\.skipUnless\(SOLD_AS_A_COMPONENT,`, `^def machine_mentions\(` and
   `^def listing\(` in the coverage exclusions: this part only existed inside one
   machine, so the family sweep for machine names is skipped here.
+
+The formatter's ignores in [`.prettierignore`](.prettierignore) carry no
+comments either, so their reasons live here:
+
+- `pnpm-lock.yaml` and `package-lock.json`: the package manager writes them, in
+  its own layout, on every install.
+- `node_modules/`, `.venv/`, `venv/`, `build/`, `dist/` and `*.egg-info/`:
+  installed or built, never written by hand.
+- `.coverage`, `coverage.json`, `htmlcov/` and the tool caches: the output of a
+  run, never committed.
+- `docs/`, `specs/`, `.work/` and `.claude/`: local working material, never
+  committed.
+- `conformance/corpus.json` and `cartridges.manifest.json`: records of what was
+  measured. Only the recorder rewrites them, never a hand and never a formatter.
 
 ## Layout
 
@@ -258,7 +272,7 @@ being made in one of them and forgotten in the others, because a test in this
 repository cannot see the others, so the check is a command rather than a suite:
 
 ```sh
-shared() { sed '/^\*Everything above this line/q' "$1"; }
+shared() { sed '/^_Everything above this line/q' "$1"; }
 
 grep -o 'github\.com/[^/]*/\([a-z0-9-]*\))' FAMILY.md | sed 's|.*/||; s|)||' | sort -u |
 while read -r member; do

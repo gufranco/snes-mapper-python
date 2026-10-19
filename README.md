@@ -31,10 +31,10 @@ The example resolves six addresses on the low layout for a cartridge whose heade
 
 ## Install
 
-| Requirement | Version |
-|:--|:--|
-| Python | 3.12 or newer |
-| git | Any |
+| Requirement | Version       |
+| :---------- | :------------ |
+| Python      | 3.12 or newer |
+| git         | Any           |
 
 ```bash
 git clone https://github.com/gufranco/snes-mapper-python.git
@@ -60,24 +60,24 @@ Nothing here is built and then driven, and nothing executes code. Every call is 
 
 `resolve(kind, address, fast=False, banks=None, save=False)` returns a `Resolution`. `kind` is `LOROM`, `HIROM`, `EXHIROM` or `WHOLEBANK`. `fast` is the header's request for the faster bus. `banks` is the image size in 64 KB banks, which `WHOLEBANK` requires. `save` maps banks `$70` to `$7D` as save memory on `WHOLEBANK`, where they are cartridge otherwise. Any other string for `kind` reads cartridge banks the way `HIROM` does, with no save memory window.
 
-| Attribute | Meaning |
-|:--|:--|
-| `region` | `ROM`, `WORK_RAM`, `SAVE_RAM`, `REGISTERS` or `OPEN_BUS`, whose values are `rom`, `work-ram`, `save-ram`, `registers` and `open-bus` |
-| `offset` | Where in the image the address reads, or `None` when the region is not `rom` |
-| `cycles` | Master clocks the access costs: `FAST` is 6, `SLOW` is 8, `XSLOW` is 12 |
-| `address` | The address asked about, masked to 24 bits |
-| `is_rom` | True when `region` is `rom` |
+| Attribute | Meaning                                                                                                                              |
+| :-------- | :----------------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`, `WORK_RAM`, `SAVE_RAM`, `REGISTERS` or `OPEN_BUS`, whose values are `rom`, `work-ram`, `save-ram`, `registers` and `open-bus` |
+| `offset`  | Where in the image the address reads, or `None` when the region is not `rom`                                                         |
+| `cycles`  | Master clocks the access costs: `FAST` is 6, `SLOW` is 8, `XSLOW` is 12                                                              |
+| `address` | The address asked about, masked to 24 bits                                                                                           |
+| `is_rom`  | True when `region` is `rom`                                                                                                          |
 
 ### Layouts
 
 `MODELS` maps each resolvable layout name to a `Model`. `layout_named(name)` returns the `Model` for a name or an alias, ignoring case, hyphens and underscores, and raises `UnknownModelError` for anything else. A `Model` carries `name`, `aliases`, `header_at` and `summary`, and `model.resolve(address, fast=False, banks=None, save=False)` calls `resolve` with its own name.
 
-| Layout | Aliases | Header at |
-|:--|:--|:--|
-| `lorom` | `lo`, `mode20`, `20` | `$7FC0` |
-| `hirom` | `hi`, `mode21`, `21` | `$FFC0` |
-| `exhirom` | `exhi`, `mode25`, `25` | `$FFC0`, and `$40FFC0` when the image reaches it |
-| `wholebank` | `whole`, `wholebanks`, `interleaved` | `$7FC0` |
+| Layout      | Aliases                              | Header at                                        |
+| :---------- | :----------------------------------- | :----------------------------------------------- |
+| `lorom`     | `lo`, `mode20`, `20`                 | `$7FC0`                                          |
+| `hirom`     | `hi`, `mode21`, `21`                 | `$FFC0`                                          |
+| `exhirom`   | `exhi`, `mode25`, `25`               | `$FFC0`, and `$40FFC0` when the image reaches it |
+| `wholebank` | `whole`, `wholebanks`, `interleaved` | `$7FC0`                                          |
 
 ```python
 import mapper
@@ -105,28 +105,28 @@ sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
 
 ### Headers
 
-| Call | Returns |
-|:--|:--|
-| `read(rom)` | The `Header` at the candidate place that scores highest. Raises `NoHeader` when no place scores 2 or more |
-| `score(rom, at)` | The points one candidate place earns, 0 to 4, or -1 when 32 bytes do not fit there |
-| `board(found, size)` | The layout name for a `Header` and an image size. A header that reads as `lorom` on a 12 MB image is `wholebank` |
-| `has_copier_stub(rom)` | True when the image carries the 512 bytes a copier prepends |
-| `stub_by_length(size)` | The same test on a length alone |
-| `Header(at, raw)` | A header built from its 32 bytes and the offset they came from |
+| Call                   | Returns                                                                                                          |
+| :--------------------- | :--------------------------------------------------------------------------------------------------------------- |
+| `read(rom)`            | The `Header` at the candidate place that scores highest. Raises `NoHeader` when no place scores 2 or more        |
+| `score(rom, at)`       | The points one candidate place earns, 0 to 4, or -1 when 32 bytes do not fit there                               |
+| `board(found, size)`   | The layout name for a `Header` and an image size. A header that reads as `lorom` on a 12 MB image is `wholebank` |
+| `has_copier_stub(rom)` | True when the image carries the 512 bytes a copier prepends                                                      |
+| `stub_by_length(size)` | The same test on a length alone                                                                                  |
+| `Header(at, raw)`      | A header built from its 32 bytes and the offset they came from                                                   |
 
 The candidate places are `LOROM_HEADER`, `$7FC0`, `HIROM_HEADER`, `$FFC0`, and `$40FFC0`, each moved by `COPIER_BYTES`, `$200`, when the image carries a copier stub. A place earns one point each for a title with at least 19 of its 21 bytes printable, a nonzero checksum consistent with its complement, a declared size from 8 to 13, and a mapping byte that names a layout whose header sits at that place.
 
-| Attribute | Meaning |
-|:--|:--|
-| `at`, `shift` | Where the header was found, and how far a copier stub moved it |
-| `raw` | The 32 bytes |
-| `title` | The 21-byte title, trailing spaces and zero bytes removed |
-| `mapping`, `declared` | The byte that names a layout, and whether its high nibble is 2 or 3, which is when it is believed |
-| `layout` | From the byte when it is believed, and from the offset when it is not. One of `lorom`, `hirom`, `exhirom`, `sa1`, `spc7110` |
-| `rom_bytes`, `ram_bytes` | The declared sizes in bytes |
-| `checksum`, `complement`, `checksum_agrees` | The pair, and whether they sum to `$FFFF` |
-| `fast`, `battery`, `coprocessor` | Whether it asks for the faster bus, carries battery-backed save memory, carries a chip |
-| `chipset`, `country` | The remaining declared bytes |
+| Attribute                                   | Meaning                                                                                                                     |
+| :------------------------------------------ | :-------------------------------------------------------------------------------------------------------------------------- |
+| `at`, `shift`                               | Where the header was found, and how far a copier stub moved it                                                              |
+| `raw`                                       | The 32 bytes                                                                                                                |
+| `title`                                     | The 21-byte title, trailing spaces and zero bytes removed                                                                   |
+| `mapping`, `declared`                       | The byte that names a layout, and whether its high nibble is 2 or 3, which is when it is believed                           |
+| `layout`                                    | From the byte when it is believed, and from the offset when it is not. One of `lorom`, `hirom`, `exhirom`, `sa1`, `spc7110` |
+| `rom_bytes`, `ram_bytes`                    | The declared sizes in bytes                                                                                                 |
+| `checksum`, `complement`, `checksum_agrees` | The pair, and whether they sum to `$FFFF`                                                                                   |
+| `fast`, `battery`, `coprocessor`            | Whether it asks for the faster bus, carries battery-backed save memory, carries a chip                                      |
+| `chipset`, `country`                        | The remaining declared bytes                                                                                                |
 
 ```python
 from mapper import HIROM_HEADER, LOROM_HEADER, read, score
@@ -157,15 +157,15 @@ Mapping byte `$30` declares the low layout with the fast bit set. Chipset `$02` 
 
 ### Images
 
-| Name | Content |
-|:--|:--|
-| `bank_count(size)` | Whole 64 KB banks in an image of that size. Raises `NotWholeBanks` otherwise |
-| `interleave(logical)`, `deinterleave(built)` | Between the order the console reads and the order an interleaved dump stores: every upper half first, then every lower half |
-| `snes_to_file(bank, addr, banks)`, `file_to_snes(offset, banks)` | Between a bank and address and a position in an interleaved file |
-| `window_to_file(bank, addr, banks)` | The same for banks `WINDOW_FIRST_BANK`, `$C0`, and above |
-| `address_to_file(bank, addr, banks)` | Whichever of the two applies to that bank |
-| `BANK`, `HALF` | `$10000` and `$8000` |
-| `WHOLEBANK_BANKS`, `WHOLEBANK_BYTES` | 192 banks and 12 MB, the only size `WHOLEBANK` resolves |
+| Name                                                             | Content                                                                                                                     |
+| :--------------------------------------------------------------- | :-------------------------------------------------------------------------------------------------------------------------- |
+| `bank_count(size)`                                               | Whole 64 KB banks in an image of that size. Raises `NotWholeBanks` otherwise                                                |
+| `interleave(logical)`, `deinterleave(built)`                     | Between the order the console reads and the order an interleaved dump stores: every upper half first, then every lower half |
+| `snes_to_file(bank, addr, banks)`, `file_to_snes(offset, banks)` | Between a bank and address and a position in an interleaved file                                                            |
+| `window_to_file(bank, addr, banks)`                              | The same for banks `WINDOW_FIRST_BANK`, `$C0`, and above                                                                    |
+| `address_to_file(bank, addr, banks)`                             | Whichever of the two applies to that bank                                                                                   |
+| `BANK`, `HALF`                                                   | `$10000` and `$8000`                                                                                                        |
+| `WHOLEBANK_BANKS`, `WHOLEBANK_BYTES`                             | 192 banks and 12 MB, the only size `WHOLEBANK` resolves                                                                     |
 
 ```python
 from mapper import bank_count, file_to_snes, snes_to_file, stub_by_length
@@ -186,20 +186,20 @@ A 4 MB interleaved file holds the upper half of bank `$00` at offset 0 and its l
 
 ### Transfers
 
-| Name | Content |
-|:--|:--|
-| `Engine()` | The eight channels, `channels`, and the two arming registers, `enable` and `enable_indirect` |
-| `engine.write(address, value)` | One byte to `ENABLE`, `$420B`, to `$420C`, or to a channel register. Any other address is ignored |
-| `engine.enabled` | The channels `ENABLE` selects |
-| `engine.plans()` | A `Plan` for each of those channels and none for the rest |
-| `Plan` | `channel`, `source`, `length`, `step`, `destination`, `to_cpu`, and `addresses()`, every source address in order, wrapping inside the bank |
-| `Channel(index)` | One channel: `index`, its 16 `registers`, `write(offset, value)`, and `plan()` |
-| `channel.parameters`, `channel.to_cpu` | Register `$43x0`, and its bit 7, set when the transfer runs toward the processor |
-| `channel.step` | 1, then -1 when bit 4 of the parameters is set, and 0 whenever bit 3 is set |
-| `channel.destination`, `channel.source` | `$2100` plus register `$43x1`, and the 24-bit address in `$43x2` to `$43x4` |
-| `channel.count`, `channel.length` | The 16-bit count in `$43x5` and `$43x6`, and the bytes it moves: the count, or 65536 when the count is 0 |
-| `channel_of(address)` | The channel a register address belongs to, or `None` outside `CHANNEL_BASE`, `$4300`, to `$437F` |
-| `CHANNEL_COUNT` | 8 |
+| Name                                    | Content                                                                                                                                    |
+| :-------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `Engine()`                              | The eight channels, `channels`, and the two arming registers, `enable` and `enable_indirect`                                               |
+| `engine.write(address, value)`          | One byte to `ENABLE`, `$420B`, to `$420C`, or to a channel register. Any other address is ignored                                          |
+| `engine.enabled`                        | The channels `ENABLE` selects                                                                                                              |
+| `engine.plans()`                        | A `Plan` for each of those channels and none for the rest                                                                                  |
+| `Plan`                                  | `channel`, `source`, `length`, `step`, `destination`, `to_cpu`, and `addresses()`, every source address in order, wrapping inside the bank |
+| `Channel(index)`                        | One channel: `index`, its 16 `registers`, `write(offset, value)`, and `plan()`                                                             |
+| `channel.parameters`, `channel.to_cpu`  | Register `$43x0`, and its bit 7, set when the transfer runs toward the processor                                                           |
+| `channel.step`                          | 1, then -1 when bit 4 of the parameters is set, and 0 whenever bit 3 is set                                                                |
+| `channel.destination`, `channel.source` | `$2100` plus register `$43x1`, and the 24-bit address in `$43x2` to `$43x4`                                                                |
+| `channel.count`, `channel.length`       | The 16-bit count in `$43x5` and `$43x6`, and the bytes it moves: the count, or 65536 when the count is 0                                   |
+| `channel_of(address)`                   | The channel a register address belongs to, or `None` outside `CHANNEL_BASE`, `$4300`, to `$437F`                                           |
+| `CHANNEL_COUNT`                         | 8                                                                                                                                          |
 
 ```python
 from mapper import ENABLE, Engine, channel_of
@@ -228,12 +228,12 @@ Channel 1 holds a complete four-byte transfer from `$7E8000` to `$2118`, and `pl
 
 ### Errors
 
-| Error | Raised when |
-|:--|:--|
-| `NoHeader` | `read` finds no candidate place scoring 2 or more |
-| `NotWholeBanks` | An image size is not a whole number of 64 KB banks |
-| `NeedsBankCount` | `WHOLEBANK` is resolved without `banks`, or with fewer than 192 |
-| `UnknownModelError` | `layout_named` is given a name no layout goes by |
+| Error               | Raised when                                                     |
+| :------------------ | :-------------------------------------------------------------- |
+| `NoHeader`          | `read` finds no candidate place scoring 2 or more               |
+| `NotWholeBanks`     | An image size is not a whole number of 64 KB banks              |
+| `NeedsBankCount`    | `WHOLEBANK` is resolved without `banks`, or with fewer than 192 |
+| `UnknownModelError` | `layout_named` is given a name no layout goes by                |
 
 ```python
 from mapper import WHOLEBANK, NeedsBankCount, NoHeader, NotWholeBanks, bank_count, read, resolve
@@ -265,19 +265,19 @@ Each message carries more after its first sentence: `NeedsBankCount` goes on to 
 
 Each runs from the repository root. Everything under `conformance/` runs as a module.
 
-| Command | Does | Exit codes |
-|:--|:--|:--|
-| `python3 mapper/doctor.py` | Reports the machine and the checkout | 0 clean, 1 a check failed |
-| `python3 mapper/environment.py` | The machine half of that report alone | 0 clean, 1 a check failed |
-| `python3 -m conformance.corpus [corpus]` | Replays every recorded header combination | 0 all agree, 1 one did not, 2 no corpus |
-| `python3 -m conformance.against_cartridges [directory]` | Reads every cartridge present and holds each to its case | 0 all agree, 1 one did not, 2 no cartridge found |
-| `python3 -m conformance.census <directory> <out> [limit]` | Tallies the headers of a library | 0 written, 1 no cartridge, 2 bad arguments |
-| `python3 -m conformance.record <directory> [out] [limit]` | Rebuilds the corpus from a library | 0 written, 1 no cartridge, 2 bad arguments |
-| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | Fetches the manual and verifies its digest, or verifies the copy present | 0 verified, 1 refused, no match or bad arguments |
-| `python3 -m conformance.quotes` | Finds every quoted sentence in the manual | 0 found or no manual present, 1 a quote is missing or a citation points at the wrong place |
-| `python3 -m conformance.speed` | The throughput floor | 0 above it, 1 below it |
-| `python3 -m conformance.links` | Requests every address this README cites and prints each status as JSON | 0 every address still exists, 1 one is gone with status `404` or `410` |
-| `python3 -m conformance.package <wheel>` | Checks a built wheel carries every module and no test file | 0 clean, 1 a fault or no wheel there, 2 no argument |
+| Command                                                         | Does                                                                     | Exit codes                                                                                 |
+| :-------------------------------------------------------------- | :----------------------------------------------------------------------- | :----------------------------------------------------------------------------------------- |
+| `python3 mapper/doctor.py`                                      | Reports the machine and the checkout                                     | 0 clean, 1 a check failed                                                                  |
+| `python3 mapper/environment.py`                                 | The machine half of that report alone                                    | 0 clean, 1 a check failed                                                                  |
+| `python3 -m conformance.corpus [corpus]`                        | Replays every recorded header combination                                | 0 all agree, 1 one did not, 2 no corpus                                                    |
+| `python3 -m conformance.against_cartridges [directory]`         | Reads every cartridge present and holds each to its case                 | 0 all agree, 1 one did not, 2 no cartridge found                                           |
+| `python3 -m conformance.census <directory> <out> [limit]`       | Tallies the headers of a library                                         | 0 written, 1 no cartridge, 2 bad arguments                                                 |
+| `python3 -m conformance.record <directory> [out] [limit]`       | Rebuilds the corpus from a library                                       | 0 written, 1 no cartridge, 2 bad arguments                                                 |
+| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | Fetches the manual and verifies its digest, or verifies the copy present | 0 verified, 1 refused, no match or bad arguments                                           |
+| `python3 -m conformance.quotes`                                 | Finds every quoted sentence in the manual                                | 0 found or no manual present, 1 a quote is missing or a citation points at the wrong place |
+| `python3 -m conformance.speed`                                  | The throughput floor                                                     | 0 above it, 1 below it                                                                     |
+| `python3 -m conformance.links`                                  | Requests every address this README cites and prints each status as JSON  | 0 every address still exists, 1 one is gone with status `404` or `410`                     |
+| `python3 -m conformance.package <wheel>`                        | Checks a built wheel carries every module and no test file               | 0 clean, 1 a fault or no wheel there, 2 no argument                                        |
 
 ## The mistakes this exists to stop
 
@@ -386,12 +386,12 @@ lorom
 rom
 ```
 
-| Layout | Shape |
-|:--|:--|
-| `lorom` | A 32 KB page per bank, in the upper half of each bank, with save memory filling banks `$70` to `$7D` and `$F0` to `$FD` |
-| `hirom` | A whole 64 KB bank per bank, with save memory at `$6000` to `$7FFF` in banks `$20` to `$3F` and `$A0` to `$BF` |
-| `exhirom` | `hirom` with its two 4 MB halves swapped |
-| `wholebank` | A whole 64 KB per bank below `$C0` from an interleaved 12 MB image |
+| Layout      | Shape                                                                                                                   |
+| :---------- | :---------------------------------------------------------------------------------------------------------------------- |
+| `lorom`     | A 32 KB page per bank, in the upper half of each bank, with save memory filling banks `$70` to `$7D` and `$F0` to `$FD` |
+| `hirom`     | A whole 64 KB bank per bank, with save memory at `$6000` to `$7FFF` in banks `$20` to `$3F` and `$A0` to `$BF`          |
+| `exhirom`   | `hirom` with its two 4 MB halves swapped                                                                                |
+| `wholebank` | A whole 64 KB per bank below `$C0` from an interleaved 12 MB image                                                      |
 
 A header also declares `sa1` and `spc7110`. The census counts them, and `layout_named` refuses them: neither has a corpus behind its address mapping.
 
@@ -460,12 +460,12 @@ lorom
 Read out of 2,781 retail cartridges and nothing else. A modified release, a translation and a prototype can each carry an edited header, so none of them is counted.
 
 | Declared layout | Cartridges |
-|:--|--:|
-| `lorom` | 2,157 |
-| `hirom` | 572 |
-| `sa1` | 42 |
-| `exhirom` | 6 |
-| `spc7110` | 4 |
+| :-------------- | ---------: |
+| `lorom`         |      2,157 |
+| `hirom`         |        572 |
+| `sa1`           |         42 |
+| `exhirom`       |          6 |
+| `spc7110`       |          4 |
 
 1,701 ask for the faster bus, 957 carry battery-backed save memory, and 2,780 carry a checksum consistent with its complement. Headers sit at `$7FC0` in 2,200, at `$FFC0` in 579 and at `$40FFC0` in 2. A further 8 files carry no header `read` accepts and are counted as refused.
 
@@ -497,14 +497,14 @@ Across 7,314 cartridges, the size byte read at the right offset falls between 8 
 
 A header is 32 bytes in which a cartridge describes how it is built.
 
-| Field | What it is | Shipped |
-|:--|:--|:--|
-| Mapping, chipset, ROM and RAM size, country | Facts about a physical object | Yes |
-| How many cartridges share a combination | A measurement | Yes |
-| The title | A name | No |
-| Anything outside the header | The game | Never read |
+| Field                                       | What it is                    | Shipped    |
+| :------------------------------------------ | :---------------------------- | :--------- |
+| Mapping, chipset, ROM and RAM size, country | Facts about a physical object | Yes        |
+| How many cartridges share a combination     | A measurement                 | Yes        |
+| The title                                   | A name                        | No         |
+| Anything outside the header                 | The game                      | Never read |
 
-Facts and functional elements sit outside what copyright reaches, per [17 U.S.C. 102(b)](https://www.law.cornell.edu/uscode/text/17/102) and *Feist*. [`conformance/census.py`](conformance/census.py) reads only those 32 bytes and records no title. This is how the repository is built, not legal advice.
+Facts and functional elements sit outside what copyright reaches, per [17 U.S.C. 102(b)](https://www.law.cornell.edu/uscode/text/17/102) and _Feist_. [`conformance/census.py`](conformance/census.py) reads only those 32 bytes and records no title. This is how the repository is built, not legal advice.
 
 [`conformance/corpus.json`](conformance/corpus.json) carries every distinct combination with the header offset, the layout it produces, and what 14 probe addresses resolve to under it.
 
@@ -532,11 +532,11 @@ Every file is checked against all four digests in [`cartridges.manifest.json`](c
 
 ## What each piece of evidence is worth
 
-| Evidence | What it settles | What it cannot |
-|:--|:--|:--|
+| Evidence                                                                                       | What it settles                                 | What it cannot                                      |
+| :--------------------------------------------------------------------------------------------- | :---------------------------------------------- | :-------------------------------------------------- |
 | Nintendo's manual, with arithmetic in [`conformance/hardware.json`](conformance/hardware.json) | The two bus speeds, so the 6 and 8 clock counts | The 12 clock count, which the manual does not print |
-| Header combinations read out of 2,781 cartridges | What a combination means on shipped cartridges | Combinations no cartridge carries |
-| Digests of every cartridge read | That the file read is the file named | Whether that release is the one you meant |
+| Header combinations read out of 2,781 cartridges                                               | What a combination means on shipped cartridges  | Combinations no cartridge carries                   |
+| Digests of every cartridge read                                                                | That the file read is the file named            | Whether that release is the one you meant           |
 
 Not modelled: the processor, so how many accesses an instruction makes; refresh and transfer stalls; and anything that happens once an address is reached.
 
@@ -560,13 +560,13 @@ python3 -m conformance.against_cartridges
 
 ## Working on it
 
-| Need | Where |
-|:--|:--|
-| Every gate and the order to run them | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| The same material for a coding agent | [AGENTS.md](AGENTS.md) |
-| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md) |
-| Bug reports | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
-| Security reports | [SECURITY.md](SECURITY.md) |
+| Need                                                            | Where                                                                  |
+| :-------------------------------------------------------------- | :--------------------------------------------------------------------- |
+| Every gate and the order to run them                            | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| The same material for a coding agent                            | [AGENTS.md](AGENTS.md)                                                 |
+| The standard this repository shares with the rest of the family | [FAMILY.md](FAMILY.md)                                                 |
+| Bug reports                                                     | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
+| Security reports                                                | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -587,9 +587,9 @@ Each module has a test file beside it, named `<module>.test.py`, and each runs o
 
 ## References
 
-| Document | Publisher | Read on | Bytes | SHA-256 |
-|:--|:--|:--|--:|:--|
-| *SNES Development Manual, Book I*, full text as archived | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| Document                                                 | Publisher                | Read on    |   Bytes | SHA-256                                                            |
+| :------------------------------------------------------- | :----------------------- | :--------- | ------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_, full text as archived | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
 
 It is not redistributable and is not in this repository. `python3 -m conformance.documents` downloads it from https://archive.org/download/SNESDevManual/book1_djvu.txt into `docs/`, which git ignores, and refuses any file whose digest differs. `--check` verifies the copy already present. [`conformance/documents.json`](conformance/documents.json) carries the digest and the address. The sentences taken from it are in [`conformance/hardware.json`](conformance/hardware.json), each with the table and page it came from.
 

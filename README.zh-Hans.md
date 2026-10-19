@@ -31,10 +31,10 @@ for address in (0x7E0900, 0x001000, 0x004016, 0x008000, 0x808000, 0x700000):
 
 ## 安装
 
-| 要求 | 版本 |
-|:--|:--|
+| 要求   | 版本        |
+| :----- | :---------- |
 | Python | 3.12 或更高 |
-| git | 任意 |
+| git    | 任意        |
 
 ```bash
 git clone https://github.com/gufranco/snes-mapper-python.git
@@ -60,24 +60,24 @@ python3 mapper/doctor.py
 
 `resolve(kind, address, fast=False, banks=None, save=False)` 返回一个 `Resolution`。`kind` 为 `LOROM`、`HIROM`、`EXHIROM` 或 `WHOLEBANK`。`fast` 是头部对更快总线的请求。`banks` 是以 64 KB bank 计的镜像大小，`WHOLEBANK` 必须提供它。`save` 在 `WHOLEBANK` 上把 bank `$70` 到 `$7D` 映射为存档内存，否则这些 bank 属于卡带。`kind` 为其他任何字符串时，按 `HIROM` 的方式读取卡带 bank，且没有存档内存窗口。
 
-| 属性 | 含义 |
-|:--|:--|
-| `region` | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS` 或 `OPEN_BUS`，其值分别为 `rom`、`work-ram`、`save-ram`、`registers` 和 `open-bus` |
-| `offset` | 该地址读取的镜像位置，region 不是 `rom` 时为 `None` |
-| `cycles` | 访问耗费的主时钟数：`FAST` 为 6，`SLOW` 为 8，`XSLOW` 为 12 |
-| `address` | 所询问的地址，掩码为 24 位 |
-| `is_rom` | `region` 为 `rom` 时为 True |
+| 属性      | 含义                                                                                                                          |
+| :-------- | :---------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS` 或 `OPEN_BUS`，其值分别为 `rom`、`work-ram`、`save-ram`、`registers` 和 `open-bus` |
+| `offset`  | 该地址读取的镜像位置，region 不是 `rom` 时为 `None`                                                                           |
+| `cycles`  | 访问耗费的主时钟数：`FAST` 为 6，`SLOW` 为 8，`XSLOW` 为 12                                                                   |
+| `address` | 所询问的地址，掩码为 24 位                                                                                                    |
+| `is_rom`  | `region` 为 `rom` 时为 True                                                                                                   |
 
 ### 布局
 
 `MODELS` 把每个可解析的布局名称映射到一个 `Model`。`layout_named(name)` 根据名称或别名返回 `Model`，忽略大小写、连字符和下划线，其他任何输入都会抛出 `UnknownModelError`。`Model` 带有 `name`、`aliases`、`header_at` 和 `summary`，`model.resolve(address, fast=False, banks=None, save=False)` 以它自己的名称调用 `resolve`。
 
-| 布局 | 别名 | 头部位置 |
-|:--|:--|:--|
-| `lorom` | `lo`、`mode20`、`20` | `$7FC0` |
-| `hirom` | `hi`、`mode21`、`21` | `$FFC0` |
-| `exhirom` | `exhi`、`mode25`、`25` | `$FFC0`，镜像足够大时还有 `$40FFC0` |
-| `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0` |
+| 布局        | 别名                                 | 头部位置                            |
+| :---------- | :----------------------------------- | :---------------------------------- |
+| `lorom`     | `lo`、`mode20`、`20`                 | `$7FC0`                             |
+| `hirom`     | `hi`、`mode21`、`21`                 | `$FFC0`                             |
+| `exhirom`   | `exhi`、`mode25`、`25`               | `$FFC0`，镜像足够大时还有 `$40FFC0` |
+| `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0`                             |
 
 ```python
 import mapper
@@ -105,28 +105,28 @@ sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
 
 ### 头部
 
-| 调用 | 返回 |
-|:--|:--|
-| `read(rom)` | 得分最高的候选位置上的 `Header`。没有任何位置得分达到 2 或以上时抛出 `NoHeader` |
-| `score(rom, at)` | 一个候选位置获得的分数，0 到 4；该处放不下 32 字节时为 -1 |
-| `board(found, size)` | 给定 `Header` 和镜像大小对应的布局名称。在 12 MB 镜像上读作 `lorom` 的头部即为 `wholebank` |
-| `has_copier_stub(rom)` | 镜像带有拷贝机前置的 512 字节时为 True |
-| `stub_by_length(size)` | 仅凭长度进行同样的判断 |
-| `Header(at, raw)` | 由 32 字节及其来源偏移构建的头部 |
+| 调用                   | 返回                                                                                       |
+| :--------------------- | :----------------------------------------------------------------------------------------- |
+| `read(rom)`            | 得分最高的候选位置上的 `Header`。没有任何位置得分达到 2 或以上时抛出 `NoHeader`            |
+| `score(rom, at)`       | 一个候选位置获得的分数，0 到 4；该处放不下 32 字节时为 -1                                  |
+| `board(found, size)`   | 给定 `Header` 和镜像大小对应的布局名称。在 12 MB 镜像上读作 `lorom` 的头部即为 `wholebank` |
+| `has_copier_stub(rom)` | 镜像带有拷贝机前置的 512 字节时为 True                                                     |
+| `stub_by_length(size)` | 仅凭长度进行同样的判断                                                                     |
+| `Header(at, raw)`      | 由 32 字节及其来源偏移构建的头部                                                           |
 
 候选位置为 `LOROM_HEADER`（`$7FC0`）、`HIROM_HEADER`（`$FFC0`）和 `$40FFC0`，镜像带有拷贝机前置数据时，每个位置都移动 `COPIER_BYTES`，即 `$200`。一个位置在以下每项上各得一分：标题的 21 字节中至少 19 字节可打印；校验和非零且与其补码一致；声明的大小在 8 到 13 之间；映射字节所指的布局，其头部正好位于该位置。
 
-| 属性 | 含义 |
-|:--|:--|
-| `at`、`shift` | 头部被找到的位置，以及拷贝机前置数据使它移动了多远 |
-| `raw` | 这 32 字节 |
-| `title` | 21 字节的标题，去掉末尾的空格和零字节 |
-| `mapping`、`declared` | 指明布局的字节，以及其高半字节是否为 2 或 3，只有这时才采信它 |
-| `layout` | 采信时取自该字节，不采信时取自偏移。为 `lorom`、`hirom`、`exhirom`、`sa1`、`spc7110` 之一 |
-| `rom_bytes`、`ram_bytes` | 以字节计的声明大小 |
-| `checksum`、`complement`、`checksum_agrees` | 这一对值，以及它们之和是否为 `$FFFF` |
-| `fast`、`battery`、`coprocessor` | 是否请求更快的总线、是否带有电池供电的存档内存、是否带有芯片 |
-| `chipset`、`country` | 其余的声明字节 |
+| 属性                                        | 含义                                                                                      |
+| :------------------------------------------ | :---------------------------------------------------------------------------------------- |
+| `at`、`shift`                               | 头部被找到的位置，以及拷贝机前置数据使它移动了多远                                        |
+| `raw`                                       | 这 32 字节                                                                                |
+| `title`                                     | 21 字节的标题，去掉末尾的空格和零字节                                                     |
+| `mapping`、`declared`                       | 指明布局的字节，以及其高半字节是否为 2 或 3，只有这时才采信它                             |
+| `layout`                                    | 采信时取自该字节，不采信时取自偏移。为 `lorom`、`hirom`、`exhirom`、`sa1`、`spc7110` 之一 |
+| `rom_bytes`、`ram_bytes`                    | 以字节计的声明大小                                                                        |
+| `checksum`、`complement`、`checksum_agrees` | 这一对值，以及它们之和是否为 `$FFFF`                                                      |
+| `fast`、`battery`、`coprocessor`            | 是否请求更快的总线、是否带有电池供电的存档内存、是否带有芯片                              |
+| `chipset`、`country`                        | 其余的声明字节                                                                            |
 
 ```python
 from mapper import HIROM_HEADER, LOROM_HEADER, read, score
@@ -157,15 +157,15 @@ True True False 2 1
 
 ### 镜像
 
-| 名称 | 内容 |
-|:--|:--|
-| `bank_count(size)` | 该大小的镜像中完整 64 KB bank 的数量。不是整数个 bank 时抛出 `NotWholeBanks` |
-| `interleave(logical)`、`deinterleave(built)` | 在主机读取的顺序与交错转储的存储顺序之间转换：先是所有上半部分，再是所有下半部分 |
-| `snes_to_file(bank, addr, banks)`、`file_to_snes(offset, banks)` | 在 bank 加地址与交错文件中的位置之间转换 |
-| `window_to_file(bank, addr, banks)` | 对 `WINDOW_FIRST_BANK`（`$C0`）及以上的 bank 做同样的转换 |
-| `address_to_file(bank, addr, banks)` | 对该 bank 适用的上述两者之一 |
-| `BANK`、`HALF` | `$10000` 和 `$8000` |
-| `WHOLEBANK_BANKS`、`WHOLEBANK_BYTES` | 192 个 bank 和 12 MB，这是 `WHOLEBANK` 唯一能解析的大小 |
+| 名称                                                             | 内容                                                                             |
+| :--------------------------------------------------------------- | :------------------------------------------------------------------------------- |
+| `bank_count(size)`                                               | 该大小的镜像中完整 64 KB bank 的数量。不是整数个 bank 时抛出 `NotWholeBanks`     |
+| `interleave(logical)`、`deinterleave(built)`                     | 在主机读取的顺序与交错转储的存储顺序之间转换：先是所有上半部分，再是所有下半部分 |
+| `snes_to_file(bank, addr, banks)`、`file_to_snes(offset, banks)` | 在 bank 加地址与交错文件中的位置之间转换                                         |
+| `window_to_file(bank, addr, banks)`                              | 对 `WINDOW_FIRST_BANK`（`$C0`）及以上的 bank 做同样的转换                        |
+| `address_to_file(bank, addr, banks)`                             | 对该 bank 适用的上述两者之一                                                     |
+| `BANK`、`HALF`                                                   | `$10000` 和 `$8000`                                                              |
+| `WHOLEBANK_BANKS`、`WHOLEBANK_BYTES`                             | 192 个 bank 和 12 MB，这是 `WHOLEBANK` 唯一能解析的大小                          |
 
 ```python
 from mapper import bank_count, file_to_snes, snes_to_file, stub_by_length
@@ -186,20 +186,20 @@ True False
 
 ### 传输
 
-| 名称 | 内容 |
-|:--|:--|
-| `Engine()` | 八个通道 `channels`，以及两个启用寄存器 `enable` 和 `enable_indirect` |
-| `engine.write(address, value)` | 向 `ENABLE`（`$420B`）、`$420C` 或某个通道寄存器写入一个字节。其他任何地址都被忽略 |
-| `engine.enabled` | `ENABLE` 选中的通道 |
-| `engine.plans()` | 为上述每个通道各给出一个 `Plan`，其余通道没有 |
-| `Plan` | `channel`、`source`、`length`、`step`、`destination`、`to_cpu`，以及 `addresses()`，即按顺序排列的每个源地址，在 bank 内回绕 |
-| `Channel(index)` | 一个通道：`index`、它的 16 个 `registers`、`write(offset, value)` 和 `plan()` |
-| `channel.parameters`、`channel.to_cpu` | 寄存器 `$43x0`，以及它的第 7 位，传输朝处理器方向进行时置位 |
-| `channel.step` | 默认为 1，参数的第 4 位置位时为 -1，第 3 位置位时总是 0 |
-| `channel.destination`、`channel.source` | `$2100` 加上寄存器 `$43x1`，以及 `$43x2` 到 `$43x4` 中的 24 位地址 |
-| `channel.count`、`channel.length` | `$43x5` 和 `$43x6` 中的 16 位计数，以及它搬运的字节数：即该计数，计数为 0 时为 65536 |
-| `channel_of(address)` | 寄存器地址所属的通道，不在 `CHANNEL_BASE`（`$4300`）到 `$437F` 范围内时为 `None` |
-| `CHANNEL_COUNT` | 8 |
+| 名称                                    | 内容                                                                                                                         |
+| :-------------------------------------- | :--------------------------------------------------------------------------------------------------------------------------- |
+| `Engine()`                              | 八个通道 `channels`，以及两个启用寄存器 `enable` 和 `enable_indirect`                                                        |
+| `engine.write(address, value)`          | 向 `ENABLE`（`$420B`）、`$420C` 或某个通道寄存器写入一个字节。其他任何地址都被忽略                                           |
+| `engine.enabled`                        | `ENABLE` 选中的通道                                                                                                          |
+| `engine.plans()`                        | 为上述每个通道各给出一个 `Plan`，其余通道没有                                                                                |
+| `Plan`                                  | `channel`、`source`、`length`、`step`、`destination`、`to_cpu`，以及 `addresses()`，即按顺序排列的每个源地址，在 bank 内回绕 |
+| `Channel(index)`                        | 一个通道：`index`、它的 16 个 `registers`、`write(offset, value)` 和 `plan()`                                                |
+| `channel.parameters`、`channel.to_cpu`  | 寄存器 `$43x0`，以及它的第 7 位，传输朝处理器方向进行时置位                                                                  |
+| `channel.step`                          | 默认为 1，参数的第 4 位置位时为 -1，第 3 位置位时总是 0                                                                      |
+| `channel.destination`、`channel.source` | `$2100` 加上寄存器 `$43x1`，以及 `$43x2` 到 `$43x4` 中的 24 位地址                                                           |
+| `channel.count`、`channel.length`       | `$43x5` 和 `$43x6` 中的 16 位计数，以及它搬运的字节数：即该计数，计数为 0 时为 65536                                         |
+| `channel_of(address)`                   | 寄存器地址所属的通道，不在 `CHANNEL_BASE`（`$4300`）到 `$437F` 范围内时为 `None`                                             |
+| `CHANNEL_COUNT`                         | 8                                                                                                                            |
 
 ```python
 from mapper import ENABLE, Engine, channel_of
@@ -228,12 +228,12 @@ print(channel_of(0x4370), channel_of(0x4380))
 
 ### 错误
 
-| 错误 | 抛出时机 |
-|:--|:--|
-| `NoHeader` | `read` 找不到得分达到 2 或以上的候选位置 |
-| `NotWholeBanks` | 镜像大小不是整数个 64 KB bank |
-| `NeedsBankCount` | 解析 `WHOLEBANK` 时未提供 `banks`，或少于 192 |
-| `UnknownModelError` | 传给 `layout_named` 的名称不属于任何布局 |
+| 错误                | 抛出时机                                      |
+| :------------------ | :-------------------------------------------- |
+| `NoHeader`          | `read` 找不到得分达到 2 或以上的候选位置      |
+| `NotWholeBanks`     | 镜像大小不是整数个 64 KB bank                 |
+| `NeedsBankCount`    | 解析 `WHOLEBANK` 时未提供 `banks`，或少于 192 |
+| `UnknownModelError` | 传给 `layout_named` 的名称不属于任何布局      |
 
 ```python
 from mapper import WHOLEBANK, NeedsBankCount, NoHeader, NotWholeBanks, bank_count, read, resolve
@@ -265,19 +265,19 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 
 每个工具都在仓库根目录运行。`conformance/` 下的所有内容都以模块方式运行。
 
-| 命令 | 作用 | 退出码 |
-|:--|:--|:--|
-| `python3 mapper/doctor.py` | 报告本机和检出的状态 | 0 正常，1 有检查失败 |
-| `python3 mapper/environment.py` | 仅报告其中关于本机的一半 | 0 正常，1 有检查失败 |
-| `python3 -m conformance.corpus [corpus]` | 重放每种已记录的头部组合 | 0 全部一致，1 有不一致，2 没有语料库 |
-| `python3 -m conformance.against_cartridges [directory]` | 读取现有的每个卡带，并用其对应的用例逐一检验 | 0 全部一致，1 有不一致，2 未找到卡带 |
-| `python3 -m conformance.census <directory> <out> [limit]` | 统计一个卡带库的头部 | 0 已写入，1 没有卡带，2 参数错误 |
-| `python3 -m conformance.record <directory> [out] [limit]` | 根据卡带库重建语料库 | 0 已写入，1 没有卡带，2 参数错误 |
-| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下载手册并校验其摘要，或校验已有的副本 | 0 已校验，1 被拒绝、无匹配或参数错误 |
-| `python3 -m conformance.quotes` | 在手册中查找每一句被引用的句子 | 0 全部找到或手册不存在，1 某处引文缺失或某条出处指向错误位置 |
-| `python3 -m conformance.speed` | 吞吐量下限 | 0 高于下限，1 低于下限 |
-| `python3 -m conformance.links` | 请求本 README 引用的每个地址，并以 JSON 打印每个状态 | 0 每个地址仍然存在，1 某个地址已失效，状态为 `404` 或 `410` |
-| `python3 -m conformance.package <wheel>` | 检查构建出的 wheel 是否包含每个模块且不含测试文件 | 0 正常，1 有问题或该处没有 wheel，2 未提供参数 |
+| 命令                                                            | 作用                                                 | 退出码                                                       |
+| :-------------------------------------------------------------- | :--------------------------------------------------- | :----------------------------------------------------------- |
+| `python3 mapper/doctor.py`                                      | 报告本机和检出的状态                                 | 0 正常，1 有检查失败                                         |
+| `python3 mapper/environment.py`                                 | 仅报告其中关于本机的一半                             | 0 正常，1 有检查失败                                         |
+| `python3 -m conformance.corpus [corpus]`                        | 重放每种已记录的头部组合                             | 0 全部一致，1 有不一致，2 没有语料库                         |
+| `python3 -m conformance.against_cartridges [directory]`         | 读取现有的每个卡带，并用其对应的用例逐一检验         | 0 全部一致，1 有不一致，2 未找到卡带                         |
+| `python3 -m conformance.census <directory> <out> [limit]`       | 统计一个卡带库的头部                                 | 0 已写入，1 没有卡带，2 参数错误                             |
+| `python3 -m conformance.record <directory> [out] [limit]`       | 根据卡带库重建语料库                                 | 0 已写入，1 没有卡带，2 参数错误                             |
+| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | 下载手册并校验其摘要，或校验已有的副本               | 0 已校验，1 被拒绝、无匹配或参数错误                         |
+| `python3 -m conformance.quotes`                                 | 在手册中查找每一句被引用的句子                       | 0 全部找到或手册不存在，1 某处引文缺失或某条出处指向错误位置 |
+| `python3 -m conformance.speed`                                  | 吞吐量下限                                           | 0 高于下限，1 低于下限                                       |
+| `python3 -m conformance.links`                                  | 请求本 README 引用的每个地址，并以 JSON 打印每个状态 | 0 每个地址仍然存在，1 某个地址已失效，状态为 `404` 或 `410`  |
+| `python3 -m conformance.package <wheel>`                        | 检查构建出的 wheel 是否包含每个模块且不含测试文件    | 0 正常，1 有问题或该处没有 wheel，2 未提供参数               |
 
 ## 本项目要防止的错误
 
@@ -386,12 +386,12 @@ lorom
 rom
 ```
 
-| 布局 | 形态 |
-|:--|:--|
-| `lorom` | 每个 bank 一个 32 KB 页，位于每个 bank 的上半部分，存档内存占据 bank `$70` 到 `$7D` 以及 `$F0` 到 `$FD` |
-| `hirom` | 每个 bank 一个完整的 64 KB bank，存档内存位于 bank `$20` 到 `$3F` 以及 `$A0` 到 `$BF` 中的 `$6000` 到 `$7FFF` |
-| `exhirom` | 两个 4 MB 半区互换的 `hirom` |
-| `wholebank` | `$C0` 以下每个 bank 一个完整的 64 KB，来自交错的 12 MB 镜像 |
+| 布局        | 形态                                                                                                          |
+| :---------- | :------------------------------------------------------------------------------------------------------------ |
+| `lorom`     | 每个 bank 一个 32 KB 页，位于每个 bank 的上半部分，存档内存占据 bank `$70` 到 `$7D` 以及 `$F0` 到 `$FD`       |
+| `hirom`     | 每个 bank 一个完整的 64 KB bank，存档内存位于 bank `$20` 到 `$3F` 以及 `$A0` 到 `$BF` 中的 `$6000` 到 `$7FFF` |
+| `exhirom`   | 两个 4 MB 半区互换的 `hirom`                                                                                  |
+| `wholebank` | `$C0` 以下每个 bank 一个完整的 64 KB，来自交错的 12 MB 镜像                                                   |
 
 头部还可能声明 `sa1` 和 `spc7110`。普查会统计它们，而 `layout_named` 拒绝它们：两者的地址映射都没有语料库作为依据。
 
@@ -460,12 +460,12 @@ lorom
 仅从 2,781 个零售版卡带中读取，别无其他来源。修改版、翻译版和原型版都可能带有被编辑过的头部，所以都不计入。
 
 | 声明的布局 | 卡带数 |
-|:--|--:|
-| `lorom` | 2,157 |
-| `hirom` | 572 |
-| `sa1` | 42 |
-| `exhirom` | 6 |
-| `spc7110` | 4 |
+| :--------- | -----: |
+| `lorom`    |  2,157 |
+| `hirom`    |    572 |
+| `sa1`      |     42 |
+| `exhirom`  |      6 |
+| `spc7110`  |      4 |
 
 1,701 个请求更快的总线，957 个带有电池供电的存档内存，2,780 个的校验和与其补码一致。头部位于 `$7FC0` 的有 2,200 个，位于 `$FFC0` 的有 579 个，位于 `$40FFC0` 的有 2 个。另有 8 个文件没有 `read` 接受的头部，计为被拒绝。
 
@@ -497,14 +497,14 @@ lorom
 
 头部是 32 个字节，卡带在其中描述自身的构造。
 
-| 字段 | 性质 | 是否发布 |
-|:--|:--|:--|
-| 映射、芯片组、ROM 和 RAM 大小、国家 | 关于实物的事实 | 是 |
-| 有多少卡带共享同一组合 | 一项测量 | 是 |
-| 标题 | 一个名称 | 否 |
-| 头部之外的任何内容 | 游戏本身 | 从不读取 |
+| 字段                                | 性质           | 是否发布 |
+| :---------------------------------- | :------------- | :------- |
+| 映射、芯片组、ROM 和 RAM 大小、国家 | 关于实物的事实 | 是       |
+| 有多少卡带共享同一组合              | 一项测量       | 是       |
+| 标题                                | 一个名称       | 否       |
+| 头部之外的任何内容                  | 游戏本身       | 从不读取 |
 
-依据 [17 U.S.C. 102(b)](https://www.law.cornell.edu/uscode/text/17/102) 和 *Feist* 案，事实和功能性元素不在版权保护范围之内。[`conformance/census.py`](conformance/census.py) 只读取这 32 字节，不记录标题。这是本仓库的构建方式，不构成法律意见。
+依据 [17 U.S.C. 102(b)](https://www.law.cornell.edu/uscode/text/17/102) 和 _Feist_ 案，事实和功能性元素不在版权保护范围之内。[`conformance/census.py`](conformance/census.py) 只读取这 32 字节，不记录标题。这是本仓库的构建方式，不构成法律意见。
 
 [`conformance/corpus.json`](conformance/corpus.json) 包含每种不同的组合，以及头部偏移、它产生的布局，和 14 个探测地址在该布局下的解析结果。
 
@@ -532,11 +532,11 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 每项证据的价值
 
-| 证据 | 能确定什么 | 不能确定什么 |
-|:--|:--|:--|
-| Nintendo 的手册，以及 [`conformance/hardware.json`](conformance/hardware.json) 中的计算 | 两种总线速度，因而确定 6 和 8 的时钟数 | 12 的时钟数，手册中没有给出 |
-| 从 2,781 个卡带中读取的头部组合 | 某种组合在已发售卡带上的含义 | 没有任何卡带使用的组合 |
-| 所读取的每个卡带的摘要 | 读取的文件就是所指名的文件 | 该发行版是否就是你想要的那个 |
+| 证据                                                                                    | 能确定什么                             | 不能确定什么                 |
+| :-------------------------------------------------------------------------------------- | :------------------------------------- | :--------------------------- |
+| Nintendo 的手册，以及 [`conformance/hardware.json`](conformance/hardware.json) 中的计算 | 两种总线速度，因而确定 6 和 8 的时钟数 | 12 的时钟数，手册中没有给出  |
+| 从 2,781 个卡带中读取的头部组合                                                         | 某种组合在已发售卡带上的含义           | 没有任何卡带使用的组合       |
+| 所读取的每个卡带的摘要                                                                  | 读取的文件就是所指名的文件             | 该发行版是否就是你想要的那个 |
 
 未建模的内容：处理器，因而无法知道一条指令进行多少次访问；刷新和传输造成的停顿；以及到达某个地址之后发生的任何事情。
 
@@ -560,13 +560,13 @@ python3 -m conformance.against_cartridges
 
 ## 参与开发
 
-| 需求 | 位置 |
-|:--|:--|
-| 每项门禁检查及其运行顺序 | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| 面向编程代理的同一份材料 | [AGENTS.md](AGENTS.md) |
-| 本仓库与同系列其他仓库共享的标准 | [FAMILY.md](FAMILY.md) |
-| 缺陷报告 | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
-| 安全报告 | [SECURITY.md](SECURITY.md) |
+| 需求                             | 位置                                                                   |
+| :------------------------------- | :--------------------------------------------------------------------- |
+| 每项门禁检查及其运行顺序         | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| 面向编程代理的同一份材料         | [AGENTS.md](AGENTS.md)                                                 |
+| 本仓库与同系列其他仓库共享的标准 | [FAMILY.md](FAMILY.md)                                                 |
+| 缺陷报告                         | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
+| 安全报告                         | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -587,9 +587,9 @@ python3 -m conformance.speed
 
 ## 参考资料
 
-| 文档 | 发布方 | 阅读日期 | 字节数 | SHA-256 |
-|:--|:--|:--|--:|:--|
-| *SNES Development Manual, Book I*，存档的全文 | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| 文档                                          | 发布方                   | 阅读日期   |  字节数 | SHA-256                                                            |
+| :-------------------------------------------- | :----------------------- | :--------- | ------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_，存档的全文 | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
 
 它不可再分发，也不在本仓库中。`python3 -m conformance.documents` 从 https://archive.org/download/SNESDevManual/book1_djvu.txt 下载它到 `docs/`，该目录被 git 忽略，摘要不同的任何文件都会被拒绝。`--check` 校验已有的副本。[`conformance/documents.json`](conformance/documents.json) 记录摘要和地址。从中摘取的句子在 [`conformance/hardware.json`](conformance/hardware.json) 中，每句都注明了出自哪个表格和哪一页。
 

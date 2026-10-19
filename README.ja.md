@@ -31,10 +31,10 @@ for address in (0x7E0900, 0x001000, 0x004016, 0x008000, 0x808000, 0x700000):
 
 ## インストール
 
-| 要件 | バージョン |
-|:--|:--|
-| Python | 3.12以降 |
-| git | 任意 |
+| 要件   | バージョン |
+| :----- | :--------- |
+| Python | 3.12以降   |
+| git    | 任意       |
 
 ```bash
 git clone https://github.com/gufranco/snes-mapper-python.git
@@ -60,24 +60,24 @@ python3 mapper/doctor.py
 
 `resolve(kind, address, fast=False, banks=None, save=False)`は`Resolution`を返します。`kind`は`LOROM`、`HIROM`、`EXHIROM`、`WHOLEBANK`のいずれかです。`fast`はヘッダーによる高速バスの要求です。`banks`は64 KBバンク単位のイメージサイズで、`WHOLEBANK`では必須です。`save`は`WHOLEBANK`でバンク`$70`から`$7D`をセーブメモリとしてマップします。指定しない場合、これらのバンクはカートリッジです。`kind`にそれ以外の文字列を渡すと、カートリッジのバンクを`HIROM`と同じ方法で読み、セーブメモリのウィンドウは持ちません。
 
-| 属性 | 意味 |
-|:--|:--|
-| `region` | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS`、`OPEN_BUS`のいずれかで、値はそれぞれ`rom`、`work-ram`、`save-ram`、`registers`、`open-bus`です |
-| `offset` | そのアドレスがイメージ内のどこを読むか。リージョンが`rom`でない場合は`None` |
-| `cycles` | アクセスにかかるマスタークロック数。`FAST`は6、`SLOW`は8、`XSLOW`は12 |
-| `address` | 問い合わせたアドレスを24ビットでマスクしたもの |
-| `is_rom` | `region`が`rom`のときTrue |
+| 属性      | 意味                                                                                                                                       |
+| :-------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `region`  | `ROM`、`WORK_RAM`、`SAVE_RAM`、`REGISTERS`、`OPEN_BUS`のいずれかで、値はそれぞれ`rom`、`work-ram`、`save-ram`、`registers`、`open-bus`です |
+| `offset`  | そのアドレスがイメージ内のどこを読むか。リージョンが`rom`でない場合は`None`                                                                |
+| `cycles`  | アクセスにかかるマスタークロック数。`FAST`は6、`SLOW`は8、`XSLOW`は12                                                                      |
+| `address` | 問い合わせたアドレスを24ビットでマスクしたもの                                                                                             |
+| `is_rom`  | `region`が`rom`のときTrue                                                                                                                  |
 
 ### レイアウト
 
 `MODELS`は解決可能な各レイアウト名を`Model`に対応付けます。`layout_named(name)`は名前またはエイリアスに対応する`Model`を返します。大文字と小文字、ハイフン、アンダースコアは無視され、それ以外の名前には`UnknownModelError`を送出します。`Model`は`name`、`aliases`、`header_at`、`summary`を持ち、`model.resolve(address, fast=False, banks=None, save=False)`は自身の名前で`resolve`を呼び出します。
 
-| レイアウト | エイリアス | ヘッダーの位置 |
-|:--|:--|:--|
-| `lorom` | `lo`、`mode20`、`20` | `$7FC0` |
-| `hirom` | `hi`、`mode21`、`21` | `$FFC0` |
-| `exhirom` | `exhi`、`mode25`、`25` | `$FFC0`、およびイメージがそこまで届く場合は`$40FFC0` |
-| `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0` |
+| レイアウト  | エイリアス                           | ヘッダーの位置                                       |
+| :---------- | :----------------------------------- | :--------------------------------------------------- |
+| `lorom`     | `lo`、`mode20`、`20`                 | `$7FC0`                                              |
+| `hirom`     | `hi`、`mode21`、`21`                 | `$FFC0`                                              |
+| `exhirom`   | `exhi`、`mode25`、`25`               | `$FFC0`、およびイメージがそこまで届く場合は`$40FFC0` |
+| `wholebank` | `whole`、`wholebanks`、`interleaved` | `$7FC0`                                              |
 
 ```python
 import mapper
@@ -105,28 +105,28 @@ sa1 is not a layout this package covers; it has exhirom, hirom, lorom, wholebank
 
 ### ヘッダー
 
-| 呼び出し | 戻り値 |
-|:--|:--|
-| `read(rom)` | 最高スコアの候補位置にある`Header`。2点以上の位置がなければ`NoHeader`を送出します |
-| `score(rom, at)` | ひとつの候補位置が獲得する点数で0から4。そこに32バイトが収まらない場合は-1 |
-| `board(found, size)` | `Header`とイメージサイズに対するレイアウト名。12 MBのイメージで`lorom`と読めるヘッダーは`wholebank`です |
-| `has_copier_stub(rom)` | コピー機が先頭に付加する512バイトをイメージが持つときTrue |
-| `stub_by_length(size)` | 同じ判定を長さだけで行います |
-| `Header(at, raw)` | 32バイトとその取得元オフセットから構築したヘッダー |
+| 呼び出し               | 戻り値                                                                                                  |
+| :--------------------- | :------------------------------------------------------------------------------------------------------ |
+| `read(rom)`            | 最高スコアの候補位置にある`Header`。2点以上の位置がなければ`NoHeader`を送出します                       |
+| `score(rom, at)`       | ひとつの候補位置が獲得する点数で0から4。そこに32バイトが収まらない場合は-1                              |
+| `board(found, size)`   | `Header`とイメージサイズに対するレイアウト名。12 MBのイメージで`lorom`と読めるヘッダーは`wholebank`です |
+| `has_copier_stub(rom)` | コピー機が先頭に付加する512バイトをイメージが持つときTrue                                               |
+| `stub_by_length(size)` | 同じ判定を長さだけで行います                                                                            |
+| `Header(at, raw)`      | 32バイトとその取得元オフセットから構築したヘッダー                                                      |
 
 候補位置は`LOROM_HEADER`の`$7FC0`、`HIROM_HEADER`の`$FFC0`、そして`$40FFC0`で、イメージがコピー機のスタブを持つ場合はそれぞれ`COPIER_BYTES`の`$200`だけずれます。各位置は次の条件ごとに1点を獲得します。21バイト中19バイト以上が表示可能なタイトル、補数と整合する0以外のチェックサム、8から13の宣言サイズ、そしてその位置にヘッダーを置くレイアウトを示すマッピングバイトです。
 
-| 属性 | 意味 |
-|:--|:--|
-| `at`、`shift` | ヘッダーが見つかった位置と、コピー機のスタブによるずれの量 |
-| `raw` | 32バイト |
-| `title` | 21バイトのタイトルから末尾の空白とゼロバイトを除いたもの |
-| `mapping`、`declared` | レイアウトを示すバイトと、その上位ニブルが2または3であるかどうか。そうであるときにこのバイトが信用されます |
-| `layout` | バイトが信用される場合はバイトから、そうでない場合はオフセットから決まります。`lorom`、`hirom`、`exhirom`、`sa1`、`spc7110`のいずれか |
-| `rom_bytes`、`ram_bytes` | 宣言されたサイズのバイト数 |
-| `checksum`、`complement`、`checksum_agrees` | その組と、合計が`$FFFF`になるかどうか |
-| `fast`、`battery`、`coprocessor` | 高速バスを要求するか、バッテリーバックアップ付きセーブメモリを持つか、チップを持つか |
-| `chipset`、`country` | 残りの宣言バイト |
+| 属性                                        | 意味                                                                                                                                  |
+| :------------------------------------------ | :------------------------------------------------------------------------------------------------------------------------------------ |
+| `at`、`shift`                               | ヘッダーが見つかった位置と、コピー機のスタブによるずれの量                                                                            |
+| `raw`                                       | 32バイト                                                                                                                              |
+| `title`                                     | 21バイトのタイトルから末尾の空白とゼロバイトを除いたもの                                                                              |
+| `mapping`、`declared`                       | レイアウトを示すバイトと、その上位ニブルが2または3であるかどうか。そうであるときにこのバイトが信用されます                            |
+| `layout`                                    | バイトが信用される場合はバイトから、そうでない場合はオフセットから決まります。`lorom`、`hirom`、`exhirom`、`sa1`、`spc7110`のいずれか |
+| `rom_bytes`、`ram_bytes`                    | 宣言されたサイズのバイト数                                                                                                            |
+| `checksum`、`complement`、`checksum_agrees` | その組と、合計が`$FFFF`になるかどうか                                                                                                 |
+| `fast`、`battery`、`coprocessor`            | 高速バスを要求するか、バッテリーバックアップ付きセーブメモリを持つか、チップを持つか                                                  |
+| `chipset`、`country`                        | 残りの宣言バイト                                                                                                                      |
 
 ```python
 from mapper import HIROM_HEADER, LOROM_HEADER, read, score
@@ -157,15 +157,15 @@ True True False 2 1
 
 ### イメージ
 
-| 名前 | 内容 |
-|:--|:--|
-| `bank_count(size)` | そのサイズのイメージに含まれる64 KBバンクの数。割り切れない場合は`NotWholeBanks`を送出します |
-| `interleave(logical)`、`deinterleave(built)` | 本体が読む順序と、インターリーブされたダンプが格納する順序の間の変換。格納順は、すべての上位半分が先で、その後にすべての下位半分が続きます |
-| `snes_to_file(bank, addr, banks)`、`file_to_snes(offset, banks)` | バンクとアドレスの組と、インターリーブされたファイル内の位置との間の変換 |
-| `window_to_file(bank, addr, banks)` | `WINDOW_FIRST_BANK`の`$C0`以上のバンクに対する同じ変換 |
-| `address_to_file(bank, addr, banks)` | そのバンクに当てはまる方の変換 |
-| `BANK`、`HALF` | `$10000`と`$8000` |
-| `WHOLEBANK_BANKS`、`WHOLEBANK_BYTES` | 192バンクと12 MB。`WHOLEBANK`が解決する唯一のサイズです |
+| 名前                                                             | 内容                                                                                                                                       |
+| :--------------------------------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------- |
+| `bank_count(size)`                                               | そのサイズのイメージに含まれる64 KBバンクの数。割り切れない場合は`NotWholeBanks`を送出します                                               |
+| `interleave(logical)`、`deinterleave(built)`                     | 本体が読む順序と、インターリーブされたダンプが格納する順序の間の変換。格納順は、すべての上位半分が先で、その後にすべての下位半分が続きます |
+| `snes_to_file(bank, addr, banks)`、`file_to_snes(offset, banks)` | バンクとアドレスの組と、インターリーブされたファイル内の位置との間の変換                                                                   |
+| `window_to_file(bank, addr, banks)`                              | `WINDOW_FIRST_BANK`の`$C0`以上のバンクに対する同じ変換                                                                                     |
+| `address_to_file(bank, addr, banks)`                             | そのバンクに当てはまる方の変換                                                                                                             |
+| `BANK`、`HALF`                                                   | `$10000`と`$8000`                                                                                                                          |
+| `WHOLEBANK_BANKS`、`WHOLEBANK_BYTES`                             | 192バンクと12 MB。`WHOLEBANK`が解決する唯一のサイズです                                                                                    |
 
 ```python
 from mapper import bank_count, file_to_snes, snes_to_file, stub_by_length
@@ -186,20 +186,20 @@ True False
 
 ### 転送
 
-| 名前 | 内容 |
-|:--|:--|
-| `Engine()` | 8本のチャンネル`channels`と、2つの有効化レジスタ`enable`と`enable_indirect` |
-| `engine.write(address, value)` | `ENABLE`の`$420B`、`$420C`、またはチャンネルレジスタへの1バイトの書き込み。それ以外のアドレスは無視されます |
-| `engine.enabled` | `ENABLE`が選択しているチャンネル |
-| `engine.plans()` | それらの各チャンネルに対する`Plan`。その他のチャンネルには何も返しません |
-| `Plan` | `channel`、`source`、`length`、`step`、`destination`、`to_cpu`、および`addresses()`。`addresses()`はすべての転送元アドレスを順に返し、バンク内で折り返します |
-| `Channel(index)` | 1本のチャンネル。`index`、16個の`registers`、`write(offset, value)`、`plan()`を持ちます |
-| `channel.parameters`、`channel.to_cpu` | レジスタ`$43x0`と、そのビット7。ビット7は転送がプロセッサ方向に行われるときにセットされます |
-| `channel.step` | 1。パラメータのビット4がセットされていれば-1、ビット3がセットされていれば常に0 |
-| `channel.destination`、`channel.source` | `$2100`にレジスタ`$43x1`を加えたもの、および`$43x2`から`$43x4`にある24ビットのアドレス |
-| `channel.count`、`channel.length` | `$43x5`と`$43x6`にある16ビットのカウントと、それによって転送されるバイト数。バイト数はカウントの値で、カウントが0のときは65536です |
-| `channel_of(address)` | レジスタアドレスが属するチャンネル。`CHANNEL_BASE`の`$4300`から`$437F`の範囲外では`None` |
-| `CHANNEL_COUNT` | 8 |
+| 名前                                    | 内容                                                                                                                                                         |
+| :-------------------------------------- | :----------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `Engine()`                              | 8本のチャンネル`channels`と、2つの有効化レジスタ`enable`と`enable_indirect`                                                                                  |
+| `engine.write(address, value)`          | `ENABLE`の`$420B`、`$420C`、またはチャンネルレジスタへの1バイトの書き込み。それ以外のアドレスは無視されます                                                  |
+| `engine.enabled`                        | `ENABLE`が選択しているチャンネル                                                                                                                             |
+| `engine.plans()`                        | それらの各チャンネルに対する`Plan`。その他のチャンネルには何も返しません                                                                                     |
+| `Plan`                                  | `channel`、`source`、`length`、`step`、`destination`、`to_cpu`、および`addresses()`。`addresses()`はすべての転送元アドレスを順に返し、バンク内で折り返します |
+| `Channel(index)`                        | 1本のチャンネル。`index`、16個の`registers`、`write(offset, value)`、`plan()`を持ちます                                                                      |
+| `channel.parameters`、`channel.to_cpu`  | レジスタ`$43x0`と、そのビット7。ビット7は転送がプロセッサ方向に行われるときにセットされます                                                                  |
+| `channel.step`                          | 1。パラメータのビット4がセットされていれば-1、ビット3がセットされていれば常に0                                                                               |
+| `channel.destination`、`channel.source` | `$2100`にレジスタ`$43x1`を加えたもの、および`$43x2`から`$43x4`にある24ビットのアドレス                                                                       |
+| `channel.count`、`channel.length`       | `$43x5`と`$43x6`にある16ビットのカウントと、それによって転送されるバイト数。バイト数はカウントの値で、カウントが0のときは65536です                           |
+| `channel_of(address)`                   | レジスタアドレスが属するチャンネル。`CHANNEL_BASE`の`$4300`から`$437F`の範囲外では`None`                                                                     |
+| `CHANNEL_COUNT`                         | 8                                                                                                                                                            |
 
 ```python
 from mapper import ENABLE, Engine, channel_of
@@ -228,11 +228,11 @@ print(channel_of(0x4370), channel_of(0x4380))
 
 ### エラー
 
-| エラー | 送出される条件 |
-|:--|:--|
-| `NoHeader` | `read`が2点以上の候補位置を見つけられないとき |
-| `NotWholeBanks` | イメージサイズが64 KBバンクの整数倍でないとき |
-| `NeedsBankCount` | `WHOLEBANK`を`banks`なしで、または192未満の値で解決したとき |
+| エラー              | 送出される条件                                                 |
+| :------------------ | :------------------------------------------------------------- |
+| `NoHeader`          | `read`が2点以上の候補位置を見つけられないとき                  |
+| `NotWholeBanks`     | イメージサイズが64 KBバンクの整数倍でないとき                  |
+| `NeedsBankCount`    | `WHOLEBANK`を`banks`なしで、または192未満の値で解決したとき    |
 | `UnknownModelError` | `layout_named`にどのレイアウトにも該当しない名前が渡されたとき |
 
 ```python
@@ -265,19 +265,19 @@ NeedsBankCount wholebank needs 192 banks and this image has 64
 
 いずれもリポジトリのルートから実行します。`conformance/`以下のものはすべてモジュールとして実行します。
 
-| コマンド | 動作 | 終了コード |
-|:--|:--|:--|
-| `python3 mapper/doctor.py` | マシンとチェックアウトの状態を報告します | 0は問題なし、1はチェック失敗 |
-| `python3 mapper/environment.py` | その報告のうちマシンに関する部分だけを出力します | 0は問題なし、1はチェック失敗 |
-| `python3 -m conformance.corpus [corpus]` | 記録されたすべてのヘッダーの組み合わせを再生します | 0はすべて一致、1は不一致あり、2はコーパスなし |
-| `python3 -m conformance.against_cartridges [directory]` | 存在するすべてのカートリッジを読み、それぞれを対応するケースと照合します | 0はすべて一致、1は不一致あり、2はカートリッジなし |
-| `python3 -m conformance.census <directory> <out> [limit]` | ライブラリのヘッダーを集計します | 0は書き込み完了、1はカートリッジなし、2は引数の誤り |
-| `python3 -m conformance.record <directory> [out] [limit]` | ライブラリからコーパスを再構築します | 0は書き込み完了、1はカートリッジなし、2は引数の誤り |
-| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | マニュアルを取得してダイジェストを検証するか、手元のコピーを検証します | 0は検証済み、1は拒否、一致なし、または引数の誤り |
-| `python3 -m conformance.quotes` | マニュアル内の引用文をすべて探します | 0はすべて見つかったかマニュアルがない、1は引用が見つからないか出典の位置が誤っている |
-| `python3 -m conformance.speed` | スループットの下限 | 0は下限以上、1は下限未満 |
-| `python3 -m conformance.links` | このREADMEが引用するすべてのアドレスにリクエストを送り、各ステータスをJSONで出力します | 0はすべてのアドレスが存在、1はステータス`404`または`410`で消えたものがある |
-| `python3 -m conformance.package <wheel>` | ビルドされたwheelがすべてのモジュールを含み、テストファイルを含まないことを確認します | 0は問題なし、1は不備があるかwheelがない、2は引数なし |
+| コマンド                                                        | 動作                                                                                   | 終了コード                                                                           |
+| :-------------------------------------------------------------- | :------------------------------------------------------------------------------------- | :----------------------------------------------------------------------------------- |
+| `python3 mapper/doctor.py`                                      | マシンとチェックアウトの状態を報告します                                               | 0は問題なし、1はチェック失敗                                                         |
+| `python3 mapper/environment.py`                                 | その報告のうちマシンに関する部分だけを出力します                                       | 0は問題なし、1はチェック失敗                                                         |
+| `python3 -m conformance.corpus [corpus]`                        | 記録されたすべてのヘッダーの組み合わせを再生します                                     | 0はすべて一致、1は不一致あり、2はコーパスなし                                        |
+| `python3 -m conformance.against_cartridges [directory]`         | 存在するすべてのカートリッジを読み、それぞれを対応するケースと照合します               | 0はすべて一致、1は不一致あり、2はカートリッジなし                                    |
+| `python3 -m conformance.census <directory> <out> [limit]`       | ライブラリのヘッダーを集計します                                                       | 0は書き込み完了、1はカートリッジなし、2は引数の誤り                                  |
+| `python3 -m conformance.record <directory> [out] [limit]`       | ライブラリからコーパスを再構築します                                                   | 0は書き込み完了、1はカートリッジなし、2は引数の誤り                                  |
+| `python3 -m conformance.documents [--check] [--only SUBSTRING]` | マニュアルを取得してダイジェストを検証するか、手元のコピーを検証します                 | 0は検証済み、1は拒否、一致なし、または引数の誤り                                     |
+| `python3 -m conformance.quotes`                                 | マニュアル内の引用文をすべて探します                                                   | 0はすべて見つかったかマニュアルがない、1は引用が見つからないか出典の位置が誤っている |
+| `python3 -m conformance.speed`                                  | スループットの下限                                                                     | 0は下限以上、1は下限未満                                                             |
+| `python3 -m conformance.links`                                  | このREADMEが引用するすべてのアドレスにリクエストを送り、各ステータスをJSONで出力します | 0はすべてのアドレスが存在、1はステータス`404`または`410`で消えたものがある           |
+| `python3 -m conformance.package <wheel>`                        | ビルドされたwheelがすべてのモジュールを含み、テストファイルを含まないことを確認します  | 0は問題なし、1は不備があるかwheelがない、2は引数なし                                 |
 
 ## このパッケージが防ぐ誤り
 
@@ -386,12 +386,12 @@ lorom
 rom
 ```
 
-| レイアウト | 形 |
-|:--|:--|
-| `lorom` | 各バンクの上位半分に32 KBのページを1つずつ置き、セーブメモリがバンク`$70`から`$7D`と`$F0`から`$FD`を占めます |
-| `hirom` | 各バンクに64 KBのバンク全体を置き、セーブメモリはバンク`$20`から`$3F`と`$A0`から`$BF`の`$6000`から`$7FFF`にあります |
-| `exhirom` | `hirom`の4 MBずつの2つの半分を入れ替えたもの |
-| `wholebank` | `$C0`未満の各バンクに64 KB全体を置き、インターリーブされた12 MBのイメージから読みます |
+| レイアウト  | 形                                                                                                                  |
+| :---------- | :------------------------------------------------------------------------------------------------------------------ |
+| `lorom`     | 各バンクの上位半分に32 KBのページを1つずつ置き、セーブメモリがバンク`$70`から`$7D`と`$F0`から`$FD`を占めます        |
+| `hirom`     | 各バンクに64 KBのバンク全体を置き、セーブメモリはバンク`$20`から`$3F`と`$A0`から`$BF`の`$6000`から`$7FFF`にあります |
+| `exhirom`   | `hirom`の4 MBずつの2つの半分を入れ替えたもの                                                                        |
+| `wholebank` | `$C0`未満の各バンクに64 KB全体を置き、インターリーブされた12 MBのイメージから読みます                               |
 
 ヘッダーは`sa1`と`spc7110`も宣言します。全数調査ではこれらを数えますが、`layout_named`は拒否します。どちらもアドレスマッピングを裏付けるコーパスがないためです。
 
@@ -460,12 +460,12 @@ lorom
 2,781本の市販カートリッジだけから読み取ったものです。改造版、翻訳版、試作版はいずれも編集されたヘッダーを持ちうるため、どれも数えていません。
 
 | 宣言されたレイアウト | カートリッジ |
-|:--|--:|
-| `lorom` | 2,157 |
-| `hirom` | 572 |
-| `sa1` | 42 |
-| `exhirom` | 6 |
-| `spc7110` | 4 |
+| :------------------- | -----------: |
+| `lorom`              |        2,157 |
+| `hirom`              |          572 |
+| `sa1`                |           42 |
+| `exhirom`            |            6 |
+| `spc7110`            |            4 |
 
 1,701本が高速バスを要求し、957本がバッテリーバックアップ付きセーブメモリを持ち、2,780本が補数と整合するチェックサムを持ちます。ヘッダーの位置は、2,200本が`$7FC0`、579本が`$FFC0`、2本が`$40FFC0`です。さらに8ファイルは`read`が受け入れるヘッダーを持たず、拒否として数えています。
 
@@ -497,12 +497,12 @@ lorom
 
 ヘッダーは、カートリッジが自らの構成を記述する32バイトです。
 
-| フィールド | その性質 | 配布 |
-|:--|:--|:--|
-| マッピング、チップセット、ROMとRAMのサイズ、国 | 物理的な物についての事実 | する |
-| ある組み合わせを共有するカートリッジの数 | 測定値 | する |
-| タイトル | 名前 | しない |
-| ヘッダー以外のすべて | ゲーム本体 | 読み取らない |
+| フィールド                                     | その性質                 | 配布         |
+| :--------------------------------------------- | :----------------------- | :----------- |
+| マッピング、チップセット、ROMとRAMのサイズ、国 | 物理的な物についての事実 | する         |
+| ある組み合わせを共有するカートリッジの数       | 測定値                   | する         |
+| タイトル                                       | 名前                     | しない       |
+| ヘッダー以外のすべて                           | ゲーム本体               | 読み取らない |
 
 事実と機能的要素は著作権の及ぶ範囲外にあります。根拠は[17 U.S.C. 102(b)](https://www.law.cornell.edu/uscode/text/17/102)と*Feist*判決です。[`conformance/census.py`](conformance/census.py)はその32バイトだけを読み、タイトルは記録しません。これはこのリポジトリの作り方の説明であり、法的助言ではありません。
 
@@ -532,11 +532,11 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 各証拠の価値
 
-| 証拠 | 確定できること | 確定できないこと |
-|:--|:--|:--|
-| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 2つのバス速度、つまり6クロックと8クロックという値 | マニュアルに記載のない12クロックという値 |
-| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ | 出荷されたカートリッジにおいてその組み合わせが意味すること | どのカートリッジも持たない組み合わせ |
-| 読み取ったすべてのカートリッジのダイジェスト | 読んだファイルが名前どおりのファイルであること | そのリリースが意図したものであるかどうか |
+| 証拠                                                                                       | 確定できること                                             | 確定できないこと                         |
+| :----------------------------------------------------------------------------------------- | :--------------------------------------------------------- | :--------------------------------------- |
+| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 2つのバス速度、つまり6クロックと8クロックという値          | マニュアルに記載のない12クロックという値 |
+| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ                                    | 出荷されたカートリッジにおいてその組み合わせが意味すること | どのカートリッジも持たない組み合わせ     |
+| 読み取ったすべてのカートリッジのダイジェスト                                               | 読んだファイルが名前どおりのファイルであること             | そのリリースが意図したものであるかどうか |
 
 モデル化していないもの：プロセッサ、つまり1命令が何回アクセスするか。リフレッシュと転送によるストール。そしてアドレスに到達した後に起こるすべてのこと。
 
@@ -560,13 +560,13 @@ python3 -m conformance.against_cartridges
 
 ## 開発に参加する
 
-| 必要なもの | 場所 |
-|:--|:--|
-| すべてのゲートと実行順序 | [CONTRIBUTING.md](CONTRIBUTING.md) |
-| コーディングエージェント向けの同じ内容 | [AGENTS.md](AGENTS.md) |
-| このリポジトリがファミリーのほかのリポジトリと共有する基準 | [FAMILY.md](FAMILY.md) |
-| バグ報告 | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
-| セキュリティ報告 | [SECURITY.md](SECURITY.md) |
+| 必要なもの                                                 | 場所                                                                   |
+| :--------------------------------------------------------- | :--------------------------------------------------------------------- |
+| すべてのゲートと実行順序                                   | [CONTRIBUTING.md](CONTRIBUTING.md)                                     |
+| コーディングエージェント向けの同じ内容                     | [AGENTS.md](AGENTS.md)                                                 |
+| このリポジトリがファミリーのほかのリポジトリと共有する基準 | [FAMILY.md](FAMILY.md)                                                 |
+| バグ報告                                                   | [GitHub Issues](https://github.com/gufranco/snes-mapper-python/issues) |
+| セキュリティ報告                                           | [SECURITY.md](SECURITY.md)                                             |
 
 ```bash
 uvx ruff@0.16.3 format --check .
@@ -587,9 +587,9 @@ python3 -m conformance.speed
 
 ## 参考文献
 
-| 文書 | 発行者 | 参照日 | バイト数 | SHA-256 |
-|:--|:--|:--|--:|:--|
-| *SNES Development Manual, Book I*、アーカイブされた全文 | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| 文書                                                    | 発行者                   | 参照日     | バイト数 | SHA-256                                                            |
+| :------------------------------------------------------ | :----------------------- | :--------- | -------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_、アーカイブされた全文 | Nintendo of America Inc. | 2026-08-27 |  298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
 
 この文書は再配布できず、このリポジトリには含まれていません。`python3 -m conformance.documents`はこれを https://archive.org/download/SNESDevManual/book1_djvu.txt から、gitが無視する`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。`--check`はすでにあるコピーを検証します。[`conformance/documents.json`](conformance/documents.json)はダイジェストとアドレスを保持しています。この文書から引用した文は、それぞれの出典の表とページとともに[`conformance/hardware.json`](conformance/hardware.json)にあります。
 
