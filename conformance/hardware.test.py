@@ -34,8 +34,15 @@ def fact(name: str) -> dict[str, Any]:
     return found
 
 
-def printed_speeds(quote: str) -> dict[str, float]:
-    return {name: float(speed) for speed, name in PRINTED_SPEED.findall(quote)}
+CLOCK_SPEED = re.compile(r"(\d+\.\d+) ?MHz")
+
+
+def printed_speeds(quotes: list[str]) -> dict[str, float]:
+    return {name: float(speed) for speed, name in PRINTED_SPEED.findall(" ".join(quotes))}
+
+
+def clock_speeds(quote: str) -> list[float]:
+    return [float(speed) for speed in CLOCK_SPEED.findall(quote)]
 
 
 class DocumentTest(unittest.TestCase):
@@ -52,19 +59,34 @@ class DocumentTest(unittest.TestCase):
         self.assertIn("neither", self.source()["note"])
 
     def test_every_figure_taken_from_it_says_so(self) -> None:
+        # Arrange
         facts = declared()["facts"]
+
+        # Act
         citing = sorted(name for name, one in facts.items() if one.get("document"))
 
+        # Assert
         self.assertEqual(
             citing,
-            ["busSpeeds", "fastAccessMasterCycles", "slowAccessMasterCycles"],
+            [
+                "busSpeeds",
+                "controllerRegion",
+                "cpuClockSpeeds",
+                "extraSlowAccessMasterCycles",
+                "fastAccessMasterCycles",
+                "slowAccessMasterCycles",
+            ],
         )
 
     def test_and_the_one_no_document_supports_does_not(self) -> None:
-        held = declared()["facts"]["extraSlowAccessMasterCycles"]
+        # Arrange
+        facts = declared()["facts"]
 
-        self.assertNotIn("document", held)
-        self.assertFalse(held["verified"])
+        # Act
+        uncited = sorted(name for name, one in facts.items() if not one.get("document"))
+
+        # Assert
+        self.assertEqual(uncited, ["masterClockHz"])
 
     def test_the_authority_order_is_written_down(self) -> None:
         self.assertGreaterEqual(len(declared()["authority"]["order"]), 2)
@@ -96,6 +118,17 @@ class DerivationTest(unittest.TestCase):
 
         self.assertEqual(round(master / cycles / 1e6, 2), 2.68)
 
+    def test_an_extra_slow_access_is_the_master_clock_over_the_third_printed_speed(self) -> None:
+        # Arrange
+        master = fact("masterClockHz")["value"]
+        third = min(clock_speeds(fact("cpuClockSpeeds")["quote"]))
+
+        # Act
+        cycles = round(master / (third * MEGAHERTZ))
+
+        # Assert
+        self.assertEqual(cycles, fact("extraSlowAccessMasterCycles")["value"])
+
 
 class ModelTest(unittest.TestCase):
     def test_the_fast_count_matches_the_documented_derivation(self) -> None:
@@ -118,7 +151,7 @@ class ModelTest(unittest.TestCase):
         # Assert
         self.assertEqual(found.cycles, expected)
 
-    def test_the_extra_slow_count_matches_what_is_recorded_unverified(self) -> None:
+    def test_the_extra_slow_count_matches_the_documented_derivation(self) -> None:
         # Arrange
         expected = fact("extraSlowAccessMasterCycles")["value"]
 
@@ -152,7 +185,7 @@ class ModelTest(unittest.TestCase):
 class BusSpeedTest(unittest.TestCase):
     def test_rom_accesses_run_at_the_two_printed_bus_speeds(self) -> None:
         # Arrange
-        printed = printed_speeds(fact("busSpeeds")["quote"])
+        printed = printed_speeds(fact("busSpeeds")["quotes"])
         master = fact("masterClockHz")["value"]
 
         # Act
@@ -168,16 +201,48 @@ class BusSpeedTest(unittest.TestCase):
         )
 
 
+class ClockSpeedTest(unittest.TestCase):
+    def test_every_access_runs_at_one_of_the_three_printed_speeds(self) -> None:
+        # Arrange
+        printed = set(clock_speeds(fact("cpuClockSpeeds")["quote"]))
+        master = fact("masterClockHz")["value"]
+
+        # Act
+        found = {
+            round(master / mapper.resolve(kind, address, fast=True).cycles / MEGAHERTZ, 2)
+            for kind in (mapper.LOROM, mapper.HIROM)
+            for address in range(0, 0x1000000, 0x1000)
+        }
+
+        # Assert
+        self.assertEqual(found, printed)
+
+    def test_the_controller_region_runs_at_the_third_printed_speed(self) -> None:
+        # Arrange
+        row = fact("controllerRegion")["rows"][0]
+        master = fact("masterClockHz")["value"]
+        addresses = (int(row["from"], 16), int(row["to"], 16), 0x800000 | int(row["to"], 16))
+
+        # Act
+        found = {
+            round(master / mapper.resolve(mapper.LOROM, one, fast=True).cycles / MEGAHERTZ, 2)
+            for one in addresses
+        }
+
+        # Assert
+        self.assertEqual(found, {float(row["speed"].split()[0])})
+
+
 class HonestyTest(unittest.TestCase):
-    def test_the_two_derived_counts_are_marked_verified(self) -> None:
-        for name in ("fastAccessMasterCycles", "slowAccessMasterCycles"):
-            self.assertTrue(fact(name)["verified"], name)
+    def test_all_three_derived_counts_are_marked_verified(self) -> None:
+        # Arrange
+        names = ("fastAccessMasterCycles", "slowAccessMasterCycles", "extraSlowAccessMasterCycles")
 
-    def test_the_third_is_not(self) -> None:
-        self.assertFalse(fact("extraSlowAccessMasterCycles")["verified"])
+        # Act
+        found = [fact(name)["verified"] for name in names]
 
-    def test_and_says_what_would_settle_it(self) -> None:
-        self.assertIn("howToSettleIt", fact("extraSlowAccessMasterCycles"))
+        # Assert
+        self.assertEqual(found, [True, True, True])
 
     def test_the_file_says_what_it_does_not_model(self) -> None:
         self.assertGreaterEqual(len(declared()["notCycleAccurate"]["doesNot"]), 2)
@@ -201,23 +266,33 @@ class DivergenceTest(unittest.TestCase):
 
         self.assertEqual(missing, [])
 
-    def test_the_unverified_access_count_is_named_here_too(self) -> None:
-        named = {entry["id"] for entry in self.entries}
+    def test_the_closed_access_count_is_named_here_too(self) -> None:
+        # Arrange
+        entries = self.entries
 
-        self.assertIn("extra-slow-access-is-unverified", named)
+        # Act
+        named = {entry["id"] for entry in entries}
+
+        # Assert
+        self.assertIn("the-controller-speed-is-printed-in-chapter-21", named)
 
     def test_and_it_agrees_with_the_mark_on_the_fact_itself(self) -> None:
+        # Arrange
         entry = next(
-            item for item in self.entries if item["id"] == "extra-slow-access-is-unverified"
+            item
+            for item in self.entries
+            if item["id"] == "the-controller-speed-is-printed-in-chapter-21"
         )
 
-        self.assertEqual(
-            (
-                entry["packageFollows"],
-                declared()["facts"]["extraSlowAccessMasterCycles"]["verified"],
-            ),
-            ("reference", False),
+        # Act
+        found = (
+            entry["status"],
+            entry["packageFollows"],
+            declared()["facts"]["extraSlowAccessMasterCycles"]["verified"],
         )
+
+        # Assert
+        self.assertEqual(found, ("closed", "document", True))
 
     def test_the_master_clock_not_coming_from_the_manual_is_named(self) -> None:
         named = {entry["id"] for entry in self.entries}

@@ -8,7 +8,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**4**種類を解決可能、転送チャンネル**8**本、テスト**924**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**4**種類を解決可能、転送チャンネル**8**本、テスト**925**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
@@ -532,11 +532,11 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 各証拠の価値
 
-| 証拠                                                                                       | 確定できること                                             | 確定できないこと                         |
-| :----------------------------------------------------------------------------------------- | :--------------------------------------------------------- | :--------------------------------------- |
-| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 2つのバス速度、つまり6クロックと8クロックという値          | マニュアルに記載のない12クロックという値 |
-| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ                                    | 出荷されたカートリッジにおいてその組み合わせが意味すること | どのカートリッジも持たない組み合わせ     |
-| 読み取ったすべてのカートリッジのダイジェスト                                               | 読んだファイルが名前どおりのファイルであること             | そのリリースが意図したものであるかどうか |
+| 証拠                                                                                       | 確定できること                                                                     | 確定できないこと                         |
+| :----------------------------------------------------------------------------------------- | :--------------------------------------------------------------------------------- | :--------------------------------------- |
+| Nintendoのマニュアルと、[`conformance/hardware.json`](conformance/hardware.json)にある計算 | 3つのCPUクロック速度とそれぞれが適用されるアドレス、つまり6、8、12クロックという値 | マニュアルに記載のないマスタークロック   |
+| 2,781本のカートリッジから読み取ったヘッダーの組み合わせ                                    | 出荷されたカートリッジにおいてその組み合わせが意味すること                         | どのカートリッジも持たない組み合わせ     |
+| 読み取ったすべてのカートリッジのダイジェスト                                               | 読んだファイルが名前どおりのファイルであること                                     | そのリリースが意図したものであるかどうか |
 
 モデル化していないもの：プロセッサ、つまり1命令が何回アクセスするか。リフレッシュと転送によるストール。そしてアドレスに到達した後に起こるすべてのこと。
 
@@ -556,7 +556,7 @@ python3 -m conformance.corpus
 python3 -m conformance.against_cartridges
 ```
 
-[`conformance/hardware.json`](conformance/hardware.json)は、Nintendoが記載した2つのバス速度2.68 MHzと3.58 MHzを引用し、それぞれから8マスタークロックと6マスタークロックへの計算を示しています。12クロックという値はどの文書からも導かれず、未検証として記されています。[`conformance/divergences.json`](conformance/divergences.json)には2つの情報源が食い違うすべての箇所が、[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)にはここでの忠実性が測定ではなく主張であるすべての箇所が、それを確定させる方法とともに記載されています。
+[`conformance/hardware.json`](conformance/hardware.json)は、NintendoがBook Iの21.1節に記載した3つのCPUクロック速度3.58 MHz、2.68 MHz、1.79 MHzを引用し、それぞれから6、8、12マスタークロックへの計算を示しています。スキャンされたページから読み取った図2-21-1は、1.79 MHzの領域を`$4000`から`$41FF`に置いています。[`conformance/divergences.json`](conformance/divergences.json)には2つの情報源が食い違うすべての箇所が、[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md)にはここでの忠実性が測定ではなく主張であるすべての箇所が、それを確定させる方法とともに記載されています。
 
 ## 開発に参加する
 
@@ -587,11 +587,12 @@ python3 -m conformance.speed
 
 ## 参考文献
 
-| 文書                                                    | 発行者                   | 参照日     | バイト数 | SHA-256                                                            |
-| :------------------------------------------------------ | :----------------------- | :--------- | -------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_、アーカイブされた全文 | Nintendo of America Inc. | 2026-08-27 |  298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| 文書                                                                    | 発行者                   | 参照日     |   バイト数 | SHA-256                                                            |
+| :---------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_、アーカイブされた全文                 | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_、テキストレイヤー付きのスキャンページ | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
 
-この文書は再配布できず、このリポジトリには含まれていません。`python3 -m conformance.documents`はこれを https://archive.org/download/SNESDevManual/book1_djvu.txt から、gitが無視する`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。`--check`はすでにあるコピーを検証します。[`conformance/documents.json`](conformance/documents.json)はダイジェストとアドレスを保持しています。この文書から引用した文は、それぞれの出典の表とページとともに[`conformance/hardware.json`](conformance/hardware.json)にあります。
+どちらも再配布できず、このリポジトリには含まれていません。`python3 -m conformance.documents`は両方を https://archive.org/download/SNESDevManual/book1_djvu.txt と https://archive.org/download/SNESDevManual/book1_text.pdf から、gitが無視する`docs/`にダウンロードし、ダイジェストが異なるファイルは拒否します。`--check`はすでにあるコピーを検証します。[`conformance/documents.json`](conformance/documents.json)はダイジェストとアドレスを保持しています。この文書から引用した文は、それぞれの出典の表とページとともに[`conformance/hardware.json`](conformance/hardware.json)にあります。
 
 [`conformance/corpus.json`](conformance/corpus.json)の元になった2,781件のヘッダーは、作者が所有する市販カートリッジのライブラリから取得したものです。そこからコミットされているのは[`cartridges.manifest.json`](cartridges.manifest.json)のダイジェストだけです。
 

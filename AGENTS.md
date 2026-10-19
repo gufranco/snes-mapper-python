@@ -10,8 +10,8 @@ is the document written for a person.
 The cartridge memory map and the transfer engine reached through it: where an
 address lands, what reaching it costs, and what an armed channel would move. It
 is held to 289 distinct header combinations read out of a library of 2,781 retail
-cartridges, and separately to the two bus speeds the manufacturer's manual
-prints. It is a model of a board rather than of a processor, and it executes
+cartridges, and separately to the three CPU clock speeds the manufacturer's
+manual prints. It is a model of a board rather than of a processor, and it executes
 nothing: what happens once an address is reached belongs to whatever answers
 there.
 
@@ -48,8 +48,8 @@ the far end of a cycle.
    them, and [`cartridges.manifest.json`](cartridges.manifest.json) names each
    file by four digests so a later run reads the same bytes.
 3. **A recording from an independent implementation.** Nothing here rests on one.
-4. **Anything else.** The access counts every emulator uses, reached for once,
-   for the controller-port region, cited as what it is and marked unverified.
+4. **Anything else.** Nothing here rests on it. The controller-port count once
+   did, and Book I's section 21.1 replaced it.
 
 The corpus and the manual answer different questions and neither overrides the
 other. The manual is an instruction issued to licensees, so a genuine cartridge
@@ -66,13 +66,15 @@ byte is a letter left behind by a title overflowing its field.
 plus a sweep over the whole twenty-four-bit space in
 [`mapper/layout.test.py`](mapper/layout.test.py).
 
-**Settled: the fast and slow access counts.** Six and eight master cycles,
-derived by arithmetic from the two speeds the manual prints, with the arithmetic
-shown in the record rather than asserted.
+**Settled: the fast, slow and controller-port access counts.** Six, eight and
+twelve master cycles, derived by arithmetic from the three speeds the manual
+prints in section 21.1, with the arithmetic shown in the record rather than
+asserted. Figure 2-21-1 says which addresses run at which, and it is an image
+the archived text does not carry, so it was read off the scanned page.
 
-**Not settled: 3 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
-what would close it. Two are timing figures the manual never printed, and one is
-a scope boundary listed so nobody mistakes it for a gap. Do not close one by
+**Not settled: 2 things**, each in [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) with
+what would close it. One is the master clock the manual never printed, and one
+is a scope boundary listed so nobody mistakes it for a gap. Do not close one by
 argument.
 
 ## The header has no fixed home

@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **4** 种可解析，**8** 个传输通道，**924** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **4** 种可解析，**8** 个传输通道，**925** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -532,11 +532,11 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ## 每项证据的价值
 
-| 证据                                                                                    | 能确定什么                             | 不能确定什么                 |
-| :-------------------------------------------------------------------------------------- | :------------------------------------- | :--------------------------- |
-| Nintendo 的手册，以及 [`conformance/hardware.json`](conformance/hardware.json) 中的计算 | 两种总线速度，因而确定 6 和 8 的时钟数 | 12 的时钟数，手册中没有给出  |
-| 从 2,781 个卡带中读取的头部组合                                                         | 某种组合在已发售卡带上的含义           | 没有任何卡带使用的组合       |
-| 所读取的每个卡带的摘要                                                                  | 读取的文件就是所指名的文件             | 该发行版是否就是你想要的那个 |
+| 证据                                                                                    | 能确定什么                                                      | 不能确定什么                 |
+| :-------------------------------------------------------------------------------------- | :-------------------------------------------------------------- | :--------------------------- |
+| Nintendo 的手册，以及 [`conformance/hardware.json`](conformance/hardware.json) 中的计算 | 三种 CPU 时钟速度及各自适用的地址，因而确定 6、8 和 12 的时钟数 | 主时钟，手册中没有给出       |
+| 从 2,781 个卡带中读取的头部组合                                                         | 某种组合在已发售卡带上的含义                                    | 没有任何卡带使用的组合       |
+| 所读取的每个卡带的摘要                                                                  | 读取的文件就是所指名的文件                                      | 该发行版是否就是你想要的那个 |
 
 未建模的内容：处理器，因而无法知道一条指令进行多少次访问；刷新和传输造成的停顿；以及到达某个地址之后发生的任何事情。
 
@@ -556,7 +556,7 @@ python3 -m conformance.corpus
 python3 -m conformance.against_cartridges
 ```
 
-[`conformance/hardware.json`](conformance/hardware.json) 引用了 Nintendo 公布的两种总线速度 2.68 MHz 和 3.58 MHz，并给出从它们分别算到 8 和 6 个主时钟的过程。12 个时钟的计数无法从任何文档推出，被标记为未验证。[`conformance/divergences.json`](conformance/divergences.json) 记录两个来源出现分歧的每一处，[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 记录本项目的保真度属于断言而非测量的每一处，以及什么能够解决它。
+[`conformance/hardware.json`](conformance/hardware.json) 引用了 Nintendo 在 Book I 第 21.1 节公布的三种 CPU 时钟速度 3.58 MHz、2.68 MHz 和 1.79 MHz，并给出从它们分别算到 6、8 和 12 个主时钟的过程。从扫描页面读出的图 2-21-1 把 1.79 MHz 的区域放在 `$4000` 到 `$41FF`。[`conformance/divergences.json`](conformance/divergences.json) 记录两个来源出现分歧的每一处，[OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) 记录本项目的保真度属于断言而非测量的每一处，以及什么能够解决它。
 
 ## 参与开发
 
@@ -587,11 +587,12 @@ python3 -m conformance.speed
 
 ## 参考资料
 
-| 文档                                          | 发布方                   | 阅读日期   |  字节数 | SHA-256                                                            |
-| :-------------------------------------------- | :----------------------- | :--------- | ------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_，存档的全文 | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| 文档                                                | 发布方                   | 阅读日期   |     字节数 | SHA-256                                                            |
+| :-------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_，存档的全文       | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_，带文字层的扫描页 | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
 
-它不可再分发，也不在本仓库中。`python3 -m conformance.documents` 从 https://archive.org/download/SNESDevManual/book1_djvu.txt 下载它到 `docs/`，该目录被 git 忽略，摘要不同的任何文件都会被拒绝。`--check` 校验已有的副本。[`conformance/documents.json`](conformance/documents.json) 记录摘要和地址。从中摘取的句子在 [`conformance/hardware.json`](conformance/hardware.json) 中，每句都注明了出自哪个表格和哪一页。
+两者都不可再分发，也都不在本仓库中。`python3 -m conformance.documents` 从 https://archive.org/download/SNESDevManual/book1_djvu.txt 和 https://archive.org/download/SNESDevManual/book1_text.pdf 下载它们到 `docs/`，该目录被 git 忽略，摘要不同的任何文件都会被拒绝。`--check` 校验已有的副本。[`conformance/documents.json`](conformance/documents.json) 记录摘要和地址。从中摘取的句子在 [`conformance/hardware.json`](conformance/hardware.json) 中，每句都注明了出自哪个表格和哪一页。
 
 [`conformance/corpus.json`](conformance/corpus.json) 所依据的 2,781 个头部来自作者拥有的一个零售版卡带库。除了 [`cartridges.manifest.json`](cartridges.manifest.json) 中的摘要之外，其中的任何内容都没有提交。
 

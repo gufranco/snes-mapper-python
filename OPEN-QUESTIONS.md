@@ -22,10 +22,8 @@ it does not move the answer.
 
 ## What would settle almost all of them
 
-Two pages of a manual, or a logic analyser on a console. The three questions
-below about timing would each be closed outright by a printed access time or by
-counting master cycles on a real access; the one about a document would be
-closed by a copy of the file somebody can hash.
+A page of a manual, or a schematic. The question below about the master clock
+would be closed by a printed frequency or by the crystal on a board.
 
 Every entry is also carried in
 [`conformance/divergences.json`](conformance/divergences.json) with its status
@@ -33,36 +31,15 @@ and severity, so a program can read what a person reads here.
 
 ## Where a document is silent and every implementation agrees
 
-### What an access to the controller-port region costs.
-
-**The document says.** The Map Mode table at page 1-2-17 lists two bus speeds,
-2.68 MHz and 3.58 MHz, and no third.
-
-Source: Nintendo, Super Nintendo Entertainment System Development Manual, Book I.
-
-**What this project follows.** The implementations, which all use twelve master
-cycles, and it is marked `verified: false` in
-[`conformance/hardware.json`](conformance/hardware.json) rather than presented
-beside the two that are derived from printed figures.
-
-**Why.** Twelve is almost certainly right, and that is not the same as
-documented. The other two counts here follow by arithmetic from speeds Nintendo
-printed. Presenting the third without a mark would let a reader inherit a
-stronger belief than the evidence supports.
-
-**What would settle or reopen it.** A passage in Book I or Book II giving the
-controller-port access time, or a measurement: drive an access to `$4016` and
-count master cycles.
-
 ### Where the master clock in the arithmetic comes from.
 
-**The document says.** Nothing. Book I prints the two bus speeds in megahertz and
-never gives the master clock they divide.
+**The document says.** Nothing. Book I prints three CPU clock speeds in
+megahertz and never gives the master clock they divide.
 
 **What this project follows.** 21,477,273 Hz, six times the NTSC colour carrier.
 
-**Why.** The arithmetic that turns two printed speeds into six and eight master
-cycles needs a master clock, and the one used is a property of the television
+**Why.** The arithmetic that turns three printed speeds into six, eight and
+twelve master cycles needs a master clock, and the one used is a property of the television
 standard rather than a figure from the document. The derivation reads as though
 every step came from Nintendo, and one step did not.
 
@@ -94,8 +71,10 @@ So the boundary is visible rather than implied:
 - **Where an address lands under each of the four resolvable layouts.** Held to
   fourteen probe addresses per combination, and to a sweep over the whole
   twenty-four-bit space in [`mapper/layout.test.py`](mapper/layout.test.py).
-- **What the fast and slow accesses cost.** Six and eight master cycles, derived
-  by arithmetic from the two speeds the manual prints, with the arithmetic shown.
+- **What the fast, slow and controller-port accesses cost.** Six, eight and
+  twelve master cycles, derived by arithmetic from the three speeds Book I
+  prints in section 21.1, with the arithmetic shown. Figure 2-21-1 labels
+  `$4000` to `$41FF` as the 1.79 MHz controller region.
 - **Which addresses configure a transfer channel, and which do not.** The window
   and the nibble, held to the register map rather than to a mask that happens to
   work for eight.

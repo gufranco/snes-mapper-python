@@ -1,21 +1,21 @@
 {
   "comment": "Every place a source is weaker than it looks, and every place this package deliberately claims nothing. Each entry says what the document says, what the alternative says, which one this package follows, and what would settle it. The facts themselves live in hardware.json; this file is about their standing.",
   "sources": {
-    "document": "Nintendo, Super Nintendo Entertainment System Development Manual, Book I. Pinned in hardware.json.",
+    "document": "Nintendo, Super Nintendo Entertainment System Development Manual, Book I, its archived text and its scanned pages. Pinned in documents.json and hardware.json.",
     "corpus": "conformance/corpus.json, header combinations read out of a library of real cartridges. It answers what cartridges do, never what the console does.",
     "implementations": "The access counts every emulator uses. Third rung, and named here only where nothing better exists."
   },
   "divergences": [
     {
-      "id": "extra-slow-access-is-unverified",
+      "id": "the-controller-speed-is-printed-in-chapter-21",
       "parts": ["snes-mapper"],
       "severity": "medium",
-      "status": "open",
-      "documentSays": "The Map Mode table at page 1-2-17 lists two bus speeds, 2.68 MHz and 3.58 MHz, and no third.",
+      "status": "closed",
+      "documentSays": "Section 21.1 at page 2-21-1: three clock speeds are available, 3.58MHz, 2.68MHz and 1.79 MHz. Figure 2-21-1 at page 2-21-2 labels 4000 to 41FF in banks 00 to 3F and 80 to BF as 1.79 M, CONTROLLER.",
       "referenceDoes": "Every implementation uses twelve master cycles for the controller-port region, which is 1.79 MHz.",
-      "packageFollows": "reference",
-      "reasoning": "Twelve is almost certainly right, and that is not the same as documented. The other two figures in this package are derived from speeds Nintendo printed, so presenting the third beside them without a mark would make a reader inherit a stronger belief than the evidence supports. It carries verified false in hardware.json and it is named here.",
-      "wouldSettleIt": "A passage in Book I or Book II giving the controller-port access time, or a measurement on real hardware: drive an access to 4016 and count master cycles."
+      "packageFollows": "document",
+      "reasoning": "Closed on 2026-10-19. The record had read only the Map Mode table at page 1-2-17, which lists the two speeds a cartridge selects, and concluded the manual printed no third. Chapter 21 prints it in prose and in Figure 2-21-1, with the addresses it applies to. Twelve master cycles is 1.7898 MHz, which the manual prints as 1.79 MHz, so the count now follows from a printed figure the way the other two do, and it is marked verified in hardware.json.",
+      "wouldSettleIt": "Settled by section 21.1 and Figure 2-21-1 of Book I. A measurement on a console counting master cycles on an access to 4016 would reopen it only by disagreeing."
     },
     {
       "id": "the-master-clock-is-not-from-the-manual",

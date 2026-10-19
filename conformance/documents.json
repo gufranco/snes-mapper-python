@@ -6,7 +6,7 @@
     "3": "Independent research, for what no manufacturer printed."
   },
   "whyNotCarriedHere": "This is Nintendo's document, not this project's, and this repository is public. What is carried is the identity, which is what makes a copy checkable.",
-  "readOn": "2026-08-27",
+  "readOn": "2026-10-19",
   "partsWithNoDocument": {},
   "documents": [
     {
@@ -17,11 +17,25 @@
       "date": "undated",
       "retrievedFrom": "https://archive.org/download/SNESDevManual/book1_djvu.txt",
       "covers": ["lorom", "hirom", "exhirom", "wholebank"],
-      "settles": "The two CPU bus speeds, in the Map Mode table. Searched for a table of access cycles per region and for cycle counts in master clocks; it has neither, and the record says so rather than inferring them.",
+      "settles": "The two CPU bus speeds a cartridge selects, in the Map Mode table, and the third speed, in section 21.1. Searched for a table of access cycles per region and for cycle counts in master clocks; it has neither, and the record says so rather than inferring them.",
       "sha256": "100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972",
       "bytes": 298926,
       "pages": "text",
       "whereTheDigestCameFrom": "Computed on 2026-08-27 from the copy this address served. The record had never pinned one, so this identifies the copy that was read rather than confirming a copy against something older. An archived text can be re-derived by its host, so a later fetch that differs is a change to check rather than proof of a wrong file."
+    },
+    {
+      "file": "manufacturer/book1_text.pdf",
+      "rung": 1,
+      "publisher": "Nintendo of America Inc.",
+      "title": "SNES Development Manual, Book I, scanned pages with their text layer, as archived",
+      "date": "undated",
+      "retrievedFrom": "https://archive.org/download/SNESDevManual/book1_text.pdf",
+      "covers": ["lorom", "hirom", "exhirom", "wholebank"],
+      "settles": "Which addresses run at which of the three speeds, in Figure 2-21-1 on file page 94, printed page 2-21-2. The figure is an image the archived text does not carry.",
+      "sha256": "f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791",
+      "bytes": 21022582,
+      "pages": 240,
+      "whereTheDigestCameFrom": "Computed on 2026-10-19 from the copy this address served, the first time this file was read. The archive lists it as the additional text PDF of the same item as the archived text, made from the same scans."
     }
   ]
 }

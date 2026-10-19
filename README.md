@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **4** of **6** layouts resolvable, **8** transfer channels, **924** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **4** of **6** layouts resolvable, **8** transfer channels, **925** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -532,11 +532,11 @@ Every file is checked against all four digests in [`cartridges.manifest.json`](c
 
 ## What each piece of evidence is worth
 
-| Evidence                                                                                       | What it settles                                 | What it cannot                                      |
-| :--------------------------------------------------------------------------------------------- | :---------------------------------------------- | :-------------------------------------------------- |
-| Nintendo's manual, with arithmetic in [`conformance/hardware.json`](conformance/hardware.json) | The two bus speeds, so the 6 and 8 clock counts | The 12 clock count, which the manual does not print |
-| Header combinations read out of 2,781 cartridges                                               | What a combination means on shipped cartridges  | Combinations no cartridge carries                   |
-| Digests of every cartridge read                                                                | That the file read is the file named            | Whether that release is the one you meant           |
+| Evidence                                                                                       | What it settles                                                                               | What it cannot                                    |
+| :--------------------------------------------------------------------------------------------- | :-------------------------------------------------------------------------------------------- | :------------------------------------------------ |
+| Nintendo's manual, with arithmetic in [`conformance/hardware.json`](conformance/hardware.json) | The three CPU clock speeds and the addresses each applies to, so the 6, 8 and 12 clock counts | The master clock, which the manual does not print |
+| Header combinations read out of 2,781 cartridges                                               | What a combination means on shipped cartridges                                                | Combinations no cartridge carries                 |
+| Digests of every cartridge read                                                                | That the file read is the file named                                                          | Whether that release is the one you meant         |
 
 Not modelled: the processor, so how many accesses an instruction makes; refresh and transfer stalls; and anything that happens once an address is reached.
 
@@ -556,7 +556,7 @@ With a library present, the sweep reads every file and holds each cartridge to t
 python3 -m conformance.against_cartridges
 ```
 
-[`conformance/hardware.json`](conformance/hardware.json) quotes the two bus speeds Nintendo printed, 2.68 MHz and 3.58 MHz, and shows the arithmetic from each to 8 and 6 master clocks. The 12-clock count follows from no document and is marked unverified. [`conformance/divergences.json`](conformance/divergences.json) holds every place two sources part, and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) holds every place fidelity here is a claim rather than a measurement, with what would settle it.
+[`conformance/hardware.json`](conformance/hardware.json) quotes the three CPU clock speeds Nintendo printed in section 21.1 of Book I, 3.58 MHz, 2.68 MHz and 1.79 MHz, and shows the arithmetic from each to 6, 8 and 12 master clocks. Figure 2-21-1, read off the scanned page, puts the 1.79 MHz region at `$4000` to `$41FF`. [`conformance/divergences.json`](conformance/divergences.json) holds every place two sources part, and [OPEN-QUESTIONS.md](OPEN-QUESTIONS.md) holds every place fidelity here is a claim rather than a measurement, with what would settle it.
 
 ## Working on it
 
@@ -587,11 +587,12 @@ Each module has a test file beside it, named `<module>.test.py`, and each runs o
 
 ## References
 
-| Document                                                 | Publisher                | Read on    |   Bytes | SHA-256                                                            |
-| :------------------------------------------------------- | :----------------------- | :--------- | ------: | :----------------------------------------------------------------- |
-| _SNES Development Manual, Book I_, full text as archived | Nintendo of America Inc. | 2026-08-27 | 298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| Document                                                               | Publisher                | Read on    |      Bytes | SHA-256                                                            |
+| :--------------------------------------------------------------------- | :----------------------- | :--------- | ---------: | :----------------------------------------------------------------- |
+| _SNES Development Manual, Book I_, full text as archived               | Nintendo of America Inc. | 2026-08-27 |    298,926 | `100beabe8e29d6e02b60b9a0f057a40063a4e33a83478f480ecc2e8696e77972` |
+| _SNES Development Manual, Book I_, scanned pages with their text layer | Nintendo of America Inc. | 2026-10-19 | 21,022,582 | `f1405241000046abba7849376d2ec53cf85f1ad2e9950d69a7c2cf1f3ff6b791` |
 
-It is not redistributable and is not in this repository. `python3 -m conformance.documents` downloads it from https://archive.org/download/SNESDevManual/book1_djvu.txt into `docs/`, which git ignores, and refuses any file whose digest differs. `--check` verifies the copy already present. [`conformance/documents.json`](conformance/documents.json) carries the digest and the address. The sentences taken from it are in [`conformance/hardware.json`](conformance/hardware.json), each with the table and page it came from.
+Neither is redistributable and neither is in this repository. `python3 -m conformance.documents` downloads both from https://archive.org/download/SNESDevManual/book1_djvu.txt and https://archive.org/download/SNESDevManual/book1_text.pdf into `docs/`, which git ignores, and refuses any file whose digest differs. `--check` verifies the copy already present. [`conformance/documents.json`](conformance/documents.json) carries the digest and the address. The sentences taken from it are in [`conformance/hardware.json`](conformance/hardware.json), each with the table and page it came from.
 
 The 2,781 headers behind [`conformance/corpus.json`](conformance/corpus.json) come from a retail cartridge library the author owns. Nothing from it is committed beyond the digests in [`cartridges.manifest.json`](cartridges.manifest.json).
 

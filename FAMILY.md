@@ -1145,11 +1145,10 @@ the others do not also get._
 ## The state of this repository
 
 **What Nintendo printed, and what follows from it.** The development manual gives
-the two bus speeds in its Map Mode table and no table of access cycles per
-region. Two of the three access figures this project uses follow from those
-speeds by arithmetic that is shown rather than asserted, and the third does not
-follow from anything printed and is marked unverified with the measurement that
-would settle it.
+three CPU clock speeds in section 21.1, the two a cartridge selects in its Map
+Mode table, and the addresses each speed applies to in Figure 2-21-1, and no
+table of access cycles per region. All three access figures this project uses
+follow from those speeds by arithmetic that is shown rather than asserted.
 
 **Where the evidence is a cartridge rather than a document.** Header field
 combinations are read out of a library of retail cartridges, every distinct

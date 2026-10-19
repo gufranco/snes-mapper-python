@@ -191,7 +191,14 @@ class OptionTest(unittest.TestCase):
         self.assertEqual(len(documents.wanted(HELD["documents"], None)), len(HELD["documents"]))
 
     def test_naming_one_selects_only_it(self) -> None:
-        self.assertEqual(len(documents.wanted(HELD["documents"], "book1")), 1)
+        # Arrange
+        held = HELD["documents"]
+
+        # Act
+        found = documents.wanted(held, "book1_djvu")
+
+        # Assert
+        self.assertEqual([one["file"] for one in found], ["manufacturer/book1_djvu.txt"])
 
 
 class EntryTest(unittest.TestCase):
