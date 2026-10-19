@@ -8,7 +8,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_ntsc"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_ntsc"
       ]
     },
     {
@@ -19,7 +19,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_pal"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_240p_test_suite_pal"
       ]
     },
     {
@@ -30,7 +30,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_burn_in_rev_d"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_burn_in_rev_d"
       ]
     },
     {
@@ -41,7 +41,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_campus_challenge_92_menu"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_campus_challenge_92_menu"
       ]
     },
     {
@@ -52,7 +52,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_controller_test_cassette"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_controller_test_cassette"
       ]
     },
     {
@@ -63,7 +63,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_dsp1_tech_demo"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_dsp1_tech_demo"
       ]
     },
     {
@@ -74,7 +74,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_emudetect_v21"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_emudetect_v21"
       ]
     },
     {
@@ -85,7 +85,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_evoke_2010_logo_zoomer"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_evoke_2010_logo_zoomer"
       ]
     },
     {
@@ -96,7 +96,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_hd_retrovision_1_4"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_hd_retrovision_1_4"
       ]
     },
     {
@@ -107,7 +107,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_ntf_2_5_rev_a"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_ntf_2_5_rev_a"
       ]
     },
     {
@@ -118,7 +118,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_3d_demo"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_3d_demo"
       ]
     },
     {
@@ -129,7 +129,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_speed_test_5_1"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_speed_test_5_1"
       ]
     },
     {
@@ -140,7 +140,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration"
       ]
     },
     {
@@ -151,7 +151,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration_header_fix"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_sa1_demonstration_header_fix"
       ]
     },
     {
@@ -162,7 +162,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_test_program"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_test_program"
       ]
     },
     {
@@ -173,7 +173,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_snsp_aging_1_02"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_snsp_aging_1_02"
       ]
     },
     {
@@ -184,7 +184,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_aging_1_00"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_aging_1_00"
       ]
     },
     {
@@ -195,7 +195,7 @@
       "exercises": "the header scorer, the board it names and where the reset vector lands",
       "outcome": "read",
       "heldBy": [
-        "conformance/testcarts.test.py::EachTestCartridgeMapsAsRecordedTest.test_control_deck_tester_rev_1"
+        "conformance/testcarts_recorded.test.py::EachTestCartridgeMapsAsRecordedTest.test_control_deck_tester_rev_1"
       ]
     }
   ]

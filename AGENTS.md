@@ -124,8 +124,8 @@ The first maps every listed image present and compares it with
 board, the reset address and no title. It exits 2, and CI annotates the skip,
 when no image is present. The second rewrites the record.
 
-[`conformance/testcarts.test.py`](conformance/testcarts.test.py) holds each one,
-resolving the recorded reset address again with no image present:
+[`conformance/testcarts_recorded.test.py`](conformance/testcarts_recorded.test.py)
+holds each one, resolving the recorded reset address again with no image present:
 
 - **Eight are mapped.** Both 240p Test Suite builds, Emudetect and HD
   Retrovision on `lorom`; the Evoke 2010 demo, the SA-1 3D Demo, the SA-1 Speed
