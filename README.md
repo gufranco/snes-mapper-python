@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1009** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1,016** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -69,6 +69,8 @@ Nothing here is built and then driven, and nothing executes code. Every call is 
 | `is_rom`  | True when `region` is `rom`                                                                                                                                                                                                                                                                                 |
 
 Below `$8000` in banks `$00` to `$3F` and `$80` to `$BF`, the console fixes the speed whatever `fast` says, as Figure 2-21-1 of Book I prints it: `$2000` to `$3FFF` and `$4200` to `$5FFF` cost 6, the controller ports at `$4000` to `$41FF` cost 12, and work RAM and `$6000` to `$7FFF` cost 8. `fast` reaches only `$8000` and above in banks `$80` to `$BF`, and banks `$C0` to `$FF`.
+
+`work_ram_offset(address)` returns which of the 131,072 work RAM cells an address reaches, or `None` when `resolve` would not call it work RAM. Banks `$7E` and `$7F` hold the cells in order, and the bottom 8 KB of every low bank reach the first 8 KB of them, so `$00:1000`, `$20:1000` and `$7E:1000` are one cell, `0x1000`. Figure 2-21-1 prints the two areas as RAM 1, 8 KB, and RAM 2, 120 KB in banks `$7E` and `$7F`, which together are the 128 KB those two banks address.
 
 ### Layouts
 

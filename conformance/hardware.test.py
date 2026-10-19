@@ -281,6 +281,33 @@ class ClockSpeedTest(unittest.TestCase):
         self.assertEqual(found, {"Memory 1": [2.68], "Memory 2": [2.68, 3.58]})
 
 
+KILOBYTES = re.compile(r"(\d+)K byte")
+
+
+def legend_kilobytes(label: str) -> int:
+    row = next(one for one in fact("cpuMemoryMap")["legend"] if one["label"] == label)
+    found = KILOBYTES.search(row["speed"])
+    assert found is not None, f"{label} prints no size"
+    return int(found.group(1)) * 1024
+
+
+class WorkRamTest(unittest.TestCase):
+    def test_ram_1_and_ram_2_are_the_128_kilobytes_banks_7e_and_7f_address(self) -> None:
+        # Arrange
+        printed = (legend_kilobytes("RAM 1"), legend_kilobytes("RAM 1") + legend_kilobytes("RAM 2"))
+
+        # Act
+        low = {mapper.work_ram_offset(page) for page in range(0x2000)}
+        high = {
+            mapper.work_ram_offset((bank << 16) | page)
+            for bank in (0x7E, 0x7F)
+            for page in range(0x10000)
+        }
+
+        # Assert
+        self.assertEqual((len(low), len(low | high), low <= high), (*printed, True))
+
+
 class HonestyTest(unittest.TestCase):
     def test_all_three_derived_counts_are_marked_verified(self) -> None:
         # Arrange

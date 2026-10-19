@@ -153,6 +153,17 @@ def _spc7110(bank: int, page: int) -> tuple[str, int | None]:
     return OPEN_BUS, None
 
 
+def work_ram_offset(address: int) -> int | None:
+    address &= 0xFFFFFF
+    bank = address >> 16
+    page = address & 0xFFFF
+    if bank in WORK_RAM_BANKS:
+        return ((bank - WORK_RAM_BANKS[0]) << 16) | page
+    if _system_bank(bank) and page < WORK_RAM_MIRROR:
+        return page
+    return None
+
+
 def resolve(
     kind: str,
     address: int,

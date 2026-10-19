@@ -47,6 +47,7 @@ from .layout import (
     WORK_RAM,
     XSLOW,
     resolve,
+    work_ram_offset,
 )
 from .models import MODELS, layout_named
 from .transfer import CHANNEL_BASE, CHANNEL_COUNT, ENABLE, Channel, Engine, Plan, channel_of
@@ -106,4 +107,5 @@ __all__ = [
     "snes_to_file",
     "stub_by_length",
     "window_to_file",
+    "work_ram_offset",
 ]

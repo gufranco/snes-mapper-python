@@ -28,6 +28,9 @@ an image or a register, and the answer does not depend on anything having run.
 - `resolve(kind, address, ...)` returns the region, the offset into the image and
   the master cycles the access costs. Work RAM is decided before cartridge,
   because its banks look like cartridge banks and are not.
+- `work_ram_offset(address)` names which of the 128 KB of work RAM cells an
+  address reaches, so a bank `$20` read and a bank `$00` write can be shown to
+  meet.
 - `Engine()` holds the eight channels and the register that arms them.
   `plans()` returns only channels the enable register selected.
 - `interleave` and `deinterleave` convert between the order a console reads and

@@ -94,7 +94,8 @@
       "heldBy": [
         "conformance/hardware.test.py::ClockSpeedTest.test_the_controller_region_runs_at_the_third_printed_speed",
         "conformance/hardware.test.py::ClockSpeedTest.test_every_system_page_runs_at_the_speed_the_figure_prints",
-        "conformance/hardware.test.py::ClockSpeedTest.test_memory_2_alone_follows_the_speed_the_cartridge_asks_for"
+        "conformance/hardware.test.py::ClockSpeedTest.test_memory_2_alone_follows_the_speed_the_cartridge_asks_for",
+        "conformance/hardware.test.py::WorkRamTest.test_ram_1_and_ram_2_are_the_128_kilobytes_banks_7e_and_7f_address"
       ]
     },
     "masterClockHz": {

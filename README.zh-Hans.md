@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1009** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,016** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -69,6 +69,8 @@ python3 mapper/doctor.py
 | `is_rom`  | `region` 为 `rom` 时为 True                                                                                                                                                                                                                                 |
 
 在 bank `$00` 到 `$3F` 和 `$80` 到 `$BF` 的 `$8000` 以下，主机按 Book I 图 2-21-1 所印固定速度，与 `fast` 无关：`$2000` 到 `$3FFF` 和 `$4200` 到 `$5FFF` 耗费 6，`$4000` 到 `$41FF` 的手柄端口耗费 12，工作 RAM 和 `$6000` 到 `$7FFF` 耗费 8。`fast` 只作用于 bank `$80` 到 `$BF` 的 `$8000` 及以上，以及 bank `$C0` 到 `$FF`。
+
+`work_ram_offset(address)` 返回地址到达 131,072 个工作 RAM 单元中的哪一个，`resolve` 不认为是工作 RAM 的地址返回 `None`。存储体 `$7E` 和 `$7F` 按顺序存放这些单元，每个低位存储体的底部 8 KB 到达其中的前 8 KB，所以 `$00:1000`、`$20:1000` 和 `$7E:1000` 是同一个单元 `0x1000`。图 2-21-1 把这两块区域印为 8 KB 的 RAM 1 和位于存储体 `$7E`、`$7F` 的 120 KB 的 RAM 2，两者合起来正是这两个存储体寻址的 128 KB。
 
 ### 布局
 
