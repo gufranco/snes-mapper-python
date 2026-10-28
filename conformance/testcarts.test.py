@@ -136,7 +136,7 @@ class TheFolderTest(unittest.TestCase):
         # Assert
         self.assertEqual(where, Path("/somewhere"))
 
-    def test_with_no_variable_the_library_alongside_is_read(self) -> None:
+    def test_with_no_variable_the_images_kept_in_external_are_read(self) -> None:
         # Arrange
         environment = {"SNES_TEST_CARTRIDGE_DIR": " "}
 
@@ -144,7 +144,7 @@ class TheFolderTest(unittest.TestCase):
         where = testcarts.directory(environment)
 
         # Assert
-        self.assertEqual(where, ROOT.parent / "snes-roms" / "5 Tools & Service Test Carts")
+        self.assertEqual(where, ROOT / "external" / "tools")
 
     def test_the_process_environment_is_read_when_none_is_given(self) -> None:
         # Arrange

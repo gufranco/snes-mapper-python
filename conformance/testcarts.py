@@ -18,7 +18,7 @@ READINGS = ROOT / "conformance" / "testcarts.json"
 
 DIRECTORY_VARIABLE = "SNES_TEST_CARTRIDGE_DIR"
 
-ALONGSIDE = ROOT.parent / "snes-roms" / "5 Tools & Service Test Carts"
+KEPT = ROOT / "external" / "tools"
 
 SUFFIXES = (".sfc", ".smc")
 
@@ -36,7 +36,7 @@ ACCOUNTED = frozenset({MAPPED, NO_HEADER})
 def directory(environment: Mapping[str, str] | None = None) -> Path:
     held = os.environ if environment is None else environment
     named = held.get(DIRECTORY_VARIABLE, "").strip()
-    return Path(named) if named else ALONGSIDE
+    return Path(named) if named else KEPT
 
 
 def wanted(record: Mapping[str, Any]) -> dict[str, str]:

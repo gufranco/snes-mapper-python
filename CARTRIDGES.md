@@ -1,17 +1,17 @@
 # Cartridges
 
-Nothing in this directory is shared. A cartridge belongs to whoever made it, and no
+The images go in `external/cartridges/`, and nothing in that folder is shared. A cartridge belongs to whoever made it, and no
 part of one is carried by this repository, published in the manifest, or
 reconstructible from anything here. What the manifest holds is a name, a length and
 four digests, and a digest reconstructs nothing.
 
-Put copies you already own here and the tests that need one run against them. Leave
-the directory empty and those tests report as skipped rather than as passed, so a run
+Put copies you already own in `external/cartridges/` and the tests that need one run
+against them. Leave it empty and those tests report as skipped rather than as passed, so a run
 that proved nothing never reads as a run that proved something.
 
 ## Where they go
 
-Here, under any folder arrangement, keeping the filenames below. Subdirectories are
+In `external/cartridges/`, under any folder arrangement, keeping the filenames below. Subdirectories are
 walked, so an existing collection can be pointed at whole rather than copied. Set
 `SNES_CARTRIDGE_DIR` to use a library somewhere else; a named directory wins even when
 it turns out to be empty, because quietly falling back from a path somebody typed turns

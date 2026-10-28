@@ -8,7 +8,7 @@
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,060** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,110** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve
@@ -571,9 +571,9 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ### 使用你自己的卡带
 
-把你拥有的副本放在 [`cartridges/`](cartridges/) 中、检出目录旁边的 `../cartridges` 中，或 `SNES_CARTRIDGE_DIR` 指向的任何位置。指定的目录优先，其次是检出目录旁边的目录，最后是检出目录内部的目录。会遍历子目录，并读取 `.sfc` 和 `.smc` 文件。
+把你拥有的副本放在 `external/cartridges/` 中、包含本检出目录的项目的 `external/cartridges/` 中，或 `SNES_CARTRIDGE_DIR` 指向的任何位置。指定的目录优先，其次是包含它的项目中的目录，最后是本检出目录内部的目录。会遍历子目录，并读取 `.sfc` 和 `.smc` 文件。
 
-每个文件在读取之前都会与 [`cartridges.manifest.json`](cartridges.manifest.json) 中的全部四个摘要进行核对：以 `sha256` 为准，`crc32`、`md5` 和 `sha1` 也必须匹配。清单列出了 2,778 个卡带和 2 个坏转储。[`cartridges/README.md`](cartridges/README.md) 列出了每个文件名及其摘要，该目录中的内容都不会提交。
+每个文件在读取之前都会与 [`cartridges.manifest.json`](cartridges.manifest.json) 中的全部四个摘要进行核对：以 `sha256` 为准，`crc32`、`md5` 和 `sha1` 也必须匹配。清单列出了 2,778 个卡带和 2 个坏转储。[CARTRIDGES.md](CARTRIDGES.md) 列出了每个文件名及其摘要，`external/` 中的内容都不会提交。
 
 ## 每项证据的价值
 

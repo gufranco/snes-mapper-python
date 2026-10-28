@@ -17,9 +17,9 @@ docs/
 specs/
 
 cartridges/*
-!cartridges/README.md
 
 *.rom
 *.bin
 *.sfc
 *.smc
+external/

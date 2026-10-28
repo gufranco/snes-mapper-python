@@ -8,7 +8,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**1,060**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**1,110**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
@@ -571,9 +571,9 @@ python3 -m conformance.record /path/to/roms conformance/corpus.json
 
 ### 自分のカートリッジを使う
 
-所有しているコピーを[`cartridges/`](cartridges/)、チェックアウトと同じ階層の`../cartridges`、または`SNES_CARTRIDGE_DIR`が指す場所に置いてください。指定したディレクトリが最優先で、次にチェックアウトと同じ階層のもの、最後にその内部のものが使われます。サブディレクトリもたどり、`.sfc`と`.smc`ファイルを読みます。
+所有しているコピーを`external/cartridges/`、このチェックアウトを含むプロジェクトの`external/cartridges/`、または`SNES_CARTRIDGE_DIR`が指す場所に置いてください。指定したディレクトリが最優先で、次にそれを含むプロジェクトのもの、最後にこのチェックアウト内のものが使われます。サブディレクトリもたどり、`.sfc`と`.smc`ファイルを読みます。
 
-各ファイルは読む前に[`cartridges.manifest.json`](cartridges.manifest.json)にある4つのダイジェストすべてと照合されます。決め手は`sha256`で、`crc32`、`md5`、`sha1`も一致する必要があります。マニフェストには2,778本のカートリッジと2本の不良ダンプが記載されています。[`cartridges/README.md`](cartridges/README.md)にはすべてのファイル名とそのダイジェストが一覧になっており、このディレクトリの中身は何もコミットされません。
+各ファイルは読む前に[`cartridges.manifest.json`](cartridges.manifest.json)にある4つのダイジェストすべてと照合されます。決め手は`sha256`で、`crc32`、`md5`、`sha1`も一致する必要があります。マニフェストには2,778本のカートリッジと2本の不良ダンプが記載されています。[CARTRIDGES.md](CARTRIDGES.md)にはすべてのファイル名とそのダイジェストが一覧になっており、`external/`の中身は何もコミットされません。
 
 ## 各証拠の価値
 

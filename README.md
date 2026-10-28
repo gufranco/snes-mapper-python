@@ -8,7 +8,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
 [![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1,060** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1,110** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
@@ -571,9 +571,9 @@ Anyone holding the same cartridges rebuilds the file and compares it byte for by
 
 ### Bringing your own cartridges
 
-Put copies you own in [`cartridges/`](cartridges/), in `../cartridges` beside the checkout, or wherever `SNES_CARTRIDGE_DIR` points. A named directory wins, then the one beside the checkout, then the one inside it. Subdirectories are walked, and `.sfc` and `.smc` files are read.
+Put copies you own in `external/cartridges/`, in the `external/cartridges/` of the project this checkout sits inside, or wherever `SNES_CARTRIDGE_DIR` points. A named directory wins, then the enclosing project's, then the one inside this checkout. Subdirectories are walked, and `.sfc` and `.smc` files are read.
 
-Every file is checked against all four digests in [`cartridges.manifest.json`](cartridges.manifest.json) before it is read: `sha256` decides, and `crc32`, `md5` and `sha1` must match too. The manifest names 2,778 cartridges and 2 bad dumps. [`cartridges/README.md`](cartridges/README.md) lists every filename and its digests, and nothing in the directory is committed.
+Every file is checked against all four digests in [`cartridges.manifest.json`](cartridges.manifest.json) before it is read: `sha256` decides, and `crc32`, `md5` and `sha1` must match too. The manifest names 2,778 cartridges and 2 bad dumps. [CARTRIDGES.md](CARTRIDGES.md) lists every filename and its digests, and nothing in `external/` is committed.
 
 ## What each piece of evidence is worth
 

@@ -110,10 +110,10 @@ enough that the far copy would sit past the end of the file.
 
 ## Test cartridges
 
-[`conformance/testroms.json`](conformance/testroms.json) lists the 18 images in
-`snes-roms/5 Tools & Service Test Carts/`, each pinned by SHA-256. The images
-live beside this repository in `snes-roms/`, or wherever
-`SNES_TEST_CARTRIDGE_DIR` points, and are never committed.
+[`conformance/testroms.json`](conformance/testroms.json) lists the 18 images
+taken from the cartridge library's `5 Tools & Service Test Carts/` folder, each
+pinned by SHA-256. Copies sit in `external/tools/`, which the runner reads unless
+`SNES_TEST_CARTRIDGE_DIR` points elsewhere, and are never committed.
 
 **Every one is read.** This package scores its header, names the board, and
 resolves the reset vector at `$00:FFFC` and the address it holds.
@@ -179,6 +179,30 @@ The `BIOS/` and `CPU/` folders beside them are not test cartridges. Every other
 test these cartridges carry needs a member that does not exist yet:
 `snes-ppu`, `snes-cpu-io`, `snes-wram`, `snes-sa1` or `snes-joypad`. Those
 belong to the members that model them, not here.
+
+## Files kept in `external/`
+
+Everything this member reads and may not ship sits in `external/`, which git
+ignores and Dropbox is told to leave alone, per FAMILY.md's "Where the files a
+member reads are kept". [`artifacts.manifest.json`](artifacts.manifest.json)
+names all 2807 by size, CRC32, MD5, SHA-1 and SHA-256:
+
+- `external/cartridges/`, the 2,789 files of the cartridge library the corpus is
+  read from, at the paths the library gives them: the 2,778 that
+  [`cartridges.manifest.json`](cartridges.manifest.json) declares, three
+  duplicates under other names, and the eight the record refuses. Over them the
+  record rebuilds [`conformance/corpus.json`](conformance/corpus.json) byte for
+  byte. [CARTRIDGES.md](CARTRIDGES.md) lists them.
+- `external/tools/`, the eighteen test images the cartridge record reads.
+
+```bash
+python3 -m conformance.external
+python3 -m conformance.external --describe external/<file>
+```
+
+The first says which are here, verified, missing or wrong. The second prints
+the manifest entry for a file being added, which gets its entry in the same
+change.
 
 ## Every gate, in the order to run them
 
@@ -320,6 +344,9 @@ conformance/
   divergences.json      where sources part, with a status and a severity
   links.py              the weekly check that every cited address still answers
   speed.py              the throughput floor
+  external.py       which files in external/ are here, verified, missing or wrong
+external/           the cartridge library and the test images, never committed
+artifacts.manifest.json  every file in external/, by size and every digest
 ```
 
 ## Things that will bite you
@@ -330,7 +357,7 @@ to prevent.** [`cartridges.manifest.json`](cartridges.manifest.json) and
 a run disagrees with one of them, find out which of the two is wrong before
 touching either.
 
-- **`cartridges/` is not in the repository, and neither is `docs/`.** A test that
+- **`external/` is not in the repository, and neither is `docs/`.** A test that
   reads from one and does not say so when it is absent passes here and fails
   everywhere else. [`conformance/on_disk.test.py`](conformance/on_disk.test.py)
   is where those live, and it is the only file kept out of the coverage count.
