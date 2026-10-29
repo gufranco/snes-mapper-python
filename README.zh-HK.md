@@ -4,9 +4,11 @@
 
 [English](README.md) | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | 繁體中文（香港）
 
-[![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/snes-mapper-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python?style=flat-square&label=release)](https://github.com/gufranco/snes-mapper-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/snes-mapper-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/snes-mapper-python)
+[![license](https://img.shields.io/github/license/gufranco/snes-mapper-python?style=flat-square&label=license)](LICENSE)
 
 **289** 種標頭組合在 **2,781** 盒零售版卡帶上重放，**0** 處不一致，**6** 種佈局中 **6** 種可解析，**8** 個傳輸通道，**1,112** 個測試，**100%** 語句及分支覆蓋率，沒有任何依賴
 

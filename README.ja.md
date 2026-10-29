@@ -4,9 +4,11 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 
 [English](README.md) | 日本語 | [简体中文](README.zh-Hans.md) | [繁體中文（香港）](README.zh-HK.md)
 
-[![CI](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml/badge.svg)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
-[![Release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python)](https://github.com/gufranco/snes-mapper-python/releases)
-[![License](https://img.shields.io/badge/license-MIT-blue)](LICENSE)
+[![ci](https://img.shields.io/github/actions/workflow/status/gufranco/snes-mapper-python/ci.yml?branch=main&style=flat-square&label=ci)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
+[![release](https://img.shields.io/github/v/release/gufranco/snes-mapper-python?style=flat-square&label=release)](https://github.com/gufranco/snes-mapper-python/releases/latest)
+[![coverage](https://img.shields.io/badge/coverage-100%25-brightgreen?style=flat-square)](https://github.com/gufranco/snes-mapper-python/actions/workflows/ci.yml)
+[![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/snes-mapper-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/snes-mapper-python)
+[![license](https://img.shields.io/github/license/gufranco/snes-mapper-python?style=flat-square&label=license)](LICENSE)
 
 **289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**1,112**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
