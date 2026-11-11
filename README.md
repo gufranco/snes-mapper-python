@@ -10,7 +10,7 @@ English | [日本語](README.ja.md) | [简体中文](README.zh-Hans.md) | [繁�
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/snes-mapper-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/snes-mapper-python)
 [![license](https://img.shields.io/github/license/gufranco/snes-mapper-python?style=flat-square&label=license)](LICENSE)
 
-**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1,112** tests, **100%** statement and branch coverage, no dependencies
+**289** header combinations replayed across **2,781** retail cartridges, **0** disagreements, **6** of **6** layouts resolvable, **8** transfer channels, **1,113** tests, **100%** statement and branch coverage, no dependencies
 
 ```python
 from mapper import LOROM, resolve
