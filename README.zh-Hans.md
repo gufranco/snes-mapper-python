@@ -10,7 +10,7 @@
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/snes-mapper-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/snes-mapper-python)
 [![license](https://img.shields.io/github/license/gufranco/snes-mapper-python?style=flat-square&label=license)](LICENSE)
 
-在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,112** 个测试，**100%** 语句和分支覆盖率，无依赖
+在 **2,781** 个零售版卡带上重放 **289** 种头部组合，**0** 处不一致，**6** 种布局中 **6** 种可解析，**8** 个传输通道，**1,113** 个测试，**100%** 语句和分支覆盖率，无依赖
 
 ```python
 from mapper import LOROM, resolve

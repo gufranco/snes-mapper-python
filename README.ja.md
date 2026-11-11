@@ -10,7 +10,7 @@ SNESカートリッジのメモリマップとその転送エンジンをPython�
 [![openssf scorecard](https://img.shields.io/ossf-scorecard/github.com/gufranco/snes-mapper-python?style=flat-square&label=openssf%20scorecard)](https://scorecard.dev/viewer/?uri=github.com/gufranco/snes-mapper-python)
 [![license](https://img.shields.io/github/license/gufranco/snes-mapper-python?style=flat-square&label=license)](LICENSE)
 
-**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**1,112**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
+**289**通りのヘッダーの組み合わせを**2,781**本の市販カートリッジで再生、不一致**0**件、**6**種類のレイアウトのうち**6**種類を解決可能、転送チャンネル**8**本、テスト**1,113**件、ステートメントとブランチのカバレッジ**100%**、依存関係なし
 
 ```python
 from mapper import LOROM, resolve
